@@ -1,0 +1,7 @@
+## WSL / Ubuntu
+
+### Setup
+
+```
+$ ./setup
+```
