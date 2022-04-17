@@ -1,0 +1,85 @@
+#!/bin/sh
+
+set -e
+
+arch="$(uname -m)"
+pid="$$"
+mkdir "/tmp/$pid"
+
+sudo pacman -Syyuu \
+  fakeroot \
+  zip \
+  unzip \
+  make \
+  wget \
+  openssh \
+  git \
+  docker \
+  mariadb-clients \
+  nodejs \
+  go \
+  fish \
+  tig \
+  neovim \
+  fzf
+
+git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
+. "$HOME/.k8n/commandline-tools/init.sh"
+append-line-if-not-exists 'source "$HOME/.k8n/commandline-tools/init.sh"' ~/.bashrc
+
+append-line-if-not-exists 'PATH="$HOME/go/bin:$PATH"' ~/.bashrc
+
+# Go applications
+go install github.com/Songmu/ghg/cmd/ghg@v0.2.0
+append-line-if-not-exists 'PATH="$(ghg bin):$PATH"' ~/.bashrc
+go install github.com/fujimura/git-gsub@v0.1.1
+
+# Binaries hosted on Github Releases
+ghg get motemen/ghq
+
+# Docker
+sudo gpasswd -a $USER docker
+sudo systemctl enable --now docker
+
+# Docker Compose
+(
+  cd "/tmp/$pid"
+  wget "https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-linux-${arch}"
+  mkdir -p ~/.docker/cli-plugins
+  mv docker-compose-linux-x86_64 ~/.docker/cli-plugins/docker-compose
+  chmod +x $HOME/.docker/cli-plugins/docker-compose
+)
+
+## asdf
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.0
+source "$HOME/.asdf/asdf.sh"
+append-line-if-not-exists 'source "$HOME/.asdf/asdf.sh"' ~/.bashrc
+append-line-if-not-exists 'source "$HOME/.asdf/completions/asdf.bash"' ~/.bashrc
+echo 'legacy_version_file = yes' > ~/.asdfrc
+
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf plugin add go-sdk https://github.com/yacchi/asdf-go-sdk.git
+asdf plugin add awscli https://github.com/MetricMike/asdf-awscli.git
+
+asdf install nodejs lts-gallium
+asdf install go-sdk 1.18.1
+asdf install awscli 2.5.6
+
+asdf global nodejs lts-gallium
+asdf global go-sdk 1.18.1
+asdf global awscli 2.5.6
+
+## SDKMAN
+curl -s https://get.sdkman.io | bash
+
+## Fisher
+curl -sL https://git.io/fisher | source
+fisher install jorgebucaran/fisher
+fisher install reitzig/sdkman-for-fish
+
+## Link config
+ln -sf "$HOME/config/.gitconfig" ~/.gitconfig
+ln -sf "$HOME/config/.gitignore_global" ~/.gitignore_global
+ln -sf "$HOME/config/.config/fish" ~/.config/fish
+
+rm "/tmp/$pid"

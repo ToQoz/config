@@ -1,0 +1,38 @@
+# Swap/Backup
+*~
+.*~
+#*#
+*.sw[po]
+*.out
+
+# Diff
+*.orig
+*.rej
+
+# OSX
+.DS_Store
+
+# Intellij
+.idea
+*.iml
+
+# Xcode
+.xcodeproj/ !*.xcodeproj/project.pbxproj
+
+# Ruby
+/.bundle
+
+# GNU global
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+# Ctags
+tags
+
+/vendor/gems
+
+# User's sandbox
+# http://qiita.com/uasi/items/cedae627b7596a837c57
+/,
