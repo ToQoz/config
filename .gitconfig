@@ -80,3 +80,5 @@
 #       pushInsteadOf = "https://github.com/team/"
 
         path = ~/private/.gitconfig
+[ghq]
+	root = ~/repos
