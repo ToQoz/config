@@ -26,6 +26,7 @@
 
 [PS] $ winget install Canonical.Ubuntu.2004
 [PS] $ winget install jetbrainstoolbox
+[PS] $ winget install Microsoft.PowerShell
 [PS] $ winget install Microsoft.WindowsTerminal
 [PS] $ winget install vscode
 
