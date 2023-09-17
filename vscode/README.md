@@ -8,6 +8,13 @@ CMD> mklink %USERPROFILE%\AppData\Roaming\Code\User\settings.json <repository>\v
 CMD> <repository>\vscode\windows\install-extensions.bat
 ```
 
+## Linux
+
+```
+ln -sf <repository>/vscode/settings.json ~/.config/Code/User/settings.json
+sh <repository>/vscode/install-extensions.bash
+```
+
 ## macOS
 
 ```
