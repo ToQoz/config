@@ -7,4 +7,5 @@ call code --force --install-extension "file-icons.file-icons"
 
 call code --force --install-extension "streetsidesoftware.code-spell-checker"
 call code --force --install-extension "github.copilot"
+call code --force --install-extension "github.vscode-pull-request-github"
 call code --force --install-extension "eamodio.gitlens"
