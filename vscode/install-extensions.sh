@@ -1,5 +1,5 @@
 #!/bin/sh
 
-code --install-extension --force "antfu.icons-carbon"
-code --install-extension --force "antfu.theme-vitesse"
-code --install-extension --force "file-icons.file-icons"
+code --force --install-extension "antfu.icons-carbon"
+code --force --install-extension "antfu.theme-vitesse"
+code --force --install-extension "file-icons.file-icons"
