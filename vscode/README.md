@@ -4,13 +4,13 @@
 
 ```
 CMD> del %USERPROFILE%\AppData\Roaming\Code\User\settings.json
-CMD> mklink %USERPROFILE%\AppData\Roaming\Code\User\settings.json <config>\settings.json
+CMD> mklink %USERPROFILE%\AppData\Roaming\Code\User\settings.json <repository>\vscode\settings.json
 <config>\windows\install-extensions.bat
 ```
 
 ## macOS
 
 ```
-ln -sf $(git rev-parse --show-toplevel)/vscode/settings.json ~/Library/Application\ Support/Code/User/settings.json
-sh $(git rev-parse --show-toplevel)/vscode/install-extensions.bash
+ln -sf <repository>/vscode/settings.json ~/Library/Application\ Support/Code/User/settings.json
+sh <repository>/vscode/install-extensions.bash
 ```
