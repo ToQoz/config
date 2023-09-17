@@ -33,9 +33,6 @@
   // Git
   "git.autofetch": true,
   "git.confirmSync": false,
-  // JavaScript / TypeScript
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
   // Copilot
   "github.copilot.enable": {
     "*": true,
@@ -63,5 +60,8 @@
   "cSpell.ignorePaths": [
     "settings.json",
     "extensions.json"
-  ]
+  ],
+  // JavaScript / TypeScript
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }
