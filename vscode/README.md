@@ -5,7 +5,7 @@
 ```
 CMD> del %USERPROFILE%\AppData\Roaming\Code\User\settings.json
 CMD> mklink %USERPROFILE%\AppData\Roaming\Code\User\settings.json <repository>\vscode\settings.json
-<config>\windows\install-extensions.bat
+CMD> <repository>\vscode\windows\install-extensions.bat
 ```
 
 ## macOS
