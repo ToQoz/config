@@ -36,19 +36,6 @@
   // JavaScript / TypeScript
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "eslint.codeAction.showDocumentation": {
-    "enable": true
-  },
-  "prettier.enable": false,
-  "prettier.printWidth": 200,
-  "prettier.semi": false,
-  "prettier.singleQuote": true,
-  // Go
-  "gopls": {
-    "ui.semanticTokens": true
-  },
-  "go.formatTool": "goimports",
-  "go.toolsManagement.autoUpdate": true,
   // Copilot
   "github.copilot.enable": {
     "*": true,
@@ -76,9 +63,5 @@
   "cSpell.ignorePaths": [
     "settings.json",
     "extensions.json"
-  ],
-  // Draw.io
-  "hediet.vscode-drawio.theme": "Kennedy",
-  // YAML (redhat.vscode-yaml)
-  "redhat.telemetry.enabled": false,
+  ]
 }
