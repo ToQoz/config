@@ -11,13 +11,14 @@ CMD> <repository>\vscode\windows\install-extensions.bat
 ## Linux
 
 ```
-ln -sf <repository>/vscode/settings.json ~/.config/Code/User/settings.json
-sh <repository>/vscode/install-extensions.bash
+mkdir -p ~/.config/Code/User
+ln -sf $PWD/settings.json ~/.config/Code/User/settings.json
+bash install-extensions.bash
 ```
 
 ## macOS
 
 ```
-ln -sf <repository>/vscode/settings.json ~/Library/Application\ Support/Code/User/settings.json
-sh <repository>/vscode/install-extensions.bash
+ln -sf $PWD/settings.json ~/Library/Application\ Support/Code/User/settings.json
+bash install-extensions.bash
 ```
