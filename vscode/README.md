@@ -5,7 +5,7 @@
 ```
 CMD> del %USERPROFILE%\AppData\Roaming\Code\User\settings.json
 CMD> mklink %USERPROFILE%\AppData\Roaming\Code\User\settings.json <repository>\vscode\settings.json
-CMD> <repository>\vscode\windows\install-extensions.bat
+CMD> .\install-extensions.bat
 ```
 
 ## Linux
@@ -13,12 +13,12 @@ CMD> <repository>\vscode\windows\install-extensions.bat
 ```
 mkdir -p ~/.config/Code/User
 ln -sf $PWD/settings.json ~/.config/Code/User/settings.json
-bash install-extensions.bash
+./install-extensions.sh
 ```
 
 ## macOS
 
 ```
 ln -sf $PWD/settings.json ~/Library/Application\ Support/Code/User/settings.json
-bash install-extensions.bash
+./install-extensions.sh
 ```

@@ -1,7 +1,0 @@
-## WSL / Ubuntu
-
-### Setup
-
-```
-$ ./setup
-```

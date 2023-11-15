@@ -5,6 +5,7 @@ set -e
 arch="$(uname -m)"
 pid="$$"
 mkdir "/tmp/$pid"
+cd "/tmp/$pid"
 
 sudo pacman -Syyuu \
   which \
@@ -68,6 +69,7 @@ curl -s https://get.sdkman.io | bash
 ## Fisher
 fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher'
 fish -c 'fisher install reitzig/sdkman-for-fish'
+fish -c 'fisher install rstacruz/fish-asdf'
 
 ## Link config
 ln -sf "$HOME/config/.gitconfig" ~/.gitconfig
