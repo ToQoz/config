@@ -45,23 +45,16 @@
   "gitlens.codeLens.enabled": false,
   "gitlens.codeLens.recentChange.enabled": false,
   // Error Lens
-  "errorLens.enabledDiagnosticLevels": [
-    "warning",
-    "error"
-  ],
-  "errorLens.excludeBySource": [
-    "cSpell",
-    "Grammarly",
-    "eslint"
-  ],
+  "errorLens.enabledDiagnosticLevels": ["warning", "error"],
+  "errorLens.excludeBySource": ["cSpell", "Grammarly", "eslint"],
   // Code Spell Checker
   "cSpell.allowCompoundWords": true,
   "cSpell.language": "en,en-US",
-  "cSpell.ignorePaths": [
-    "settings.json",
-    "extensions.json"
-  ],
+  "cSpell.ignorePaths": ["settings.json", "extensions.json"],
   // JavaScript / TypeScript
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "githubPullRequests.pullBranch": "never",
+  // YAML / XML extensions provided by redhat
+  "redhat.telemetry.enabled": false
 }
