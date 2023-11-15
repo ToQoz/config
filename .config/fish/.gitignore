@@ -1,6 +1,4 @@
-# reitzig/sdkman-for-fish
 sdk.fish
-# jorgebucaran/fisher
 fisher.fish
-# rstacruz/fish-asdf
 asdf.fish
+fish_plugins
