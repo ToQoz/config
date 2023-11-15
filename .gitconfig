@@ -8,7 +8,7 @@
         ignorecase = false
         pager = less -q
 [init]
-	defaultBranch = main
+  defaultBranch = main
 [push]
         default = simple
 [pull]
