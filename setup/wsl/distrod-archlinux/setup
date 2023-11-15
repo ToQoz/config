@@ -13,18 +13,49 @@ sudo pacman -Syyuu \
   make \
   wget \
   openssh \
+  base-devel \
   git \
   docker \
   mariadb-clients \
   nodejs \
   yarn \
+  pnpm \
+  deno \
   go \
   fish \
   tig \
   neovim \
   tmux \
   fzf \
-  jq
+  jq \
+  mandoc \
+  texlive-most \
+  mkcert \
+  clang \
+  dstat \
+  whois \
+  dig \
+  ngrok \
+  hey \
+  ffmpeg \
+  rsync \
+  htop \
+  hugo \
+  apache \
+  python-pip \
+  aws-cli-v2 \
+  pacman-contrib \
+  ghostscript \
+  mandoc \
+  texlive # textlive-most 
+
+git clone https://aur.archlinux.org/yay-bin.git
+cd yay-bin
+makepkg -si
+
+yay -Syyuu pandoc-bin ghq-bin aws-sam-cli-bin aws-session-manager-plugin evans-bin k6 
+
+pip install --user localstack
 
 sudo systemctl enable --now sshd
 
@@ -35,12 +66,12 @@ append-line-if-not-exists 'source "$HOME/.k8n/commandline-tools/init.sh"' ~/.bas
 append-line-if-not-exists 'PATH="$HOME/go/bin:$PATH"' ~/.bashrc
 
 # Go applications
-go install github.com/Songmu/ghg/cmd/ghg@v0.2.0
+go install github.com/Songmu/ghg/cmd/ghg@v0.3.0
 append-line-if-not-exists 'PATH="$(ghg bin):$PATH"' ~/.bashrc
-go install github.com/fujimura/git-gsub@v0.1.1
+go install github.com/fujimura/git-gsub@v0.1.2
 
 # Binaries hosted on Github Releases
-ghg get motemen/ghq
+## ghg get motemen/ghq
 
 # Docker
 sudo gpasswd -a $USER docker
@@ -49,7 +80,7 @@ sudo systemctl enable --now docker
 # Docker Compose
 (
   cd "/tmp/$pid"
-  wget "https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-linux-${arch}"
+  wget "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-${arch}"
   mkdir -p ~/.docker/cli-plugins
   mv docker-compose-linux-x86_64 ~/.docker/cli-plugins/docker-compose
   chmod +x $HOME/.docker/cli-plugins/docker-compose
@@ -64,16 +95,13 @@ echo 'legacy_version_file = yes' > ~/.asdfrc
 
 asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 asdf plugin add go-sdk https://github.com/yacchi/asdf-go-sdk.git
-asdf plugin add awscli https://github.com/MetricMike/asdf-awscli.git
+# asdf plugin add awscli https://github.com/MetricMike/asdf-awscli.git
 
 asdf install nodejs lts-gallium
-asdf install go-sdk 1.18.1
-asdf install go-sdk 1.16.15
-asdf install awscli 2.5.6
+# asdf install awscli 2.5.6
 
 asdf global nodejs lts-gallium
-asdf global go-sdk 1.18.1
-asdf global awscli 2.5.6
+# asdf global awscli 2.5.6
 
 ## SDKMAN
 curl -s https://get.sdkman.io | bash
@@ -92,6 +120,7 @@ ln -sf "$HOME/config/.tmux.conf" ~/.tmux.conf
 
 ## UTF-8
 sudo append-line-if-not-exists 'en_US.UTF-8 UTF-8' /etc/locale.gen
+sudo append-line-if-not-exists 'ja_JP.UTF-8 UTF-8' /etc/locale.gen
 sudo locale-gen
 
 rm "/tmp/$pid"
