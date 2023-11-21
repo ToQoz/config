@@ -6,15 +6,11 @@
 [PS] $ Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Enum\HID\*\*\Device` Parameters FlipFlopWheel -EA 0 | ForEach-Object { Set-ItemProperty $_.PSPath FlipFlopWheel 1 }
 ```
 
-### WSL2
-
-```
-[PS] # wsl --install
-```
-
 ### Applications
 
 ```
+[PS] $ winget install 9P9TQF7MRM4R # Windows Subsystem for Linux
+
 [PS] $ winget install Git.Git
 [PS] $ winget install Microsoft.PowerToys
 
