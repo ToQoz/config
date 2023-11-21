@@ -31,6 +31,8 @@ sudo pacman -Syyuu \
   clang \
   ffmpeg \
   rsync \
+  nodejs \
+  go \
   aws-cli-v2
 
 git clone https://aur.archlinux.org/yay-bin.git
