@@ -4,6 +4,7 @@
 - `$ git clone git@github.com:ToQoz/config.git ~/config`
 - `$ git clone <private repository> ~/private`
 - `$ setup/arch.sh`
+- `$ aws configure --profile <>`
 
 
 ## Ubuntu
