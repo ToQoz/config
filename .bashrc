@@ -1,8 +1,8 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-PATH="$HOME/go/bin:$PATH"
 PATH="$(ghg bin):$PATH"
+PATH="$HOME/go/bin:$PATH"
 
 source "$HOME/.k8n/commandline-tools/init.sh"
 
