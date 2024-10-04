@@ -8,7 +8,9 @@ mkdir "/tmp/$pid"
 cd "/tmp/$pid"
 
 sudo pacman -Syyuu \
+  base-devel \
   fakeroot \
+  man-db \
   which \
   wget \
   zip \
@@ -17,6 +19,8 @@ sudo pacman -Syyuu \
   whois \
   dstat \
   htop \
+  dnsutils \
+  nmap \
   apache \
   hey \
   fish \
@@ -26,18 +30,36 @@ sudo pacman -Syyuu \
   tig \
   rsync \
   fzf \
+  ripgrep \
   jq \
   docker \
   docker-compose \
   clang \
   nodejs \
+  deno \
   go \
+  rustup \
+  python-cfn-lint \
   percona-server-clients \
   percona-toolkit \
   aws-cli-v2 \
   mkcert \
   ffmpeg \
   imagemagick
+
+# Tauri deps: https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux
+sudo pacman -Syu \
+    webkit2gtk \
+    base-devel \
+    curl \
+    wget \
+    file \
+    openssl \
+    appmenu-gtk-module \
+    gtk3 \
+    libappindicator-gtk3 \
+    librsvg \
+    libvips
 
 git clone https://aur.archlinux.org/yay-bin.git
 cd yay-bin
@@ -49,7 +71,11 @@ yay -Syyuu \
   aws-session-manager-plugin \
   k6 \
   ddosify \
-  evans-bin
+  cfn-lint \
+  awslogs \
+  evans-bin \
+  tauri \
+  bun-bin
 
 # KidsCannon commandline-tools
 git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
@@ -78,6 +104,16 @@ asdf plugin add elixir
 fish -c 'curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher'
 fish -c 'fisher install reitzig/sdkman-for-fish'
 fish -c 'fisher install rstacruz/fish-asdf'
+
+## CockroachDB
+# Visit Releases to download the CockroachDB archive for the architecture of your Linux host. The archive contains the cockroach binary and the supporting libraries that are used to provide spatial features. Extract the archive and optionally copy the cockroach binary into your PATH so you can execute cockroach commands from any shell. If you get a permission error, use sudo.
+# https://www.cockroachlabs.com/docs/v23.1/install-cockroachdb-linux
+# https://www.cockroachlabs.com/docs/releases/
+
+wget https://binaries.cockroachdb.com/cockroach-v23.1.13.linux-amd64.tgz
+tar -xf cockroach-v23.1.13.linux-amd64.tgz
+rm cockroach-v23.1.13.linux-amd64.tgz
+sudo mv cockroach-v23.1.13.linux-amd64 /opt/cockroach
 
 ## Link config
 ln -sf "$HOME/config/.gitconfig" ~/.gitconfig
