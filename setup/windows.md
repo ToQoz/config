@@ -33,6 +33,7 @@
 [PS] $ winget install Microsoft.PowerShell
 [PS] $ winget install Microsoft.WindowsTerminal
 [PS] $ winget install Microsoft.VisualStudioCode
+[PS] $ winget install Anyshere.Cursor
 [PS] $ winget install Git.Git
 [PS] $ winget install BurntSushi.ripgrep.MSVC
 [PS] $ winget install jetbrainstoolbox
