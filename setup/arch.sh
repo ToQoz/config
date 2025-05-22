@@ -75,7 +75,8 @@ yay -Syyuu \
   awslogs \
   evans-bin \
   tauri \
-  bun-bin
+  bun-bin \
+  claude-code
 
 # KidsCannon commandline-tools
 git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
