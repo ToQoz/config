@@ -79,6 +79,8 @@ yay -Syyuu \
   bun-bin \
   claude-code
 
+claude config set -g autoUpdaterStatus disabled
+
 # KidsCannon commandline-tools
 git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
 source "$HOME/.k8n/commandline-tools/init.sh"
