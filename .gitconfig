@@ -1,59 +1,58 @@
 [user]
-        name = "ToQoz"
-        email = "t@kidscannon.com"
+	name = "ToQoz"
+	email = "t@kidscannon.com"
 [core]
-        excludesfile = ~/.gitignore_global
-        autocrlf = input
-        quotepath = false
-        precomposeunicode = true
-        ignorecase = false
-        pager = less -q
+	excludesfile = ~/.gitignore_global
+	autocrlf = input
+	quotepath = false
+	precomposeunicode = true
+	ignorecase = false
+	pager = less -q
 [init]
-  defaultBranch = main
+	defaultBranch = main
 [push]
-        default = simple
-  autoSetupRemote = true
+	default = simple
+	autoSetupRemote = true
 [pull]
 	rebase = true
 [rebase]
-        autosquash = true
+	autosquash = true
 [grep]
-        lineNumber = true
+	lineNumber = true
 [diff]
-        algorithm = histogram
+	algorithm = histogram
 [merge]
-        tool = vimdiff
+	tool = vimdiff
 [alias]
-        ls-aliases = "!sh -c 'git config -l | grep ^alias'"
-        bootstrap  = "!sh -c 'git init && git commit --allow-empty'"
-        unstage    = "reset HEAD --"
-        # http://qiita.com/uasi/items/f19a120e012c0c75d856
-        uncommit   = reset HEAD^
-        recommit   = commit -c ORIG_HEAD
-        # save version of `reset --hard`
-        # http://d.hatena.ne.jp/thinca/20120924/1348491052
-        reset-hard = "!git commit -a -m 'Temporary commit for cancel' && git reset --hard HEAD~"
-        yesterday  = "!f() { git log $1@{yesterday}..$1; }; f"
-        rank       = shortlog -s -n --no-merges
-        delete-merged-branches = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
-        ls-modified = "!git status -s | grep '^ M ' | awk '{print $2}'"
-        set-upstream = "!c=$(git rev-parse --abbrev-ref HEAD) && git branch --set-upstream-to=origin/$c $c"
-        gr  = grep --untracked
-        s   = !"git stash list && git status -sb"
-        ft  = fetch
-        ftp = fetch --prune
-        fto = fetch origin
-        co  = checkout
-        ci  = commit -v
-        br  = branch
-        wc  = whatchanged
-        lp  = log --decorate --stat --patch
-        dw  = diff --color-words
-        fixup = git add -A && git ci --fixup HEAD
-
+	ls-aliases = "!sh -c 'git config -l | grep ^alias'"
+	bootstrap  = "!sh -c 'git init && git commit --allow-empty'"
+	unstage    = "reset HEAD --"
+	# http://qiita.com/uasi/items/f19a120e012c0c75d856
+	uncommit   = reset HEAD^
+	recommit   = commit -c ORIG_HEAD
+	# save version of `reset --hard`
+	# http://d.hatena.ne.jp/thinca/20120924/1348491052
+	reset-hard = "!git commit -a -m 'Temporary commit for cancel' && git reset --hard HEAD~"
+	yesterday  = "!f() { git log $1@{yesterday}..$1; }; f"
+	rank       = shortlog -s -n --no-merges
+	delete-merged-branches = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
+	ls-modified = "!git status -s | grep '^ M ' | awk '{print $2}'"
+	set-upstream = "!c=$(git rev-parse --abbrev-ref HEAD) && git branch --set-upstream-to=origin/$c $c"
+	gr  = grep --untracked
+	s   = !"git stash list && git status -sb"
+	ft  = fetch
+	ftp = fetch --prune
+	fto = fetch origin
+	co  = checkout
+	ci  = commit -v
+	br  = branch
+	wc  = whatchanged
+	lp  = log --decorate --stat --patch
+	dw  = diff --color-words
+	fixup = git add -A && git ci --fixup HEAD
 [credential "https://github.com"]
-        helper = !/usr/bin/gh auth git-credential
+	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-        helper = !/usr/bin/gh auth git-credential
+	helper = !/usr/bin/gh auth git-credential
 [ghq]
-        root = ~/repos
+	root = ~/repos
