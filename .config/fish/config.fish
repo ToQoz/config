@@ -37,3 +37,4 @@ function fish_user_key_bindings
   bind \cxg select_repository
 end
 
+eval (direnv hook fish)
