@@ -40,6 +40,7 @@ sudo pacman -Syyuu \
   deno \
   go \
   rustup \
+  github-cli \
   python-cfn-lint \
   percona-server-clients \
   percona-toolkit \
