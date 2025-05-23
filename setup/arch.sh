@@ -32,6 +32,7 @@ sudo pacman -Syyuu \
   fzf \
   ripgrep \
   jq \
+  direnv \
   docker \
   docker-compose \
   clang \
