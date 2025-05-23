@@ -1,5 +1,6 @@
-[github]
-        user = "ToQoz"
+[user]
+        name = "ToQoz"
+        email = "t@kidscannon.com"
 [core]
         excludesfile = ~/.gitignore_global
         autocrlf = input
@@ -49,37 +50,10 @@
         lp  = log --decorate --stat --patch
         dw  = diff --color-words
         fixup = git add -A && git ci --fixup HEAD
-        toqoz = "!git config --add user.name 'Takatoshi Matsumoto' && git config --add user.email 'toqoz403@gmail.com'"
-[url "git@github.com:"]
-        insteadOf     = "https://github.com/"
-        pushInsteadOf = "https://github.com/"
-[include]
-# <<<switch github account>>>
-#
-# <~/.ssh/config>:
-#
-# Host github.com.team
-#   HostName github.com
-#   User git
-#   Port 22
-#   IdentityFile ~/.ssh/id_rsa.team
-#   TCPKeepAlive yes
-#   IdentitiesOnly yes
-#
-# <~/private/.gitconfig>:
-#
-# # https://github.com/team/repo ---> git@github.com.team:team/repo
-# # github.com.team/repo         ---> github.com:team/repo
-#
-# [alias]
-#       team = "!git config --add user.name 'team person' && git config --add user.email 'person@team.example.com'"
-# [url "github.com:team/"]
-#       insteadof     = github.com.team/team/
-#       pushInsteadof = github.com.team/team/
-# [url "git@github.com.team:team/"]
-#       insteadOf     = "https://github.com/team/"
-#       pushInsteadOf = "https://github.com/team/"
 
-        path = ~/private/.gitconfig
+[credential "https://github.com"]
+        helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+        helper = !/usr/bin/gh auth git-credential
 [ghq]
-	root = ~/repos
+        root = ~/repos
