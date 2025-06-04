@@ -44,6 +44,8 @@
 [PS] $ winget install SlackTechnologies.Slack
 [PS] $ winget install Zoom.Zoom
 
+[PS] $ winget install --source msstore Raindrop
+
 [PS] $ winget install TradingView.TradingViewDesktop
 [PS] $ winget install XP8C9QZMS2PC1T # Brave
 ```
