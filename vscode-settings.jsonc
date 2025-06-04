@@ -1,4 +1,7 @@
 {
+  "window.title": "${rootName}",
+  "window.openFoldersInNewWindow": "on",
+  "window.newWindowDimensions": "inherit",
   "workbench.colorTheme": "Vitesse Black",
   "workbench.productIconTheme": "icons-carbon",
   "workbench.iconTheme": "file-icons",
@@ -6,14 +9,18 @@
     "errorLens.warningForeground": "#a0800b",
     "errorLens.warningBackground": "#0d0d0d",
     "errorLens.errorForeground": "#b35454",
-    "errorLens.errorBackground": "#0d0d0d"
+    "errorLens.errorBackground": "#0d0d0d",
+    "editorIndentGuide.activeBackground1": "#ACD8FC"
   },
   "workbench.editor.limit.enabled": true,
   "workbench.editor.limit.perEditorGroup": true,
-  "workbench.editor.limit.value": 5,
-  "window.newWindowDimensions": "inherit",
-  "window.openFoldersInNewWindow": "on",
+  "workbench.editor.limit.value": 10,
   // Editor
+  "editor.rulers": [100, 120],
+  "editor.guides.bracketPairs": "active",
+  "editor.guides.bracketPairsHorizontal": false,
+  "editor.guides.highlightActiveIndentation": "always",
+  "editor.wordSeparators": "`~!@#%^&*()=+[{]}\\|;:'\",.<>/?",
   "editor.fontFamily": "Input Mono, Fira Code, monospace",
   "editor.fontLigatures": "'ss01', 'ss02', 'ss03', 'ss06', 'zero'",
   "editor.tabSize": 2,
@@ -23,9 +30,13 @@
   "editor.stickyScroll.enabled": true,
   "editor.hover.sticky": true,
   // Explorer
+  "editor.minimap.scale": 3,
+  "editor.minimap.sectionHeaderFontSize": 16,
+  "editor.minimap.sectionHeaderLetterSpacing": 0,
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   // Files
+  "outline.collapseItems": "alwaysCollapse",
   "files.insertFinalNewline": true,
   "files.associations": {
     "*.heex": "phoenix-heex"
@@ -33,12 +44,13 @@
   // Git
   "git.autofetch": true,
   "git.confirmSync": false,
+  // GitHub
+  "githubPullRequests.pullBranch": "never",
+  "github.copilot.editor.enableAutoCompletions": true,
   // Copilot
   "github.copilot.enable": {
     "*": true,
-    "markdown": true,
-    "plaintext": false,
-    "yaml": false
+    "plaintext": false
   },
   // Git Lens
   "gitlens.codeLens.authors.enabled": false,
@@ -53,8 +65,5 @@
   "cSpell.ignorePaths": ["settings.json", "extensions.json"],
   // JavaScript / TypeScript
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always",
-  "githubPullRequests.pullBranch": "never",
-  // YAML / XML extensions provided by redhat
-  "redhat.telemetry.enabled": false
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }
