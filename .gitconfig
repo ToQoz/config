@@ -30,6 +30,7 @@
 	# http://qiita.com/uasi/items/f19a120e012c0c75d856
 	uncommit   = reset HEAD^
 	recommit   = commit -c ORIG_HEAD
+	rebase-from     = "!f() { git rebase -i $(git merge-base $1 HEAD); }; f"
 	# save version of `reset --hard`
 	# http://d.hatena.ne.jp/thinca/20120924/1348491052
 	reset-hard = "!git commit -a -m 'Temporary commit for cancel' && git reset --hard HEAD~"
