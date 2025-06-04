@@ -121,6 +121,7 @@ rm cockroach-v23.1.13.linux-amd64.tgz
 sudo mv cockroach-v23.1.13.linux-amd64 /opt/cockroach
 
 ## Link config
+ln -sf "$HOME/config/.claude" ~/.claude
 ln -sf "$HOME/config/.gitconfig" ~/.gitconfig
 ln -sf "$HOME/config/.gitignore_global" ~/.gitignore_global
 rm -fr "$HOME/.config/fish"
