@@ -79,7 +79,8 @@ yay -Syyuu \
   evans-bin \
   tauri \
   bun-bin \
-  claude-code
+  claude-code \
+  google-gemini-cli
 
 claude config set -g autoUpdaterStatus disabled
 
