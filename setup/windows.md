@@ -42,6 +42,8 @@
 
 [PS] $ winget install Zen-Team.Zen-Browser
 [PS] $ winget install Discord.Discord
+[PS] $ winget install Notion.Notion
+[PS] $ winget install Notion.NotionCalendar
 [PS] $ winget install SlackTechnologies.Slack
 [PS] $ winget install Zoom.Zoom
 
