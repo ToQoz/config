@@ -1,6 +1,22 @@
 {
+  "includeCoAuthoredBy": true,
   "permissions": {
-    "allow": ["Bash(grep:*)", "Bash(find:*)"],
-    "deny": []
+    "allow": [
+      "Edit(*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [
+      "Edit(Makefile)",
+      "Edit(package.json)"
+    ]
   }
 }
