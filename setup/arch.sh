@@ -12,6 +12,7 @@ sudo pacman -Syyuu \
   fakeroot \
   man-db \
   which \
+  xsel \
   wget \
   zip \
   unzip \
