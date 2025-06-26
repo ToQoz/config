@@ -45,7 +45,6 @@
 	ftp = fetch --prune
 	fto = fetch origin
 	co  = checkout
-	ci  = commit -v
 	br  = branch
 	wc  = whatchanged
 	lp  = log --decorate --stat --patch
