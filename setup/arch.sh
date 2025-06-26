@@ -123,10 +123,12 @@ tar -xf cockroach-v23.1.13.linux-amd64.tgz
 rm cockroach-v23.1.13.linux-amd64.tgz
 sudo mv cockroach-v23.1.13.linux-amd64 /opt/cockroach
 
+## Cleanup
+rm -fr "$HOME/.config/fish"
+
 ## Link config
 ln -sf "$HOME/config/.gitconfig" ~/.gitconfig
 ln -sf "$HOME/config/.gitignore_global" ~/.gitignore_global
-rm -fr "$HOME/.config/fish"
 ln -sf "$HOME/config/.config/fish" ~/.config/fish
 ln -sf "$HOME/config/.config/nvim" ~/.config/nvim
 ln -sf "$HOME/config/.config/claude" ~/.config/claude
