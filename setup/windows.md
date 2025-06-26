@@ -40,6 +40,7 @@
 [PS] $ winget install 9PGCV4V3BK4W # DevToys
 [PS] $ winget install nodejs-lts
 
+[PS] $ winget install Zen-Team.Zen-Browser
 [PS] $ winget install Discord.Discord
 [PS] $ winget install SlackTechnologies.Slack
 [PS] $ winget install Zoom.Zoom
