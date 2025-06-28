@@ -85,6 +85,8 @@ yay -Syyuu \
 claude config set -g autoUpdaterStatus disabled
 claude config set -g preferredNotifChannel terminal_bell
 
+claude mcp add --scope user --transport sse Figma "http://127.0.0.1:3845/sse"
+
 # KidsCannon commandline-tools
 git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
 source "$HOME/.k8n/commandline-tools/init.sh"
