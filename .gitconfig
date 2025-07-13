@@ -36,10 +36,9 @@
 	reset-hard = "!git commit -a -m 'Temporary commit for cancel' && git reset --hard HEAD~"
 	yesterday  = "!f() { git log $1@{yesterday}..$1; }; f"
 	rank       = shortlog -s -n --no-merges
-	delete-merged-branches = !git branch --merged | grep -v \\* | xargs -I % git branch -d %
+	delete-merged-branches = "!git branch --merged | grep -v \\* | xargs -I % git branch -d % && git fetch --prune"
 	ls-modified = "!git status -s | grep '^ M ' | awk '{print $2}'"
 	set-upstream = "!c=$(git rev-parse --abbrev-ref HEAD) && git branch --set-upstream-to=origin/$c $c"
-	gr  = grep --untracked
 	s   = !"git stash list && git status -sb"
 	ft  = fetch
 	ftp = fetch --prune

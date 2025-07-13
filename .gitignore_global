@@ -29,10 +29,12 @@ tags
 
 /vendor/gems
 
+# Claude Code local files
+CLAUDE.local.md
+settings.local.json
+
 # User's sandbox
 # http://qiita.com/uasi/items/cedae627b7596a837c57
 /,
 
-# Claude Code local files
-CLAUDE.local.md
-settings.local.json
+TODO-ja.md
