@@ -1,12 +1,48 @@
-## Node.js Package Manager
+## General
 
-pnpm の使用を優先する。ただし、プロジェクトの設定に合わせること。プロジェクトの設定は package.json の他に、package-lock.json, yarn.lock, bun.lockb, pnpm-lock.yaml などの存在から判断する
+### Language
 
-## Commit Message
+- Communicate with user in "Japanese". But think in English.
+- Write anything like code, comments, document and commit messages in English.
+- Exception rule: Documents and dictionary files whose file names or directory names contain locale should be written in the language corresponding to that locale.
 
-- Conventional Commits に従ったコミットメッセージとする
-- コミットメッセージは原則英語で書くが、プロジェクトに合わせること
+### Working directory for thinking
 
-## Pull Request
+- Use `<PROJECT_ROOT>/,` directory to write down plans, progress actively and record anything.
+- If the directory does not exist, create it.
 
-- Title, Description はコミットメッセージの言語に合わせて書くこと
+For example:
+
+- `<PROJECT_ROOT>/,/abc-feature-plan.md`
+- `<PROJECT_ROOT>/,/abc-feature-testing-plan.md`
+
+## Git
+
+### Commit frequently
+
+- Commit each change with as little granularity as possible.
+- If multiple logical changes can already be included, stage and commit each uncommitted change after splitting it into the smallest change that logically makes sense as one.
+  - Split up changes within a single file, if necessary. 
+- If you stash during the work process, clean up afterwards.
+
+### Commit Message
+
+- Follow Conventional Commits.
+- Write commit messages in English, but follow the project's rules.
+
+### GitHub Pull Request
+
+- Write Pull Request title and description in English, but follow the project's rules.
+
+### Comments
+
+- As mentioned in A Philosophy of Software Design, 2nd Edition, write comments to achieve abstraction beyond what can be expressed in function signatures.
+- Write "why" instead of "what".
+
+## Node.js
+
+### Package Manager
+
+- Use pnpm as the package manager.
+- However, follow the project's configuration.
+- The project's configuration is determined by the presence of package.json, package-lock.json, yarn.lock, bun.lockb, or pnpm-lock.yaml.
