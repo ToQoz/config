@@ -45,14 +45,13 @@ sudo pacman -Syyuu \
   python-cfn-lint \
   percona-server-clients \
   percona-toolkit \
-  aws-cli-v2 \
   mkcert \
   ffmpeg \
   imagemagick
 
 # Tauri deps: https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux
 sudo pacman -Syu \
-    webkit2gtk \
+    webkit2gtk-4.1 \
     base-devel \
     curl \
     wget \
@@ -69,12 +68,12 @@ cd yay-bin
 makepkg -si
 
 yay -Syyuu \
+  1password-cli \
   ghq-bin \
-  aws-sam-cli-bin \
-  aws-session-manager-plugin \
   k6 \
   ddosify \
-  cfn-lint \
+  aws-cli-v2 \
+  aws-session-manager-plugin
   awslogs \
   evans-bin \
   tauri \
@@ -84,8 +83,6 @@ yay -Syyuu \
 
 claude config set -g autoUpdaterStatus disabled
 claude config set -g preferredNotifChannel terminal_bell
-
-claude mcp add --scope user --transport sse Figma "http://127.0.0.1:3845/sse"
 
 # KidsCannon commandline-tools
 git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
@@ -105,6 +102,7 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1
 source "$HOME/.asdf/asdf.sh"
 asdf plugin add nodejs
 asdf plugin add pnpm
+asdf plugin add deno
 asdf plugin add go-sdk
 asdf plugin add flutter
 asdf plugin add erlang
