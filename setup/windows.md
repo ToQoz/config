@@ -1,5 +1,12 @@
 ## Windows
 
+### Config files
+
+```
+[PS] $ New-Item -Path $Home\.claude -ItemType SymbolicLink -Value $Home\config\.config\claude
+[PS] $ New-Item -Path $Home\.config\claude -ItemType SymbolicLink -Value $Home\config\.config\claude
+```
+
 ### Invert mouse wheel
 
 ```
