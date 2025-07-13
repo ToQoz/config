@@ -30,6 +30,7 @@
 
 [PS] $ winget install Canonical.Ubuntu.2204
 
+[PS] $ winget install Microsoft.DotNet.SDK.9
 [PS] $ winget install Microsoft.PowerShell
 [PS] $ winget install Microsoft.WindowsTerminal
 [PS] $ winget install Microsoft.VisualStudioCode
@@ -39,6 +40,12 @@
 [PS] $ winget install jetbrainstoolbox
 [PS] $ winget install 9PGCV4V3BK4W # DevToys
 [PS] $ winget install nodejs-lts
+[PS] $ winget install pnpm.pnpm
+
+# Tauri
+# https://gist.github.com/robotdad/83041ccfe1bea895ffa073919277
+[PS] $ winget install Microsoft.VisualStudio.2022.Community --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
+[PS] $ winget install Rustlang.Rustup
 
 [PS] $ winget install Zen-Team.Zen-Browser
 [PS] $ winget install Discord.Discord
@@ -51,6 +58,12 @@
 
 [PS] $ winget install TradingView.TradingViewDesktop
 [PS] $ winget install XP8C9QZMS2PC1T # Brave
+```
+
+### rustup
+
+```
+[PS] $ rustup default stable-msvc
 ```
 
 ### pub
