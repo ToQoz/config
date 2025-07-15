@@ -87,6 +87,7 @@ claude config set -g preferredNotifChannel terminal_bell
 # KidsCannon commandline-tools
 git clone https://github.com/KidsCannon/commandline-tools.git ~/.k8n/commandline-tools
 source "$HOME/.k8n/commandline-tools/init.sh"
+ln -sf "$HOME/.k8n/commandline-tools/claude" "$HOME/config/.config/claude/commands"
 
 # go install
 go install github.com/Songmu/ghg/cmd/ghg@v0.3.0
