@@ -3,6 +3,8 @@
 ### Config files
 
 ```
+[PS] $ New-Item -Path $Home\.gitconfig -ItemType SymbolicLink -Value $Home\config\.gitconfig
+[PS] $ New-Item -Path $Home\.gitignore_global -ItemType SymbolicLink -Value $Home\config\.gitignore_global
 [PS] $ New-Item -Path $Home\.claude -ItemType SymbolicLink -Value $Home\config\.config\claude
 [PS] $ New-Item -Path $Home\.config\claude -ItemType SymbolicLink -Value $Home\config\.config\claude
 ```
