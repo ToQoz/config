@@ -81,7 +81,7 @@ yay -Syyuu \
   claude-code \
   google-gemini-cli
 
-claude config set -g autoUpdaterStatus disabled
+claude config set -g autoUpdates false
 claude config set -g preferredNotifChannel terminal_bell
 
 # KidsCannon commandline-tools
