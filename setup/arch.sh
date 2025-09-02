@@ -12,6 +12,7 @@ sudo pacman -Syyuu \
   fakeroot \
   man-db \
   which \
+  xdg-utils \
   xsel \
   wget \
   zip \
@@ -149,5 +150,17 @@ sudo locale-gen
 # sudo systemctl enable --now sshd
 sudo gpasswd -a $USER docker
 sudo systemctl enable --now docker
+
+# XDG Settings
+mkdir -p ~/.local/share/applications
+cat << EOS > ~/.local/share/applications/file-protocol-handler.desktop
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=File Protocol Handler
+NoDisplay=true
+Exec=rundll32.exe url.dll,FileProtocolHandler
+EOS
+xdg-settings set default-web-browser file-protocol-handler.desktop
 
 rm "/tmp/$pid"
