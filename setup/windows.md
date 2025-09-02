@@ -57,6 +57,7 @@
 [PS] $ winget install Microsoft.VisualStudio.2022.Community --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended"
 [PS] $ winget install Rustlang.Rustup
 
+[PS] $ winget install VideoLAN.VLC
 [PS] $ winget install Zen-Team.Zen-Browser
 [PS] $ winget install Discord.Discord
 [PS] $ winget install Notion.Notion
