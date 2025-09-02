@@ -83,7 +83,8 @@ yay -Syyuu \
   tauri \
   bun-bin \
   claude-code \
-  google-gemini-cli
+  google-gemini-cli \
+  openai-codex-bin
 
 claude config set -g autoUpdates false
 claude config set -g preferredNotifChannel terminal_bell
