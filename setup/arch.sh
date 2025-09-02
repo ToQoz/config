@@ -71,6 +71,7 @@ makepkg -si
 
 yay -Syyuu \
   1password-cli \
+  asdf \
   ghq-bin \
   k6 \
   ddosify \
@@ -101,8 +102,6 @@ PATH="$(ghg bin):$PATH"
 ghg get github.com/tkuchiki/alp@v1.0.21
 
 ### asdf
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1
-source "$HOME/.asdf/asdf.sh"
 asdf plugin add nodejs
 asdf plugin add pnpm
 asdf plugin add deno
