@@ -9,4 +9,5 @@ claude mcp add o3 --scope user \
 	-e OPENAI_API_KEY="$(op read 'op://Private/openai-o3-search-mcp/credential')" \
 	-e SEARCH_CONTEXT_SIZE=medium \
 	-e REASONING_EFFORT=medium \
-	-- dun o3-search-mcp
+	-e MCP_TIMEOUT=1500 \
+	-- o3-search-mcp
