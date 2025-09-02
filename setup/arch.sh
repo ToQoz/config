@@ -36,6 +36,7 @@ sudo pacman -Syyuu \
   jq \
   direnv \
   docker \
+  docker-buildx \
   docker-compose \
   clang \
   nodejs \
