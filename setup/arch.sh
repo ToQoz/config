@@ -41,6 +41,7 @@ sudo pacman -Syyuu \
   deno \
   go \
   rustup \
+  uv \
   github-cli \
   python-cfn-lint \
   percona-server-clients \
