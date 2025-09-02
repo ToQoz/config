@@ -33,6 +33,7 @@
 [PS] $ winget install AgileBits.1Password
 [PS] $ winget install 7Zip.7Zip
 [PS] $ winget install gyazo
+[PS] $ winget install Synology.Assistant
 [PS] $ winget install Google.Drive
 [PS] $ winget install DigitalScholar.Zotero
 [PS] $ winget install 9NMPJ99VJBWV # Phone Link
