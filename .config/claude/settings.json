@@ -2,6 +2,8 @@
   "includeCoAuthoredBy": true,
   "permissions": {
     "allow": [
+      "Bash(head:*)",
+      "Bash(tail:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
       "Bash(ls:*)",
