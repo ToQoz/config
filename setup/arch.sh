@@ -137,6 +137,7 @@ ln -sf "$HOME/config/.config/fish" ~/.config/fish
 ln -sf "$HOME/config/.config/nvim" ~/.config/nvim
 ln -sf "$HOME/config/.config/claude" ~/.config/claude
 ln -sf "$HOME/config/.config/claude" ~/.claude
+ln -sf "$HOME/config/.codex" ~/.codex
 ln -sf "$HOME/config/.tmux.conf" ~/.tmux.conf
 ln -sf "$HOME/config/.asdfrc" ~/.asdfrc
 ln -sf "$HOME/config/.tool-versions" ~/.tool-versions
