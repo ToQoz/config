@@ -65,5 +65,7 @@
   "cSpell.ignorePaths": ["settings.json", "extensions.json"],
   // JavaScript / TypeScript
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.preferences.useAliasesForRenames": false,
+  "typescript.preferences.useAliasesForRenames": false
 }
