@@ -8,10 +8,14 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }:
+    { nixpkgs, home-manager, nix-darwin, ... }:
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -26,6 +30,10 @@
 
         # Optionally use extraSpecialArgs
         # to pass through arguments to home.nix
+      };
+
+      darwinConfigurations."remilis" = nix-darwin.lib.darwinSystem {
+        modules = [ ./darwin/configuration.nix ];
       };
     };
 }
