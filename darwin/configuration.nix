@@ -31,6 +31,10 @@
   system.defaults = {
     NSGlobalDomain = {
       AppleShowAllExtensions = true;
+      # For fast key repeat
+      ApplePressAndHoldEnabled = false;
+      InitialKeyRepeat = 16;
+      KeyRepeat = 1;
       NSAutomaticCapitalizationEnabled = false;
       NSAutomaticDashSubstitutionEnabled = false;
       NSAutomaticPeriodSubstitutionEnabled = false;
