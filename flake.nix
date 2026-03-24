@@ -11,10 +11,14 @@
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, home-manager, nix-darwin, ... }:
+    { nixpkgs, home-manager, nix-darwin, llm-agents, ... }:
     {
       darwinConfigurations."remilis" = nix-darwin.lib.darwinSystem {
         modules = [
@@ -24,6 +28,9 @@
             users.users."toqoz".home = "/Users/toqoz";
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+	    home-manager.extraSpecialArgs = {
+              inherit llm-agents;
+            };
             home-manager.users."toqoz" = ./home-manager/home.nix;
           }
         ];

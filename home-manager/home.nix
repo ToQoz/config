@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, llm-agents, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -22,6 +22,7 @@
     [
       wget
       tig
+      llm-agents.packages.${pkgs.system}.claude-code
     ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
