@@ -20,7 +20,7 @@
   home.packages =
     with pkgs;
     [
-      # wezterm
+      wget
     ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
