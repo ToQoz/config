@@ -111,13 +111,13 @@
 
       on-window-detected = [
         {
-	  "if".app-id = "com.openai.chat";
+          "if".app-id = "com.openai.chat";
           run = [ "move-node-to-workspace 3" ];
-	}
+        }
         {
-	  "if".app-id = "com.anthropic.claudefordesktop";
+          "if".app-id = "com.anthropic.claudefordesktop";
           run = [ "move-node-to-workspace 3" ];
-	}
+        }
       ];
 
       mode.service.binding = {
