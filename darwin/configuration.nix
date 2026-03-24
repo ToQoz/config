@@ -47,6 +47,9 @@
       "1password"
       "karabiner-elements"
       "macskk"
+      "claude"
+      "chatgpt"
+      "codex-app"
     ];
   };
 }
