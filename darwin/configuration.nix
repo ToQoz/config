@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -8,7 +9,17 @@
   nix.enable = false;
   system.keyboard.enableKeyMapping = true;
   system.keyboard.remapCapsLockToControl = true;
-  security.pam.services.sudo_local.touchIdAuth = true;
+
+  # security.pam.services.sudo_local.touchIdAuth = true;
+  environment.systemPackages = [
+    pkgs.pam-reattach
+  ];
+  environment.etc."pam.d/sudo_local".text = ''
+    # managed by nix-darwin
+    auth       optional       ${pkgs.pam-reattach}/lib/pam/pam_reattach.so
+    auth       sufficient     pam_tid.so
+  '';
+
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
     "1password-cli"
