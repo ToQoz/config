@@ -54,15 +54,20 @@
     };
 
     CustomUserPreferences = {
-      com.apple.Safari = {
-        AutoOpenSafeDownloads = false;
-        IncludeDevelopMenu = true;
-        IncludeInternalDebugMenu = true;
-      };
+      # "com.apple.Safari" = {
+      #   AutoOpenSafeDownloads = false;
+      #   IncludeDevelopMenu = true;
+      #   IncludeInternalDebugMenu = true;
+      # };
 
-      com.apple.TextEdit = {
+      "com.apple.TextEdit" = {
         AddExtensionToNewPlainTextFiles = false;
-        RichText = true;
+        ShowRuler = false;
+        SmartCopyPaste = false;
+        SmartDashes = false;
+        SmartQuotes = false;
+        RichText = false;
+        TextReplacement = false;
       };
     };
   };
