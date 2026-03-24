@@ -28,6 +28,7 @@
     casks = [
       "1password"
       "karabiner-elements"
+      "macskk"
     ];
   };
 }
