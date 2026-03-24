@@ -17,6 +17,56 @@
   # For homebrew
   system.primaryUser = "toqoz";
 
+  system.defaults = {
+    NSGlobalDomain = {
+      AppleShowAllExtensions = true;
+      NSAutomaticCapitalizationEnabled = false;
+      NSAutomaticDashSubstitutionEnabled = false;
+      NSAutomaticPeriodSubstitutionEnabled = false;
+      NSAutomaticQuoteSubstitutionEnabled = false;
+      NSAutomaticSpellingCorrectionEnabled = false;
+      NSDocumentSaveNewDocumentsToCloud = false;
+      NSNavPanelExpandedStateForSaveMode = true;
+      NSNavPanelExpandedStateForSaveMode2 = true;
+      PMPrintingExpandedStateForPrint = true;
+    };
+
+    dock = {
+      autohide = true;
+      show-recents = false;
+      launchanim = false;
+      expose-animation-duration = 0.1;
+    };
+
+    finder = {
+      # Search Scope = cwd
+      FXDefaultSearchScope = "SCcf";
+      # List style
+      FXPreferredViewStyle = "Nslv";
+      # Don't confirm changing file ext
+      FXEnableExtensionChangeWarning = false;
+      # Show filepath in title
+      _FXShowPosixPathInTitle = true;
+      # Don't show icons on desktop
+      CreateDesktop = false;
+      # Open ~
+      NewWindowTarget = "Home";
+    };
+
+    CustomUserPreferences = {
+      com.apple.Safari = {
+        AutoOpenSafeDownloads = false;
+        IncludeDevelopMenu = true;
+        IncludeInternalDebugMenu = true;
+      };
+
+      com.apple.TextEdit = {
+        AddExtensionToNewPlainTextFiles = false;
+        RichText = true;
+      };
+    };
+  };
+
   services.aerospace = {
     enable = true;
     settings = {
