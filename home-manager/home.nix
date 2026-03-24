@@ -58,6 +58,11 @@
     # EDITOR = "emacs";
   };
 
+  programs.tmux = {
+    enable = true;
+    prefix = "C-t";
+  };
+
   programs.neovim = {
     enable = true;
     defaultEditor = true;
