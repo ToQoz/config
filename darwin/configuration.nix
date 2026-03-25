@@ -181,6 +181,10 @@
 
       on-window-detected = [
         {
+          "if".app-id = "com.apple.Safari";
+          run = [ "move-node-to-workspace 2" ];
+        }
+        {
           "if".app-id = "com.openai.chat";
           run = [ "move-node-to-workspace 3" ];
         }
