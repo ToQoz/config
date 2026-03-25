@@ -32,10 +32,9 @@
     NSGlobalDomain = {
       _HIHideMenuBar = true;
       AppleShowAllExtensions = true;
-      # For fast key repeat
-      ApplePressAndHoldEnabled = false;
+      ApplePressAndHoldEnabled = false; # For fast key repeat
       InitialKeyRepeat = 16;
-      KeyRepeat = 1;
+      KeyRepeat = 4;
       NSAutomaticCapitalizationEnabled = false;
       NSAutomaticDashSubstitutionEnabled = false;
       NSAutomaticPeriodSubstitutionEnabled = false;
