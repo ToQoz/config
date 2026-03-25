@@ -92,7 +92,16 @@
     settings = {
       config-version = 2;
 
-      after-startup-command = [ ];
+      exec = {
+        inherit-env-vars = true;
+        env-vars = {
+          PATH = "/opt/homebrew/bin:/opt/homebrew/sbin:/Users/toqoz/.nix-profile/bin:/etc/profiles/per-user/toqoz/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+        };
+      };
+
+      after-startup-command = [
+        "exec-and-forget sketchybar"
+      ];
 
       # (managed by home-manager)
       start-at-login = false;
@@ -105,6 +114,12 @@
       default-root-container-orientation = "auto";
 
       on-focused-monitor-changed = [ "move-mouse monitor-lazy-center" ];
+
+      exec-on-workspace-change = [
+        "/bin/bash"
+        "-c"
+        "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$(/run/current-system/sw/bin/aerospace list-workspaces --focused)"
+      ];
 
       automatically-unhide-macos-hidden-apps = false;
 
@@ -120,14 +135,14 @@
 
       gaps = {
         inner = {
-          horizontal = 10;
-          vertical = 10;
+          horizontal = 8;
+          vertical = 8;
         };
         outer = {
-          left = 10;
-          bottom = 10;
-          top = 10;
-          right = 10;
+          left = 8; 
+          bottom = 8;
+          top = 4;
+          right = 8;
         };
       };
 
@@ -208,10 +223,14 @@
     };
   };
 
-  programs = {
-    # 1Password CLI
-    _1password.enable = true;
+  # 1Password CLI
+  programs._1password = {
+    enable = true;
   };
+
+  fonts.packages = with pkgs; [
+    nerd-fonts.fira-code
+  ];
 
   homebrew = {
     enable = true;
@@ -220,6 +239,7 @@
       "1password"
       "karabiner-elements"
       "macskk"
+      "font-sketchybar-app-font"
       "claude"
       "chatgpt"
       "codex-app"
