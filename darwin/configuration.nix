@@ -30,6 +30,7 @@
 
   system.defaults = {
     NSGlobalDomain = {
+      _HIHideMenuBar = true;
       AppleShowAllExtensions = true;
       # For fast key repeat
       ApplePressAndHoldEnabled = false;
