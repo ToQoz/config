@@ -28,6 +28,8 @@
   # For homebrew
   system.primaryUser = "toqoz";
 
+  system.startup.chime = false;
+
   system.defaults = {
     NSGlobalDomain = {
       _HIHideMenuBar = true;
