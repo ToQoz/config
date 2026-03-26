@@ -288,6 +288,11 @@
 
   homebrew = {
     enable = true;
+    onActivation = {
+      autoUpdate = true;
+      upgrade = true;
+      cleanup = "uninstall";
+    };
 
     casks = [
       "1password"
