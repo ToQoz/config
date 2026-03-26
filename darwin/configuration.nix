@@ -167,7 +167,10 @@
         outer = {
           left = 8; 
           bottom = 8;
-          top = 4;
+          top = [
+            { monitor."Studio Display" = 40; }
+            4
+          ];
           right = 8;
         };
       };
