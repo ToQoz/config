@@ -7,13 +7,9 @@ let
     currentLine = "0xff44475a";
     foreground = "0xfff8f8f2";
     comment = "0xff6272a4";
-    cyan = "0xff8be9fd";
     green = "0xff50fa7b";
-    orange = "0xffffb86c";
-    pink = "0xffff79c6";
     purple = "0xffbd93f9";
     red = "0xffff5555";
-    yellow = "0xfff1fa8c";
     # Derived colors
     transparent = "0x00000000";
     black = "0xff21222c";
@@ -36,18 +32,42 @@ let
 
     if [ "$SID" = "$FOCUSED" ]; then
       sketchybar --set "$NAME" \
-        background.color=${colors.purple} \
-        icon.color=${colors.background}
+        background.color=${colors.foreground} \
+        icon.color=${colors.background} \
+	position=left \
+        padding_left=0 \
+        padding_right=0 \
+        icon.padding_left=8 \
+        icon.padding_right=10 \
+        label.padding_left=0 \
+        label.padding_right=0 \
+        width=dynamic
     else
       WINDOWS=$("$AEROSPACE" list-windows --workspace "$SID" 2>/dev/null | wc -l | tr -d ' ')
       if [ "$WINDOWS" -gt 0 ]; then
         sketchybar --set "$NAME" \
           background.color=${colors.transparent} \
-          icon.color=${colors.foreground}
+          icon.color=${colors.foreground} \
+	  position=left \
+          padding_left=0 \
+          padding_right=0 \
+          icon.padding_left=8 \
+          icon.padding_right=10 \
+          label.padding_left=0 \
+          label.padding_right=0 \
+          width=dynamic
       else
         sketchybar --set "$NAME" \
           background.color=${colors.transparent} \
-          icon.color=${colors.comment}
+          icon.color=${colors.comment} \
+	  position=left \
+          padding_left=0 \
+          padding_right=0 \
+          icon.padding_left=8 \
+          icon.padding_right=10 \
+          label.padding_left=0 \
+          label.padding_right=0 \
+          width=dynamic
       fi
     fi
   '';
@@ -74,12 +94,13 @@ let
 
   # Date plugin script
   datePlugin = pkgs.writeShellScript "date.sh" ''
-    sketchybar --set "$NAME" label="$(date '+%m/%d %a')"
+    sketchybar --set "$NAME" label="$(date '+%m/%d (%a) %H:%M')"
   '';
 
-  # Time plugin script
-  timePlugin = pkgs.writeShellScript "time.sh" ''
-    sketchybar --set "$NAME" label="$(date '+%H:%M')"
+  # IME plugin script
+  imePlugin = pkgs.writeShellScript "ime.sh" ''
+    IM=$(swift -e 'import Carbon; let s = TISCopyCurrentKeyboardInputSource().takeRetainedValue(); let p = TISGetInputSourceProperty(s, kTISPropertyLocalizedName)!; print(Unmanaged<CFString>.fromOpaque(p).takeUnretainedValue() as String)')
+    sketchybar --set "$NAME" label="$IM"
   '';
 
   # Battery plugin script
@@ -105,16 +126,14 @@ let
       *)          ICON="󰂎" ;;
     esac
 
+    COLOR=${colors.foreground}
     if [ -n "$CHARGING" ]; then
       ICON="󰂄"
-      COLOR="${colors.green}"
     elif [ "$PERCENTAGE" -le 20 ]; then
       COLOR="${colors.red}"
-    else
-      COLOR="${colors.green}"
     fi
 
-    sketchybar --set power_icon icon="$ICON" icon.color="$COLOR" \
+    sketchybar --set battery icon="$ICON" icon.color="$COLOR" \
                 --set "$NAME" label="$PERCENTAGE%"
   '';
 
@@ -130,24 +149,18 @@ let
     #!/bin/bash
 
     ##### Dracula Color Palette #####
-    BACKGROUND="${colors.background}"
     BACKGROUND_TRANSPARENT="${colors.backgroundTransparent}"
     CURRENT_LINE="${colors.currentLine}"
     FOREGROUND="${colors.foreground}"
     COMMENT="${colors.comment}"
-    CYAN="${colors.cyan}"
-    GREEN="${colors.green}"
-    ORANGE="${colors.orange}"
-    PINK="${colors.pink}"
-    PURPLE="${colors.purple}"
-    RED="${colors.red}"
-    YELLOW="${colors.yellow}"
-    BLACK="${colors.black}"
     TRANSPARENT="${colors.transparent}"
+
+    BRACKET_HEIGHT=20
 
     ############## BAR - Island Style ##############
 
     bar=(
+      display=main
       height=28
       color="$BACKGROUND_TRANSPARENT"
       shadow=on
@@ -193,13 +206,17 @@ let
                 --set apple_logo \
                       icon="" \
                       icon.font="SF Pro:Bold:16.0" \
-                      icon.color="$PURPLE" \
                       icon.padding_left=8 \
                       icon.padding_right=4 \
                       background.color="$CURRENT_LINE" \
                       background.corner_radius=8 \
-                      background.height=28 \
+                      background.height=24 \
                       background.padding_right=8 \
+                      padding_right=8 \
+                      icon.padding_left=8 \
+                      icon.padding_right=8 \
+                      label.padding_left=0 \
+                      label.padding_right=0 \
                       click_script="sketchybar --update"
 
     # Aerospace Workspaces
@@ -226,7 +243,7 @@ let
                         background.height=24 \
                         click_script="aerospace workspace $sid" \
                         script="${aerospacePlugin}" \
-                        update_freq=1 \
+                        update_freq=60 \
                   --subscribe space.$sid aerospace_workspace_change
     done
 
@@ -242,22 +259,12 @@ let
 
     ############## RIGHT ITEMS ##############
 
-    # Time
-    sketchybar --add item time right \
-                --set time \
-                      icon="󰥔" \
-                      icon.font="Hack Nerd Font:Bold:14.0" \
-                      icon.color="$PURPLE" \
-                      update_freq=1 \
-                      script="${timePlugin}"
-
     # Date
     sketchybar --add item date right \
                 --set date \
-                      icon="󰃭" \
+                      icon="󰥔" \
                       icon.font="Hack Nerd Font:Bold:14.0" \
-                      icon.color="$PINK" \
-                      update_freq=1 \
+                      update_freq=60 \
                       script="${datePlugin}"
 
     # Separator
@@ -269,18 +276,17 @@ let
                       icon.padding_right=4 \
                       background.drawing=off
 
+    # IME
+    sketchybar --add item ime right \
+                --set ime \
+		      update_freq=60 \
+		      script="${imePlugin}"
+
     # Battery
     sketchybar --add item battery right \
                 --set battery \
-                      update_freq=1 \
+                      update_freq=60 \
                       script="${batteryPlugin}"
-
-    sketchybar --add item power_icon right \
-                --set power_icon \
-                      icon=󰁹 \
-                      icon.font="Hack Nerd Font:Bold:16.0" \
-                      icon.color="$GREEN" \
-                      label.drawing=off
 
     # Separator
     sketchybar --add item separator_power right \
@@ -296,8 +302,7 @@ let
                 --set volume \
                       icon=󰕾 \
                       icon.font="Hack Nerd Font:Bold:14.0" \
-                      icon.color="$GREEN" \
-                      update_freq=1 \
+                      update_freq=60 \
                       script="${volumePlugin}" \
                 --subscribe volume volume_change
 
@@ -308,28 +313,35 @@ let
                 --set spaces_bracket \
                       background.color="$CURRENT_LINE" \
                       background.corner_radius=10 \
-                      background.height=32
+                      background.height=$BRACKET_HEIGHT
+
+    # IME bracket
+    sketchybar --add bracket ime_bracket ime \
+                --set ime_bracket \
+                      background.color="$CURRENT_LINE" \
+                      background.corner_radius=10 \
+                      background.height=$BRACKET_HEIGHT
 
     # Network bracket
     sketchybar --add bracket network_bracket volume \
                 --set network_bracket \
                       background.color="$CURRENT_LINE" \
                       background.corner_radius=10 \
-                      background.height=32
+                      background.height=$BRACKET_HEIGHT
 
     # Power bracket
-    sketchybar --add bracket power_bracket power_icon battery \
+    sketchybar --add bracket power_bracket battery \
                 --set power_bracket \
                       background.color="$CURRENT_LINE" \
                       background.corner_radius=10 \
-                      background.height=32
+                      background.height=$BRACKET_HEIGHT
 
     # DateTime bracket
-    sketchybar --add bracket datetime_bracket date time \
+    sketchybar --add bracket datetime_bracket date \
                 --set datetime_bracket \
                       background.color="$CURRENT_LINE" \
                       background.corner_radius=10 \
-                      background.height=32
+                      background.height=$BRACKET_HEIGHT
 
     ############## FINALIZE ##############
 
