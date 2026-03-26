@@ -61,7 +61,7 @@
       # Search Scope = cwd
       FXDefaultSearchScope = "SCcf";
       # List style
-      FXPreferredViewStyle = "Nslv";
+      FXPreferredViewStyle = "Nlsv";
       # Don't confirm changing file ext
       FXEnableExtensionChangeWarning = false;
       # Show filepath in title
