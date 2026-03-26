@@ -53,6 +53,8 @@
       show-recents = false;
       launchanim = false;
       expose-animation-duration = 0.1;
+      persistent-apps = [];
+      persistent-others = [];
     };
 
     finder = {
