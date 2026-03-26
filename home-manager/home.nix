@@ -25,6 +25,7 @@
     [
       wget
       tig
+      slack
       llm-agents.packages.${pkgs.system}.claude-code
     ];
 

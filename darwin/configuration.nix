@@ -10,6 +10,11 @@
   system.keyboard.enableKeyMapping = true;
   system.keyboard.remapCapsLockToControl = true;
 
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "slack"
+    "1password-cli"
+  ];
+
   # security.pam.services.sudo_local.touchIdAuth = true;
   environment.systemPackages = [
     pkgs.pam-reattach
@@ -19,11 +24,6 @@
     auth       optional       ${pkgs.pam-reattach}/lib/pam/pam_reattach.so
     auth       sufficient     pam_tid.so
   '';
-
-
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "1password-cli"
-  ];
 
   # For homebrew
   system.primaryUser = "toqoz";
