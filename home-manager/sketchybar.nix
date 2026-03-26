@@ -34,7 +34,7 @@ let
       sketchybar --set "$NAME" \
         background.color=${colors.foreground} \
         icon.color=${colors.background} \
-	position=left \
+        position=left \
         padding_left=0 \
         padding_right=0 \
         icon.padding_left=8 \
@@ -48,7 +48,7 @@ let
         sketchybar --set "$NAME" \
           background.color=${colors.transparent} \
           icon.color=${colors.foreground} \
-	  position=left \
+          position=left \
           padding_left=0 \
           padding_right=0 \
           icon.padding_left=8 \
@@ -60,7 +60,7 @@ let
         sketchybar --set "$NAME" \
           background.color=${colors.transparent} \
           icon.color=${colors.comment} \
-	  position=left \
+          position=left \
           padding_left=0 \
           padding_right=0 \
           icon.padding_left=8 \
@@ -173,7 +173,7 @@ let
       blur_radius=30
       notch_width=200
       y_offset=4
-                )
+    )
     sketchybar --bar "''${bar[@]}"
 
     ############## GLOBAL DEFAULTS ##############
@@ -192,7 +192,7 @@ let
       background.height=28
       background.padding_left=2
       background.padding_right=2
-        )
+    )
     sketchybar --default "''${default[@]}"
 
     ############## AEROSPACE EVENT ##############
@@ -279,8 +279,8 @@ let
     # IME
     sketchybar --add item ime right \
                 --set ime \
-		      update_freq=60 \
-		      script="${imePlugin}"
+          update_freq=60 \
+          script="${imePlugin}"
 
     # Battery
     sketchybar --add item battery right \

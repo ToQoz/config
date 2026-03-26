@@ -10,10 +10,12 @@
   system.keyboard.enableKeyMapping = true;
   system.keyboard.remapCapsLockToControl = true;
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "slack"
-    "1password-cli"
-  ];
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "slack"
+      "1password-cli"
+    ];
 
   # security.pam.services.sudo_local.touchIdAuth = true;
   environment.systemPackages = [
@@ -53,8 +55,8 @@
       show-recents = false;
       launchanim = false;
       expose-animation-duration = 0.1;
-      persistent-apps = [];
-      persistent-others = [];
+      persistent-apps = [ ];
+      persistent-others = [ ];
     };
 
     finder = {
@@ -90,11 +92,9 @@
       };
 
       "com.openai.chat" = {
-        KeyboardShortcuts_toggleLauncher =
-          ''{"carbonModifiers":256,"carbonKeyCode":49}''; # Option+Space
+        KeyboardShortcuts_toggleLauncher = ''{"carbonModifiers":256,"carbonKeyCode":49}''; # Option+Space
 
-        KeyboardShortcuts_toggleAttachedLauncher =
-          ''{"carbonModifiers":768,"carbonKeyCode":18}''; # Option+Shift+1
+        KeyboardShortcuts_toggleAttachedLauncher = ''{"carbonModifiers":768,"carbonKeyCode":18}''; # Option+Shift+1
       };
 
       # When modifying com.apple.symbolichotkeys, you may need to run
@@ -105,7 +105,11 @@
             enabled = true;
             value = {
               type = "standard";
-              parameters = [ 32 49 524288 ]; # Option+Space
+              parameters = [
+                32
+                49
+                524288
+              ]; # Option+Space
             };
           };
         };
@@ -150,9 +154,37 @@
       automatically-unhide-macos-hidden-apps = false;
 
       persistent-workspaces = [
-        "1" "2" "3" "4" "5" "6" "7" "8" "9"
-        "A" "B" "C" "D" "E" "F" "G" "I" "M" "N" "O" "P" "Q"
-        "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+        "1"
+        "2"
+        "3"
+        "4"
+        "5"
+        "6"
+        "7"
+        "8"
+        "9"
+        "A"
+        "B"
+        "C"
+        "D"
+        "E"
+        "F"
+        "G"
+        "I"
+        "M"
+        "N"
+        "O"
+        "P"
+        "Q"
+        "R"
+        "S"
+        "T"
+        "U"
+        "V"
+        "W"
+        "X"
+        "Y"
+        "Z"
       ];
 
       on-mode-changed = [ ];
@@ -165,7 +197,7 @@
           vertical = 8;
         };
         outer = {
-          left = 8; 
+          left = 8;
           bottom = 8;
           top = [
             { monitor."Studio Display" = 40; }
@@ -264,15 +296,39 @@
       ];
 
       mode.service.binding = {
-        esc = [ "reload-config" "mode main" ];
-        r = [ "flatten-workspace-tree" "mode main" ];
-        f = [ "layout floating tiling" "mode main" ];
-        backspace = [ "close-all-windows-but-current" "mode main" ];
+        esc = [
+          "reload-config"
+          "mode main"
+        ];
+        r = [
+          "flatten-workspace-tree"
+          "mode main"
+        ];
+        f = [
+          "layout floating tiling"
+          "mode main"
+        ];
+        backspace = [
+          "close-all-windows-but-current"
+          "mode main"
+        ];
 
-        alt-shift-h = [ "join-with left" "mode main" ];
-        alt-shift-j = [ "join-with down" "mode main" ];
-        alt-shift-k = [ "join-with up" "mode main" ];
-        alt-shift-l = [ "join-with right" "mode main" ];
+        alt-shift-h = [
+          "join-with left"
+          "mode main"
+        ];
+        alt-shift-j = [
+          "join-with down"
+          "mode main"
+        ];
+        alt-shift-k = [
+          "join-with up"
+          "mode main"
+        ];
+        alt-shift-l = [
+          "join-with right"
+          "mode main"
+        ];
       };
     };
   };

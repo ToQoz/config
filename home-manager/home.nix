@@ -1,5 +1,9 @@
-{ config, pkgs, llm-agents, ... }:
-
+{
+  config,
+  pkgs,
+  llm-agents,
+  ...
+}:
 {
   imports = [
     ./sketchybar.nix
@@ -20,16 +24,14 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages =
-    with pkgs;
-    [
-      wget
-      tig
-      ripgrep
-      fd
-      slack
-      llm-agents.packages.${pkgs.system}.claude-code
-    ];
+  home.packages = with pkgs; [
+    wget
+    tig
+    ripgrep
+    fd
+    slack
+    llm-agents.packages.${pkgs.system}.claude-code
+  ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
@@ -85,7 +87,7 @@
 
       config.window_frame = {
         inactive_titlebar_bg = "none",
-	active_titlebar_bg = "none",
+        active_titlebar_bg = "none",
       }
 
       config.window_background_gradient = {
@@ -94,8 +96,8 @@
 
       config.colors = {
         tab_bar = {
-	  inactive_tab_edge = "none",
-	}
+          inactive_tab_edge = "none",
+        }
       }
 
       config.use_ime = true

@@ -18,7 +18,13 @@
   };
 
   outputs =
-    { nixpkgs, home-manager, nix-darwin, llm-agents, ... }:
+    {
+      nixpkgs,
+      home-manager,
+      nix-darwin,
+      llm-agents,
+      ...
+    }:
     {
       darwinConfigurations."remilis" = nix-darwin.lib.darwinSystem {
         modules = [
@@ -28,7 +34,7 @@
             users.users."toqoz".home = "/Users/toqoz";
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-	    home-manager.extraSpecialArgs = {
+            home-manager.extraSpecialArgs = {
               inherit llm-agents;
             };
             home-manager.users."toqoz" = ./home-manager/home.nix;
