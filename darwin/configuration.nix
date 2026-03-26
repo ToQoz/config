@@ -236,6 +236,31 @@
           "if".app-id = "com.anthropic.claudefordesktop";
           run = [ "move-node-to-workspace 3" ];
         }
+        {
+          "if".app-id = "com.tinyspeck.slackmacgap";
+          run = [ "move-node-to-workspace 4" ];
+        }
+        {
+          "if".app-id = "com.apple.systempreferences";
+          run = [
+            "layout floating"
+            "move-node-to-workspace 5"
+          ];
+        }
+        {
+          "if".app-id = "org.pqrs.Karabiner-EventViewer";
+          run = [
+            "layout floating"
+            "move-node-to-workspace 5"
+          ];
+        }
+        {
+          "if".app-id = "com.1password.1password";
+          run = [
+            "layout floating"
+            "move-node-to-workspace 5"
+          ];
+        }
       ];
 
       mode.service.binding = {
