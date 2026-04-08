@@ -372,6 +372,13 @@
       };
     };
   };
+  # Disable auto-restart so that when AeroSpace loses its accessibility permission
+  # after an update (e.g. codesign certificate renewal), it won't spin in a crash loop
+  # before you re-grant the permission in System Settings.
+  #
+  # To start manually after granting accessibility permission:
+  # $ launchctl start org.nixos.aerospace
+  launchd.user.agents.aerospace.serviceConfig.KeepAlive = lib.mkForce false;
 
   # 1Password CLI
   programs._1password = {
