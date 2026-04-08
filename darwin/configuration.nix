@@ -108,6 +108,11 @@
       # /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
       "com.apple.symbolichotkeys" = {
         AppleSymbolicHotKeys = {
+          # IME: Control+Space -> disable
+          "60" = {
+            enabled = false;
+          };
+          # Spotlight: Command+Space -> Option-Space
           "64" = {
             enabled = true;
             value = {
