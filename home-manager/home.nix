@@ -192,6 +192,7 @@
       "*.out"
       # Env
       ".env"
+      "*.env$"
       # User's sandbox
       # http://qiita.com/uasi/items/cedae627b7596a837c57
       "/,"
