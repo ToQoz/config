@@ -259,7 +259,7 @@ in
     extraPackages = with pkgs; [
       skkDictionaries.l
       lua-language-server
-      nodePackages.typescript-language-server
+      typescript-language-server
       nixd # Nix Language Server
       bash-language-server
       vim-language-server
