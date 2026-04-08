@@ -378,6 +378,7 @@
       "karabiner-elements"
       "macskk"
       "orbstack"
+      "google-chrome"
       "font-sketchybar-app-font"
       "claude"
       "chatgpt"
