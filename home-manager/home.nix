@@ -25,6 +25,7 @@
   home.packages =
     with pkgs;
     [
+      mkcert
       wget
       tmux
       tig
