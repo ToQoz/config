@@ -281,6 +281,11 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/sketchybar"
   );
 
+  home.file."Library/Application Support/Cursor/User/settings.json".source =
+    lib.mkIf pkgs.stdenv.isDarwin (
+      config.lib.file.mkOutOfStoreSymlink "${dotfiles}/vscode-family/cursor-settings.jsonc"
+    );
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }
