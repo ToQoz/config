@@ -35,8 +35,11 @@
       fd
       nodejs
       pnpm
-      slack
+      vscode
+      code-cursor
+      zed
       llm-agents.packages.${pkgs.system}.claude-code
+      slack
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
       pkgs.sketchybar

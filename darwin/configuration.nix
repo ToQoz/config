@@ -13,6 +13,8 @@
   nixpkgs.config.allowUnfreePredicate =
     pkg:
     builtins.elem (lib.getName pkg) [
+      "vscode"
+      "cursor"
       "slack"
       "1password-cli"
     ];
