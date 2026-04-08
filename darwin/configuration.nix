@@ -383,5 +383,9 @@
       "codex"
       "codex-app"
     ];
+
+    masApps = {
+      "1Password for Safari" = 1569813296;
+    };
   };
 }
