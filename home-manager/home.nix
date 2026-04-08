@@ -197,6 +197,11 @@
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/nvim";
 
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   xdg.configFile."sketchybar".source = lib.mkIf pkgs.stdenv.isDarwin (
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/sketchybar"
   );
