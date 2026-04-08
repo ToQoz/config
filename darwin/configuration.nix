@@ -75,11 +75,18 @@
     };
 
     CustomUserPreferences = {
-      # "com.apple.Safari" = {
-      #   AutoOpenSafeDownloads = false;
-      #   IncludeDevelopMenu = true;
-      #   IncludeInternalDebugMenu = true;
-      # };
+      # WezTerm  Full Disk Access to avoid "Operation not permitted".
+      "com.apple.Safari" = {
+        AutoFillFromAddressBook = false;
+        AutoFillPasswords = false;
+        AutoFillCreditCardData = false;
+        AutoFillMiscellaneousForms = false;
+        AutoOpenSafeDownloads = false;
+        IncludeDevelopMenu = true;
+        IncludeInternalDebugMenu = true;
+        WebKitDeveloperExtrasEnabledPreferenceKey = true;
+        "WebKitPreferences.developerExtrasEnabled" = true;
+      };
 
       "com.apple.TextEdit" = {
         AddExtensionToNewPlainTextFiles = false;
