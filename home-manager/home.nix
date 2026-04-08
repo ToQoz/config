@@ -71,6 +71,8 @@
   #
   home.sessionVariables = {
     # EDITOR = "emacs";
+    Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
+    Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
   };
 
   xdg.configFile."tmux".source =
@@ -83,12 +85,73 @@
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/wezterm";
 
 
+  programs.zsh = {
+    enable = true;
+    package = pkgs.emptyDirectory;
+    dotDir = "${config.xdg.configHome}/zsh";
+    history.path = "${config.xdg.stateHome}/zsh/history";
+    syntaxHighlighting = {
+      enable = true;
+    };
+    autosuggestion = {
+      enable = false;
+      strategy = [
+        "history"
+        "completion"
+      ];
+    };
+    enableCompletion = true; # For autocomplete
+    # .zprofile
+    profileExtra = ''
+      eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+    '';
+    # .zshrc (completion)
+    completionInit = ''
+      # Show group headers
+      zstyle ':completion:*:descriptions' format '[%d]'
+      # extact -> case sensitive -> case insensitive → fuzzy
+      zstyle ':completion:*' matcher-list ''' 'm:{a-z}={A-Z}' '+m:{A-Z}={a-z}' 'r:|=*' 'l:|=* r:|=*'
+      # Disable zsh completion UI
+      zstyle ':completion:*' menu no
+    '';
+    # .zshrc
+    initContent = ''
+      setopt IGNORE_EOF
 
+      source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
+      # Preview for cd
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -1 $realpath'
 
+      autoload -U edit-command-line
+      zle -N edit-command-line
+
+      select-repository() {
+        local d
+        d=$(ghq list -p | fzf --no-sort --exact)
+        if [ $? = 0 -a -n "$d" ]; then
+          cd $d
+          zle reset-prompt
+        fi
       }
+      zle -N select-repository
 
+      select-history() {
+        BUFFER=$(history -n 1 | perl -e 'print reverse <>' | fzf --no-sort --exact --query "$LBUFFER")
+        CURSOR=$#BUFFER
+        zle clear-screen
       }
+      zle -N select-history
 
+      # C-Space: Start completion
+      bindkey '^@' fzf-tab-complete
+      # C-g: Use editor to edit command line
+      bindkey "^g" edit-command-line
+      # C-x g
+      bindkey "^xg" select-repository
+      # C-r: Alt bck-i-search
+      bindkey '^r' select-history
+      # Cmd-r: Redo
+      bindkey "^[r" redo # Cmd-r
     '';
   };
 
