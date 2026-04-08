@@ -1,13 +1,11 @@
 {
+  lib,
   config,
   pkgs,
   llm-agents,
   ...
 }:
 {
-  imports = [
-    ./sketchybar.nix
-  ];
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "toqoz";
@@ -34,6 +32,9 @@
       fd
       slack
       llm-agents.packages.${pkgs.system}.claude-code
+    ]
+    ++ lib.optionals pkgs.stdenv.isDarwin [
+      pkgs.sketchybar
     ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -258,6 +259,10 @@
 
   xdg.configFile."nvim".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/nvim";
+
+  xdg.configFile."sketchybar".source = lib.mkIf pkgs.stdenv.isDarwin (
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/sketchybar"
+  );
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
