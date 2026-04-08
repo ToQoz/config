@@ -214,6 +214,9 @@
         alt-shift-k = "move up";
         alt-shift-l = "move right";
 
+        alt-tab = "focus dfs-next --boundaries-action wrap-around-the-workspace";
+        alt-shift-tab = "focus dfs-prev --boundaries-action wrap-around-the-workspace";
+
         alt-minus = "resize smart -50";
         alt-equal = "resize smart +50";
 
@@ -241,8 +244,8 @@
         alt-shift-r = "move-node-to-workspace R";
         alt-shift-t = "move-node-to-workspace T";
 
-        alt-tab = "workspace-back-and-forth";
-        alt-shift-tab = "move-workspace-to-monitor --wrap-around next";
+        # alt-tab = "workspace-back-and-forth";
+        # alt-shift-tab = "move-workspace-to-monitor --wrap-around next";
 
         alt-shift-semicolon = "mode service";
       };
