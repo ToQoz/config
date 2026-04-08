@@ -377,6 +377,7 @@
       "1password"
       "karabiner-elements"
       "macskk"
+      "orbstack"
       "font-sketchybar-app-font"
       "claude"
       "chatgpt"
