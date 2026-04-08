@@ -84,6 +84,12 @@
   xdg.configFile."wezterm".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/wezterm";
 
+  programs.starship = {
+    enable = true;
+  };
+  # ref. https://github.com/starship/starship/issues/896
+  xdg.configFile."starship.toml".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/starship/config.toml";
 
   programs.zsh = {
     enable = true;
