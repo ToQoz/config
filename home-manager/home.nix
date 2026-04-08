@@ -29,6 +29,7 @@
       tmux
       tig
       ghq
+      lazygit
       ripgrep
       fd
       slack
