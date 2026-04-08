@@ -78,39 +78,17 @@
 
   programs.wezterm = {
     enable = true;
-    extraConfig = ''
-      local wezterm = require("wezterm")
-      local config = wezterm.config_builder()
+  };
+  xdg.configFile."wezterm".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/wezterm";
 
-      config.automatically_reload_config = true
-      config.window_background_opacity = 0.85
-      config.macos_window_background_blur = 20
 
-      config.hide_tab_bar_if_only_one_tab = true
-      config.window_decorations = "RESIZE"
-      -- config.use_fancy_tab_bar = false
 
-      config.show_new_tab_button_in_tab_bar = false
-      config.show_close_tab_button_in_tabs = false
 
-      config.window_frame = {
-        inactive_titlebar_bg = "none",
-        active_titlebar_bg = "none",
       }
 
-      config.window_background_gradient = {
-        colors = { "#000000" },
       }
 
-      config.colors = {
-        tab_bar = {
-          inactive_tab_edge = "none",
-        }
-      }
-
-      config.use_ime = true
-
-      return config
     '';
   };
 
