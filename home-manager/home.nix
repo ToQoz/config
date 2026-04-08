@@ -42,7 +42,7 @@ in
       vscode
       code-cursor
       zed
-      llm-agents.packages.${pkgs.system}.claude-code
+      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
       slack
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
