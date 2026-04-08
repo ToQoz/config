@@ -223,7 +223,7 @@
       skkDictionaries.l
       lua-language-server
       nodePackages.typescript-language-server
-      nil # Nix Language Server
+      nixd # Nix Language Server
       bash-language-server
       vim-language-server
       emmet-language-server
