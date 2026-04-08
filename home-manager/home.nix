@@ -75,6 +75,12 @@
     Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
     Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
   };
+  home.sessionPath = [
+    "${config.home.homeDirectory}/.scripts"
+  ];
+
+  home.file.".scripts".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/scripts";
 
   xdg.configFile."tmux".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/tmux";
