@@ -83,20 +83,20 @@
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/scripts";
 
   xdg.configFile."tmux".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/tmux";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/tmux";
 
   programs.wezterm = {
     enable = true;
   };
   xdg.configFile."wezterm".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/wezterm";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/wezterm";
 
   programs.starship = {
     enable = true;
   };
   # ref. https://github.com/starship/starship/issues/896
   xdg.configFile."starship.toml".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/starship/config.toml";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/starship/config.toml";
 
   programs.zsh = {
     enable = true;
@@ -171,6 +171,24 @@
   programs.git = {
     enable = true;
 
+    # Keep global ignores minimal — repo-specific rules belong in .gitignore
+    ignores = [
+      # OS
+      ".DS_Store"
+      "Thumbs.db"
+      # Editor
+      ".*~"
+      "#*#"
+      "*.sw[po]"
+      # Build
+      "*.out"
+      # Env
+      ".env"
+      # User's sandbox
+      # http://qiita.com/uasi/items/cedae627b7596a837c57
+      "/,"
+    ];
+
     settings = {
       user = {
         name = "Takatoshi Matsumoto";
@@ -240,7 +258,7 @@
   };
 
   xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/nvim";
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/nvim";
 
   programs.fzf = {
     enable = true;
@@ -248,7 +266,7 @@
   };
 
   xdg.configFile."sketchybar".source = lib.mkIf pkgs.stdenv.isDarwin (
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/sketchybar"
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/sketchybar"
   );
 
   # Let Home Manager install and manage itself.
