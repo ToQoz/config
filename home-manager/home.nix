@@ -5,6 +5,10 @@
   llm-agents,
   ...
 }:
+let
+  root = "${toString ./.}/..";
+  dotfiles = "${root}/dotfiles";
+in
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -85,11 +89,9 @@
     "${config.home.homeDirectory}/.scripts"
   ];
 
-  home.file.".scripts".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/scripts";
+  home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
 
-  xdg.configFile."tmux".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/tmux";
+  xdg.configFile."tmux".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux";
 
   programs.direnv = {
     enable = true;
@@ -99,15 +101,14 @@
   programs.wezterm = {
     enable = true;
   };
-  xdg.configFile."wezterm".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/wezterm";
+  xdg.configFile."wezterm".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/wezterm";
 
   programs.starship = {
     enable = true;
   };
   # ref. https://github.com/starship/starship/issues/896
   xdg.configFile."starship.toml".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/starship/config.toml";
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/starship/config.toml";
 
   programs.zsh = {
     enable = true;
@@ -269,8 +270,7 @@
     ];
   };
 
-  xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/nvim";
+  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
 
   programs.fzf = {
     enable = true;
@@ -278,7 +278,7 @@
   };
 
   xdg.configFile."sketchybar".source = lib.mkIf pkgs.stdenv.isDarwin (
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/sketchybar"
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/sketchybar"
   );
 
   # Let Home Manager install and manage itself.
