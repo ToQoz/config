@@ -171,32 +171,11 @@
         "3"
         "4"
         "5"
-        "6"
-        "7"
-        "8"
-        "9"
-        "A"
-        "B"
-        "C"
-        "D"
-        "E"
-        "F"
-        "G"
-        "I"
-        "M"
-        "N"
-        "O"
-        "P"
         "Q"
-        "R"
-        "S"
-        "T"
-        "U"
-        "V"
         "W"
-        "X"
-        "Y"
-        "Z"
+        "E"
+        "R"
+        "T"
       ];
 
       on-mode-changed = [ ];
@@ -242,15 +221,23 @@
         alt-4 = "workspace 4";
         alt-5 = "workspace 5";
 
-        alt-a = "workspace A";
-        alt-b = "workspace B";
-        alt-c = "workspace C";
+        alt-q = "workspace Q";
+        alt-w = "workspace W";
+        alt-e = "workspace E";
+        alt-r = "workspace R";
+        alt-t = "workspace T";
 
         alt-shift-1 = "move-node-to-workspace 1";
         alt-shift-2 = "move-node-to-workspace 2";
         alt-shift-3 = "move-node-to-workspace 3";
         alt-shift-4 = "move-node-to-workspace 4";
         alt-shift-5 = "move-node-to-workspace 5";
+
+        alt-shift-q = "move-node-to-workspace Q";
+        alt-shift-w = "move-node-to-workspace W";
+        alt-shift-e = "move-node-to-workspace E";
+        alt-shift-r = "move-node-to-workspace R";
+        alt-shift-t = "move-node-to-workspace T";
 
         alt-tab = "workspace-back-and-forth";
         alt-shift-tab = "move-workspace-to-monitor --wrap-around next";
@@ -264,7 +251,11 @@
         "3" = "main";
         "4" = "secondary";
         "5" = "secondary";
-        "6" = "secondary";
+        "Q" = "main";
+        "W" = "main";
+        "E" = "main";
+        "R" = "secondary";
+        "T" = "secondary";
       };
 
       on-window-detected = [
@@ -273,47 +264,68 @@
           run = [ "move-node-to-workspace 1" ];
         }
         {
-          "if".app-id = "com.apple.Safari";
+          "if".app-id = "com.openai.codex";
           run = [ "move-node-to-workspace 2" ];
         }
         {
-          "if".app-id = "com.openai.chat";
+          "if".app-id = "com.google.Chrome";
           run = [ "move-node-to-workspace 3" ];
+        }
+        {
+          "if".app-id = "dev.kdrag0n.MacVirt"; # OrbStack
+          run = [
+            "layout floating"
+            "move-node-to-workspace 4"
+          ];
+        }
+        {
+          "if".app-id = "com.apple.Safari";
+          run = [ "move-node-to-workspace Q" ];
+        }
+        {
+          "if".app-id = "com.openai.chat";
+          run = [
+            "move-node-to-workspace W"
+            "layout accordion"
+          ];
         }
         {
           "if".app-id = "com.anthropic.claudefordesktop";
-          run = [ "move-node-to-workspace 3" ];
+          run = [
+            "move-node-to-workspace W"
+            "layout accordion"
+          ];
         }
         {
           "if".app-id = "com.tinyspeck.slackmacgap";
-          run = [ "move-node-to-workspace 4" ];
+          run = [ "move-node-to-workspace E" ];
         }
         {
           "if".app-id = "com.apple.systempreferences";
           run = [
             "layout floating"
-            "move-node-to-workspace 5"
+            "move-node-to-workspace R"
           ];
         }
         {
           "if".app-id = "org.pqrs.Karabiner-EventViewer";
           run = [
             "layout floating"
-            "move-node-to-workspace 5"
+            "move-node-to-workspace R"
           ];
         }
         {
           "if".app-id = "com.1password.1password";
           run = [
             "layout floating"
-            "move-node-to-workspace 5"
+            "move-node-to-workspace R"
           ];
         }
         {
           "if".app-id = "com.apple.Music";
           run = [
             "layout floating"
-            "move-node-to-workspace 5"
+            "move-node-to-workspace R"
           ];
         }
       ];

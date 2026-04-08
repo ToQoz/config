@@ -106,7 +106,11 @@ workspace 2
 workspace 3
 workspace 4
 workspace 5
-workspace 6
+workspace Q
+workspace W
+workspace E
+workspace R
+workspace T
 plugin front_app front_app_switched left
 plugin date system_woke
 separator date
