@@ -269,6 +269,10 @@
 
       on-window-detected = [
         {
+          "if".app-id = "com.github.wez.wezterm";
+          run = [ "move-node-to-workspace 1" ];
+        }
+        {
           "if".app-id = "com.apple.Safari";
           run = [ "move-node-to-workspace 2" ];
         }
@@ -300,6 +304,13 @@
         }
         {
           "if".app-id = "com.1password.1password";
+          run = [
+            "layout floating"
+            "move-node-to-workspace 5"
+          ];
+        }
+        {
+          "if".app-id = "com.apple.Music";
           run = [
             "layout floating"
             "move-node-to-workspace 5"
