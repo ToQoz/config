@@ -88,6 +88,11 @@
   xdg.configFile."tmux".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles/tmux";
 
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   programs.wezterm = {
     enable = true;
   };
