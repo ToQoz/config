@@ -62,6 +62,8 @@
     };
 
     finder = {
+      # Show dotfiles
+      AppleShowAllFiles = true;
       # Search Scope = cwd
       FXDefaultSearchScope = "SCcf";
       # List style
