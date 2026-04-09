@@ -401,6 +401,7 @@
       "1password"
       "karabiner-elements"
       "macskk"
+      "nani"
       "orbstack"
       "google-chrome"
       "font-sketchybar-app-font"
