@@ -41,7 +41,7 @@ in
       pnpm
       vscode
       code-cursor
-      zed
+      zed-editor
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
       slack
     ]
