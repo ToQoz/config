@@ -6,7 +6,7 @@
   ...
 }:
 let
-  root = "${toString ./.}/..";
+  root = "${config.home.homeDirectory}/src/github.com/ToQoz/config";
   dotfiles = "${root}/dotfiles";
 in
 {
