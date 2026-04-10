@@ -12,6 +12,12 @@ config.leader = {
 	timeout_milliseconds = 1000,
 }
 
+config.font = wezterm.font_with_fallback({
+	"JetBrains Mono",
+	"Noto Color Emoji",
+	"Symbols Nerd Font Mono",
+})
+
 config.line_height = 1.2
 config.window_background_opacity = 0.85
 config.macos_window_background_blur = 20
