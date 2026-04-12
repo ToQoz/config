@@ -330,11 +330,14 @@ in
       config.lib.file.mkOutOfStoreSymlink "${dotfiles}/vscode-family/cursor-settings.jsonc"
     );
 
+  home.file.".claude/CLAUDE.md".source = ../dotfiles/agents/CLAUDE.md;
+
   programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
     package = llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
 
+    memory.source = ../dotfiles/agents/CLAUDE.md;
     settings = {
       autoUpdates = false;
       includeCoAuthoredBy = false;
