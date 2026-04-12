@@ -361,6 +361,7 @@ in
           "Bash(mkdir *)"
           "Bash(tail *)"
           "Bash(git add *)"
+          "Bash(git apply *)"
           "Bash(git mv *)"
           "Bash(git checkout *)"
           "Bash(git cherry-pick *)"
