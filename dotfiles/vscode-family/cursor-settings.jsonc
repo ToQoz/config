@@ -60,5 +60,6 @@
   "typescript.preferences.useAliasesForRenames": false,
   "cursor.cpp.disabledLanguages": [
     "plaintext"
-  ]
+  ],
+  "editor.accessibilitySupport": "off"
 }
