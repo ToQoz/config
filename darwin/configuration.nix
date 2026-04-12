@@ -323,6 +323,10 @@
           run = [ "move-node-to-workspace Q" ];
         }
         {
+          "if".app-id = "com.figma.Desktop";
+          run = [ "move-node-to-workspace E" ];
+        }
+        {
           "if".app-id = "com.apple.systempreferences";
           run = [
             "layout floating"
