@@ -297,6 +297,61 @@ in
       autoUpdates = false;
       includeCoAuthoredBy = false;
       enableAllProjectMcpServers = true;
+
+      permissions = {
+        deny = [
+          "Bash(sudo *)"
+          "Read(.env)"
+          "Edit(.env)"
+          "Read(*.env)"
+          "Edit(*.env)"
+          "Read(*.vars)"
+          "Edit(*.vars)"
+        ];
+        allow = [
+          "Bash(find *)"
+          "Bash(grep *)"
+          "Bash(head *)"
+          "Bash(ls *)"
+          "Bash(mkdir *)"
+          "Bash(tail *)"
+          "Bash(git add *)"
+          "Bash(git mv *)"
+          "Bash(git cherry-pick *)"
+          "Bash(git commit *)"
+          "Bash(git blame *)"
+          "Bash(git diff *)"
+          "Bash(git fetch *)"
+          "Bash(git log *)"
+          "Bash(git merge *)"
+          "Bash(git pull *)"
+          "Bash(git rm *)"
+          "Bash(git show *)"
+          "Bash(git stash *)"
+          "Bash(git status *)"
+          "Bash(gh pr diff *)"
+          "Bash(gh pr list *)"
+          "Bash(gh pr status *)"
+          "Bash(gh pr view *)"
+          "Bash(gh run list *)"
+          "Bash(gh run status *)"
+          "Bash(gh run view *)"
+          "Bash(gh run watch *)"
+          "Bash(nix build *)"
+          "Bash(nix fmt *)"
+          "Bash(nix log *)"
+          "Bash(cargo tree *)"
+          "Bash(npm list *)"
+          "Bash(pnpm list *)"
+          "Bash(docker compose ps *)"
+          "mcp__Figma__get_code"
+          "mcp__Figma__get_code_connect_map"
+          "mcp__Figma__get_image"
+          "mcp__Figma__get_metadata"
+          "mcp__Figma__get_screenshot"
+          "mcp__Figma__get_variable_defs"
+        ];
+      };
     };
   };
 
