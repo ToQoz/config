@@ -3,6 +3,7 @@
   config,
   pkgs,
   llm-agents,
+  anthropic-skills,
   ...
 }:
 let
@@ -42,7 +43,6 @@ in
       vscode
       code-cursor
       zed-editor
-      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
       slack
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
@@ -287,6 +287,38 @@ in
     lib.mkIf pkgs.stdenv.isDarwin (
       config.lib.file.mkOutOfStoreSymlink "${dotfiles}/vscode-family/cursor-settings.jsonc"
     );
+
+  programs.claude-code = {
+    enable = true;
+    package = llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
+
+    settings = {
+      autoUpdates = false;
+      includeCoAuthoredBy = false;
+      enableAllProjectMcpServers = true;
+    };
+  };
+
+  programs.agent-skills = {
+    enable = true;
+    sources = {
+      local = {
+        path = ../dotfiles/skills;
+        filter.maxDepth = 1;
+      };
+      anthropic = {
+        path = anthropic-skills;
+        subdir = "skills";
+      };
+    };
+    skills = {
+      enableAll = [
+        "local"
+        "anthropic"
+      ];
+    };
+    targets.claude.enable = true;
+  };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

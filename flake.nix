@@ -15,6 +15,15 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    agent-skills = {
+      url = "github:Kyure-A/agent-skills-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+    anthropic-skills = {
+      url = "github:anthropics/skills";
+      flake = false;
+    };
   };
 
   outputs =
@@ -23,6 +32,8 @@
       home-manager,
       nix-darwin,
       llm-agents,
+      agent-skills,
+      anthropic-skills,
       ...
     }:
     {
@@ -34,8 +45,12 @@
             users.users."toqoz".home = "/Users/toqoz";
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.sharedModules = [
+              agent-skills.homeManagerModules.default
+            ];
             home-manager.extraSpecialArgs = {
               inherit llm-agents;
+              inherit anthropic-skills;
             };
             home-manager.users."toqoz" = ./home-manager/home.nix;
           }

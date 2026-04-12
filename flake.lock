@@ -1,5 +1,44 @@
 {
   "nodes": {
+    "agent-skills": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774607140,
+        "narHash": "sha256-0P89BLGEzRUumWKSOEayi+Dal6mIlVumlBgcyk5Qo6s=",
+        "owner": "Kyure-A",
+        "repo": "agent-skills-nix",
+        "rev": "e29bef0e9e56c4cc683cead15a6eda1d6fb1074e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Kyure-A",
+        "repo": "agent-skills-nix",
+        "type": "github"
+      }
+    },
+    "anthropic-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775755206,
+        "narHash": "sha256-H/oorOl5cch7bnziDz7gHNBv5Q0OAwFbk9w1WLku2kk=",
+        "owner": "anthropics",
+        "repo": "skills",
+        "rev": "12ab35c2eb5668c95810e6a6066f40f4218adc39",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "blueprint": {
       "inputs": {
         "nixpkgs": [
@@ -178,6 +217,8 @@
     },
     "root": {
       "inputs": {
+        "agent-skills": "agent-skills",
+        "anthropic-skills": "anthropic-skills",
         "home-manager": "home-manager",
         "llm-agents": "llm-agents",
         "nix-darwin": "nix-darwin",

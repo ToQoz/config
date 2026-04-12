@@ -15,6 +15,7 @@
     builtins.elem (lib.getName pkg) [
       "vscode"
       "cursor"
+      "claude-code"
       "slack"
       "1password-cli"
     ];
