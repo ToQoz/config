@@ -421,6 +421,7 @@
       "nani"
       "orbstack"
       "google-chrome"
+      "figma"
       "font-sketchybar-app-font"
       "claude"
       "chatgpt"
