@@ -253,6 +253,11 @@ same file:
 - Dependency upgrade and required compatibility changes may be one commit if
   neither builds independently; split only when each commit builds and can be
   reverted independently.
+- **Multiple new files that serve independent purposes** (e.g. two unrelated
+  skill files, two separate modules) → one commit per logical unit. Ask: "if I
+  revert this commit, does it undo exactly one thing?" If reverting would also
+  undo something unrelated, split further. Shared type or scope is not
+  sufficient reason to bundle — only tight logical coupling is.
 
 When in doubt, prefer smaller commits, but each commit must be coherent,
 reviewable, and leave the repository in a working state.
