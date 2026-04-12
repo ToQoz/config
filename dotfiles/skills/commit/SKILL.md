@@ -244,20 +244,24 @@ If `git apply --cached --check` or `git apply --cached` fails:
 
 ### Deciding where to split
 
-Split when changes serve different purposes — even if they're adjacent in the
-same file:
+The guiding question is: **"If I revert this commit, does it undo exactly one
+thing?"** If reverting would also undo something unrelated, split further.
+Shared type, scope, or file is not sufficient reason to bundle — only tight
+logical coupling is.
+
+Concrete examples:
 
 - Bug fix and a refactor that touched the same function → two commits
 - New feature and its tests → one commit (inseparable: the test validates the
   feature)
 - Dependency upgrade and required compatibility changes may be one commit if
-  neither builds independently; split only when each commit builds and can be
-  reverted independently.
-- **Multiple new files that serve independent purposes** (e.g. two unrelated
-  skill files, two separate modules) → one commit per logical unit. Ask: "if I
-  revert this commit, does it undo exactly one thing?" If reverting would also
-  undo something unrelated, split further. Shared type or scope is not
-  sufficient reason to bundle — only tight logical coupling is.
+  neither builds independently; split only when each commit can be reverted
+  independently.
+- Adding a new entry to a list **and** reordering the list → two commits: one
+  for the addition (capability change), one for the reorder (style/cosmetic).
+  They are independently revertable and serve different purposes.
+- Multiple new files that serve independent purposes (e.g. two unrelated skill
+  files) → one commit per file. Reverting one should not touch the other.
 
 When in doubt, prefer smaller commits, but each commit must be coherent,
 reviewable, and leave the repository in a working state.
