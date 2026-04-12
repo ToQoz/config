@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Use bash 4+ for capitalization (${var^})
+
+# USAGE
+#   $ release-pr <base> <head>
+# EXAMPLE
+#   $ release-pr main feature/a
+#   $ release-pr develop feature/a
+#   $ release-pr release develop
+
+base="$1"
+head="$2"
+
+if [ -z "$base" ] || [ -z "$head" ]; then
+  echo "Usage: $0 <base> <head>"
+  echo "  Example: $0 dev main"
+  echo "  Example: $0 prod dev"
+  exit 1
+fi
+
+## リリース系ブランチ同士の Pull Request (例えば dev -> prod) の場合は、Release PR を大まかに無視する
+
+date="$(date +"%Y/%m/%d")"
+git fetch origin
+gh pr create --title "${base^} Release $date" --base $base --head $head --body "## Merge commits ($base..$head)
+
+$(git log "origin/$base..origin/$head" --merges --format="%h___%s  (Author: %an)___%b" | grep 'Merge pull request' | grep -v "${head^} Release" | awk -F___ '{print $2}')"
+
+gh pr view --web "$head"

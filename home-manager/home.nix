@@ -38,8 +38,7 @@ in
       lazygit
       ripgrep
       fd
-      nodejs
-      pnpm
+      asdf-vm
       vscode
       code-cursor
       zed-editor
@@ -126,6 +125,11 @@ in
       ];
     };
     enableCompletion = true; # For autocomplete
+    # .zshenv
+    envExtra = ''
+      source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
+      fpath=(${pkgs.asdf-vm}/share/zsh/site-functions $fpath)
+    '';
     # .zprofile
     profileExtra = ''
       eval "$(/opt/homebrew/bin/brew shellenv zsh)"
