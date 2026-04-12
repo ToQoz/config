@@ -82,6 +82,10 @@
       target = "clipboard";
     };
 
+    hitoolbox = {
+      AppleFnUsageType = "Do Nothing";
+    };
+
     CustomUserPreferences = {
       # WezTerm  Full Disk Access to avoid "Operation not permitted".
       "com.apple.Safari" = {
@@ -290,6 +294,12 @@
           ];
         }
         {
+          "if".app-id = "com.electron.aqua-voice";
+          run = [
+            "layout floating"
+          ];
+        }
+        {
           "if".app-id = "com.apple.Safari";
           run = [ "move-node-to-workspace Q" ];
         }
@@ -407,6 +417,7 @@
       "1password"
       "karabiner-elements"
       "macskk"
+      "aqua-voice"
       "nani"
       "orbstack"
       "google-chrome"
