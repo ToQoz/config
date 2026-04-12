@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Run a command and snapshot the result as a git commit.
+#
+# USAGE
+#   $ git snap <command> [args...]
+# EXAMPLE
+#   $ git snap nix flake update
+#   $ git snap ./scripts/gen-something
+
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 <command> [args...]"
+  exit 1
+fi
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "error: git working directory is not clean" >&2
+  git status --short >&2
+  exit 1
+fi
+
+cmd="$*"
+
+"$@"
+
+git add .
+git commit -m "\$ $cmd"
