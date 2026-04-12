@@ -58,5 +58,7 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "javascript.preferences.useAliasesForRenames": false,
   "typescript.preferences.useAliasesForRenames": false,
-  "cursor.cpp.disabledLanguages": ["plaintext"]
+  "cursor.cpp.disabledLanguages": [
+    "plaintext"
+  ]
 }
