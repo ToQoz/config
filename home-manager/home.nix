@@ -417,7 +417,7 @@ in
     enable = true;
     sources = {
       local = {
-        path = ../dotfiles/skills;
+        path = ../dotfiles/agents/skills;
         filter.maxDepth = 1;
       };
       anthropic = {
