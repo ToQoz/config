@@ -78,6 +78,10 @@
       NewWindowTarget = "Home";
     };
 
+    screencapture = {
+      target = "clipboard";
+    };
+
     CustomUserPreferences = {
       # WezTerm  Full Disk Access to avoid "Operation not permitted".
       "com.apple.Safari" = {
