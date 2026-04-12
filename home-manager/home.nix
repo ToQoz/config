@@ -9,6 +9,8 @@
 let
   root = "${config.home.homeDirectory}/src/github.com/ToQoz/config";
   dotfiles = "${root}/dotfiles";
+  asdfConfigDir = "${config.xdg.configHome}/asdf";
+  asdfDataDir = "${config.xdg.dataHome}/asdf";
 in
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -83,14 +85,53 @@ in
     # EDITOR = "emacs";
     Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
     Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
+    ASDF_CONFIG_FILE = "${asdfConfigDir}/.asdfrc";
+    ASDF_DATA_DIR = "${asdfDataDir}";
   };
   home.sessionPath = [
     "${config.home.homeDirectory}/.scripts"
   ];
 
+  # local scripts
   home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
-
+  # tmux
   xdg.configFile."tmux".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux";
+  # asdf
+  xdg.configFile."asdf/.asdfrc".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
+  home.file.".tool-versions".source =
+    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.tool-versions";
+  home.activation.installAsdfPlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    export PATH="${
+      lib.makeBinPath (
+        with pkgs;
+        [
+          asdf-vm
+          git
+          #curl
+          #gnugrep
+          #coreutils
+          #gnutar
+          #gzip
+          #unzip
+          #gawk
+          #findutils
+        ]
+      )
+    }:$PATH"
+    export ASDF_DATA_DIR="${asdfDataDir}"
+    export ASDF_CONFIG_FILE="${asdfConfigDir}/.asdfrc"
+    mkdir -p "$ASDF_DATA_DIR" "${asdfConfigDir}"
+    if ! asdf plugin list | grep -qx nodejs; then
+      asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+    fi
+    if ! asdf plugin list | grep -qx pnpm; then
+      asdf plugin add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
+    fi
+    if ! asdf plugin list | grep -qx deno; then
+      asdf plugin add deno https://github.com/asdf-community/asdf-deno.git
+    fi
+  '';
 
   programs.direnv = {
     enable = true;
@@ -201,9 +242,6 @@ in
       # Env
       ".env"
       "*.env$"
-      # User's sandbox
-      # http://qiita.com/uasi/items/cedae627b7596a837c57
-      "/,"
     ];
 
     settings = {
