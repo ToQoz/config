@@ -317,6 +317,7 @@ in
           "Bash(tail *)"
           "Bash(git add *)"
           "Bash(git mv *)"
+          "Bash(git checkout *)"
           "Bash(git cherry-pick *)"
           "Bash(git commit *)"
           "Bash(git blame *)"
