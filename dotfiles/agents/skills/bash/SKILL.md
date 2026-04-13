@@ -52,3 +52,26 @@ cat 'app/routes/users.$userId.tsx'
 This applies to every Bash tool call that takes a file path argument: `cat`, `cp`, `mv`, `rm`, `head`, `tail`, `wc`, `grep`, `sed`, `awk`, compiler/linter CLIs, etc.
 
 When in doubt, single-quote. It never hurts a path that has no special characters, and it prevents hard-to-debug failures for paths that do.
+
+## Avoid Unnecessary Command Chaining with `&&`
+
+When running commands inside a Coding Agent (e.g. via the Bash tool), chaining
+unrelated commands with `&&` makes it harder for the agent's permission system
+to evaluate each command individually. This can cause the agent to ask for
+confirmation even when each command would otherwise be auto-approved.
+
+**Rule:** Only chain commands with `&&` when the second command genuinely
+depends on the first succeeding. Run independent commands as separate Bash tool
+calls.
+
+```bash
+# Wrong — unrelated commands chained; permission check sees one opaque string
+git add foo.txt && git status
+
+# Correct — independent commands issued separately
+git add foo.txt
+git status
+
+# Correct — chaining is justified here because the second step depends on the first
+git add foo.txt && git commit -m "add foo"
+```
