@@ -115,8 +115,10 @@ commit and report the exact missing prerequisite.
    the working diff from the current state — do not reuse stale patches from
    an earlier capture if earlier commits touched the same files:
    ```bash
-   git diff --binary --full-index --find-renames > <agent-sandbox-directory>/patches/all_changes.patch
+   git diff --binary --full-index --find-renames > <agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<short-title>.patch
    ```
+   where `<short-title>` is a 2–4 word kebab-case summary of the remaining
+   changes (e.g. `fix-token-validation`, `add-retry-logic`).
 
 8. **Post-commit actions** — Execute any actions required by the flags passed
    (see Arguments).
@@ -152,9 +154,14 @@ Never silently omit these changes.
 ### Step-by-step
 
 **1. Prepare the patches directory and capture all unstaged changes:**
+
+Choose a `<short-title>` — a 2–4 word kebab-case label that describes the
+overall scope of work (e.g. `refactor-auth-middleware`, `add-retry-logic`).
+This label is reused for sub-patches so the directory stays navigable.
+
 ```bash
-mkdir -p <agent-sandbox-directory>/patches
-git diff --binary --full-index --find-renames > "<agent-sandbox-directory>/patches/all_changes.patch"
+mkdir -p <agent-sandbox-directory>/patches/<cwd-slug>
+git diff --binary --full-index --find-renames > "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<short-title>.patch"
 ```
 
 Also detect untracked files:
@@ -164,7 +171,7 @@ git ls-files --others --exclude-standard
 
 For new text files, generate a patch with:
 ```bash
-git diff --no-index /dev/null path/to/new-file > "<agent-sandbox-directory>/patches/new_file.patch"
+git diff --no-index /dev/null path/to/new-file > "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<short-title>-new-files.patch"
 ```
 
 **2. Inspect and plan:**
@@ -191,12 +198,14 @@ index abc1234..def5678 100644
  }
 ```
 
-Save it to `"<agent-sandbox-directory>/patches/unit_1.patch"`.
+Name the sub-patch after the planned commit's type, scope, and subject in
+kebab-case (e.g. `fix-token-validate-empty`, `feat-auth-refresh-rotation`).
+Save it to `"<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<commit-title>.patch"`.
 
 **4. Dry-run, then stage:**
 ```bash
-git apply --cached --check --recount <agent-sandbox-directory>/patches/unit_1.patch   # dry-run first
-git apply --cached --recount <agent-sandbox-directory>/patches/unit_1.patch           # actual apply
+git apply --cached --check --recount "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<commit-title>.patch"   # dry-run first
+git apply --cached --recount "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<commit-title>.patch"           # actual apply
 ```
 
 - `--cached` — stages into the index without touching the working tree
