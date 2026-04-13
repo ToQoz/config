@@ -393,6 +393,7 @@ in
           "Write(~/agents/**)"
           "Edit(~/agents/**)"
           "Bash(codex exec --sandbox read-only --ephemeral *)"
+          "Bash(gh repo view --json defaultBranchRef --jq *)"
           "Bash(echo *)"
           "Bash(find *)"
           "Bash(grep *)"
