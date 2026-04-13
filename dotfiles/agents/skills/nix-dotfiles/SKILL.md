@@ -1,10 +1,10 @@
 ---
-name: config-edit
+name: nix-dotfiles
 description: Guidelines for editing environment configuration files managed by the ToQoz/config nix repository. Use this skill whenever modifying shell (zsh), editor (neovim), terminal (wezterm, tmux), Claude Code, or any other dotfile configuration — especially when the task involves ~/.config, ~/.claude, or similar home directory paths.
 user-invocable: false
 ---
 
-# Config Edit
+# Nix Dotfiles
 
 All environment configuration is managed via Nix/Home Manager in `~/src/github.com/ToQoz/config`. Refer to that repository's `CLAUDE.md` for the full structure and file mapping.
 

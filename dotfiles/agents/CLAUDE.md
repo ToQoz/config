@@ -12,6 +12,10 @@
 - When creating a topic branch, always branch off from the repository's default branch (e.g. `dev`, `main`) unless the user explicitly specifies a different base.
 - Determine the default branch with: `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
 
+## Environment Configuration
+
+When editing any configuration or environment setup in `~/src/github.com/ToQoz/config`, always invoke the `nix-dotfiles` skill before making changes. This includes shell, editor, terminal, Claude Code, macOS system settings, and any dotfile.
+
 ## Sandbox directory for thinking
 
 - Use `~/agents/<type>/<YYYYMMDD>-<title>.md` directory to write down plans, progress actively and record anything.
