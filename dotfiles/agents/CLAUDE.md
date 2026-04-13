@@ -4,6 +4,7 @@
 
 - `<agent-sandbox-directory>` = `~/agents`
   - The sandbox directory used by agents for thinking and processing tasks.
+  - You may freely read from and write to this directory at any time without asking the user for permission.
 - `<cwd-slug>` = Bash(`pwd | sed -e "s,^$HOME/src/,," -e 's/github.com/github/' -e 's,/,-,g'`)
   - The identifier for the current working directory.
   - Typically, it follows the format `github-<org>-<repo>`
