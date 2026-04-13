@@ -393,6 +393,7 @@ in
           "Write(~/agents/**)"
           "Edit(~/agents/**)"
           "Bash(codex exec --sandbox read-only --ephemeral *)"
+          "Bash(echo *)"
           "Bash(find *)"
           "Bash(grep *)"
           "Bash(head *)"
