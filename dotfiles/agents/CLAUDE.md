@@ -7,6 +7,11 @@
   - Exception rule 1: Documents and dictionary files whose file names or directory names contain locale should be written in the language corresponding to that locale.
   - Exception rule 2: Follow project's rules.
 
+## Git Branching
+
+- When creating a topic branch, always branch off from the repository's default branch (e.g. `dev`, `main`) unless the user explicitly specifies a different base.
+- Determine the default branch with: `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
+
 ## Sandbox directory for thinking
 
 - Use `./.git/agents/<type>/<YYYYMMDD>-<title>.md` directory to write down plans, progress actively and record anything.
