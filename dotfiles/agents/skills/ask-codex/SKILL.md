@@ -14,16 +14,16 @@ Write tool → ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md
 where `<project-path>` is the current working directory with `/` replaced by `-`
 (e.g. `pwd` → `/Users/toqoz/src/github.com/ToQoz/myapp` → `Users-toqoz-src-github-com-ToQoz-myapp`).
 
-Then pass it via stdin redirection:
+Then pass it via pipe (use `cat |` instead of `<` redirection — Claude Code's allowlist processing may not handle `<` correctly):
 
 ```bash
-codex exec --sandbox read-only --ephemeral -C "$(pwd)" - < ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md
+cat ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -
 ```
 
 For complex reasoning, choose a stronger configured model explicitly:
 
 ```bash
-codex exec --sandbox read-only --ephemeral -C "$(pwd)" -m MODEL_ID - < ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md
+cat ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -m MODEL_ID -
 ```
 
 For code reviews, prefer the review command:
@@ -37,7 +37,7 @@ codex exec review --base main --ephemeral
 
 1. **Formulate** — Write a self-contained prompt with full context. Codex has no access to your conversation history.
 2. **Write** — Use the Write tool to save the prompt to `~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md` (project-path = `pwd` with `/` → `-`).
-3. **Execute** — Run `codex exec` passing the file via `< path/to/prompt.md`.
+3. **Execute** — Run `codex exec` passing the file via `cat path/to/prompt.md |` (not `<` redirection).
 4. **Evaluate** — Do not blindly accept the response. Compare it against your own analysis.
 5. **Synthesize** — If the second opinion materially changes the risk or direction, surface the disagreement and your recommendation.
 
