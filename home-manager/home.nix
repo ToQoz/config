@@ -88,6 +88,7 @@ in
     Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
     Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
     LESSHISTFILE = "${config.xdg.dataHome}/less/history";
+    WGETHSTS = "${config.xdg.cacheHome}/wget/hsts";
     ASDF_CONFIG_FILE = "${asdfConfigDir}/.asdfrc";
     ASDF_DATA_DIR = "${asdfDataDir}";
   };
