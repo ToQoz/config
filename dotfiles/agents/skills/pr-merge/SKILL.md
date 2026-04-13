@@ -1,10 +1,7 @@
 ---
 name: pr-merge
-description: >
-  Watch CI for the current branch's PR, fix failures when possible, run a Codex
-  review after CI is green, then merge. Use when the user asks to wait for CI
-  and merge, fix CI then merge, review then merge, or any similar PR merge
-  request. Include the Codex review by default unless explicitly skipped.
+description: Watch CI, fix failures, review, and merge the current branch's PR.
+disable-model-invocation: true
 ---
 
 # pr-merge
