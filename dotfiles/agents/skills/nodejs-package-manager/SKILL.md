@@ -1,6 +1,7 @@
 ---
 name: nodejs-package-manager
 description: Determines which Node.js package manager to use for a project. Use this skill whenever you're about to run install, add, remove, or any other package manager command in a Node.js project — even if the user just says "install the deps" or "add this package". Always check lock files before running any package manager command.
+user-invocable: false
 ---
 
 # Node.js Package Manager Selection
