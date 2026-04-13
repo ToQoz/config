@@ -380,6 +380,9 @@ in
           "Edit(*.vars)"
         ];
         allow = [
+          "Read(.git/agents/**)"
+          "Write(.git/agents/**)"
+          "Bash(mkdir -p ./.git/agents/patches)"
           "Bash(find *)"
           "Bash(grep *)"
           "Bash(head *)"
@@ -410,6 +413,7 @@ in
           "Bash(gh run status *)"
           "Bash(gh run view *)"
           "Bash(gh run watch *)"
+          "Bash(gh search *)"
           "Bash(nix build *)"
           "Bash(nix fmt *)"
           "Bash(nix log *)"
