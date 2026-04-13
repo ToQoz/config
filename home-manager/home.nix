@@ -212,6 +212,28 @@ in
       }
       zle -N select-history
 
+      ghq() {
+        setopt LOCAL_OPTIONS ERR_EXIT
+        if [[ "$1" == "get" ]]; then
+          local repo=""
+          for arg in "''${@:2}"; do
+            [[ "$arg" != -* ]] && repo="$arg" && break
+          done
+
+          if [[ -n "$repo" ]]; then
+            # Strip protocol (e.g. https://, git://)
+            local repo_dir="$(command ghq root)/''${repo#*://}"
+            local org_dir="''${repo_dir%/*}"
+
+            if [[ -d "$org_dir" ]]; then
+              (cd "$org_dir" && command ghq "$@")
+              cd "$repo_dir"
+            fi
+          fi
+        fi
+        command ghq "$@"
+      }
+
       # C-Space: Start completion
       bindkey '^@' fzf-tab-complete
       # C-g: Use editor to edit command line
