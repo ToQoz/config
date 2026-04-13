@@ -1,140 +1,161 @@
 ---
-name: ci-merge
+name: pr-merge
 description: >
-  Watch CI on the current branch's PR, auto-fix any failures, get a Codex
-  review once CI is green, then merge. Use this skill whenever the user says
-  something like "CI が通ったらマージしといて", "wait for CI and merge",
-  "CI を待ってマージ", "CI 通ったらレビューしてマージ", or any variant of
-  "watch CI / fix CI / then merge". Trigger even if the user omits the Codex
-  review step — it is included by default unless explicitly skipped.
+  Watch CI for the current branch's PR, fix failures when possible, run a Codex
+  review after CI is green, then merge. Use when the user asks to wait for CI
+  and merge, fix CI then merge, review then merge, or any similar PR merge
+  request. Include the Codex review by default unless explicitly skipped.
 ---
 
-# ci-merge
+# pr-merge
 
-Watch CI on the current branch's PR, self-heal any failures, get a Codex
-code review once CI is green, and merge.
+Watch the current branch's PR, self-heal CI failures, review the final diff,
+and merge only when the PR is safe to merge.
 
 ## Prerequisites
 
 - `gh` CLI authenticated
-- `codex` CLI available (used for the review step)
-- A PR already exists for the current branch (or will be created by the user
-  before you start)
+- A PR exists for the current branch
+- `codex` CLI available for review, unless `--skip-review` is passed
 
 ## Arguments
 
-| Flag            | Effect                                          |
-|-----------------|-------------------------------------------------|
-| `--skip-review` | Merge immediately when CI passes; skip Codex review |
-| `--no-delete`   | Keep the branch after merging (default: delete) |
+| Flag | Effect |
+|---|---|
+| `--skip-review` | Skip Codex review after CI passes |
+| `--no-delete` | Keep the branch after merge |
+| `--merge` | Use a merge commit |
+| `--squash` | Squash merge |
+| `--rebase` | Rebase merge |
+
+Default merge strategy: use the repository's preferred/default strategy when
+clear from project conventions; otherwise use `--merge`. If multiple strategy
+flags are passed, stop and ask the user to choose one.
 
 ## Workflow
 
-### 1. Locate the PR
+### 1. Preflight
+
+Check the branch and worktree:
 
 ```bash
-gh pr list --head "$(git branch --show-current)" --json number,url,title
+git branch --show-current
+git status --short
 ```
 
-If no PR exists, tell the user and stop. Do not create one automatically.
+Do not overwrite unrelated user changes. If the worktree has unrelated
+uncommitted changes, stop and ask before modifying files.
 
-### 2. Watch CI
+Locate the PR:
+
+```bash
+gh pr list --head "$(git branch --show-current)" --json number,url,title,state,isDraft,baseRefName,headRefName
+```
+
+Stop if no PR is found, more than one PR is found, the PR is closed, or the PR
+is draft. If the PR is already merged, report that and stop.
+
+### 2. Wait For CI
 
 ```bash
 gh pr checks <PR_NUMBER> --watch
 ```
 
-`gh pr checks --watch` blocks until all checks finish and exits non-zero if
-any check failed. On success, proceed to step 4. On failure, proceed to step 3.
+Treat `SUCCESS`, `SKIPPED`, and `NEUTRAL` as non-failing terminal states.
+Treat `FAILURE`, `ERROR`, `CANCELLED`, `TIMED_OUT`, and action-required states
+as failures.
 
-### 3. Diagnose and fix CI failures (loop)
+If required checks are missing or GitHub reports checks are unavailable, inspect
+the PR status with:
 
-**3a. Identify the failing run:**
+```bash
+gh pr view <PR_NUMBER> --json mergeStateStatus,statusCheckRollup
+```
+
+Do not merge until required checks are green or the repository clearly has no
+required checks.
+
+### 3. Fix CI Failures
+
+For each failed attempt, identify failing checks:
 
 ```bash
 gh pr checks <PR_NUMBER> --json name,state,detailsUrl
 ```
 
-Pick the run(s) with `state: FAILURE`. Get the GitHub Actions run ID from the
-URL (the number after `/runs/`), then pull the log:
+For GitHub Actions failures, extract the run ID from `detailsUrl` and inspect:
 
 ```bash
-gh run view <RUN_ID> --log-failed 2>&1 | tail -80
+gh run view <RUN_ID> --log-failed
 ```
 
-**3b. Diagnose.** Read the log carefully. Common causes and quick fixes:
+Fix the smallest clear cause. Prefer project scripts over raw tools, for
+example `npm run format`, `npm run lint -- --fix`, `npm test`, or the local
+equivalent. For type or test failures, read the relevant source and fix the
+actual issue.
 
-| Symptom in log | Likely cause | Fix |
-|---|---|---|
-| `Prettier` / `Run Prettier to fix` | Formatter not run | `npx prettier --write '**/*.{js,ts,tsx}'` (or project's format script) |
-| `ESLint` errors | Lint violations | `npm run fix` or `npm run lint -- --fix` |
-| Type errors (`tsc`) | TypeScript compile error | Read the error, fix the source |
-| Test failures | Broken test | Read the test output, fix code or test |
-| Dependency missing | Lock file out of sync | Check project's package manager skill |
-
-For formatter/linter issues, prefer running the project's own scripts (e.g.,
-`npm run fix`, `npm run format`) over raw tool invocations — they capture the
-project's exact configuration.
-
-**3c. Apply the fix**, then commit and push:
+After each fix:
 
 ```bash
-# Stage and commit (use the commit skill if available)
+git status --short
 git add <changed files>
-git commit -m "style: fix CI — <short description>"
+git commit -m "<type>: fix CI failure"
 git push
 ```
 
-**3d. Watch CI again.** Return to step 2. Repeat until CI is green or you
-cannot figure out the fix (in that case, surface the log to the user and stop).
+Return to CI waiting. Stop after 3 failed fix attempts and report the latest
+failure summary. Never merge a failing PR.
 
-**Fix limit:** If you have made 3 fix attempts and CI still fails, stop and
-report the remaining failure to the user rather than continuing to loop. Three
-failed attempts usually mean the issue is outside the scope of automatic repair
-(flaky infrastructure, a test asserting on new behavior, a breaking API change).
+### 4. Review
 
-### 4. Codex review (unless `--skip-review`)
-
-Once CI is fully green, ask Codex for a code review of the branch diff:
+Unless `--skip-review` was passed, run Codex review after CI is green:
 
 ```bash
-codex exec review --base <base-branch> --ephemeral
+BASE_BRANCH="$(gh pr view <PR_NUMBER> --json baseRefName --jq '.baseRefName')"
+codex exec review --base "$BASE_BRANCH" --ephemeral
 ```
 
-Determine the base branch from the PR:
+If `codex` is unavailable, report that review was skipped and continue only if
+the user did not explicitly require review.
 
-```bash
-gh pr view <PR_NUMBER> --json baseRefName --jq '.baseRefName'
-```
+Handle review results:
 
-Read the review output. Apply the following judgment:
+- Blocking issue: fix it, commit, push, and return to CI waiting.
+- Non-blocking suggestion: note it, but do not block merge.
+- No issue: continue.
 
-- **Blocking issues** (security vulnerability, data loss risk, clear logic bug):
-  surface to the user, fix, push, and restart from step 2.
-- **Non-blocking suggestions** (style, minor improvements): note them in your
-  response to the user but do not block the merge.
-- **No issues**: proceed directly to merge.
-
-Do not blindly accept every Codex suggestion. If a suggestion conflicts with
-established project patterns (seen in CLAUDE.md or surrounding code), prefer
-the project pattern.
+Use judgment. Do not apply suggestions that conflict with established project
+patterns.
 
 ### 5. Merge
+
+Refresh PR state before merging:
+
+```bash
+gh pr view <PR_NUMBER> --json state,isDraft,mergeStateStatus,baseRefName,title
+gh pr checks <PR_NUMBER>
+```
+
+Stop if the PR became closed, draft, blocked, conflicted, or failing.
+
+Merge with the selected strategy:
 
 ```bash
 gh pr merge <PR_NUMBER> --merge --delete-branch
 ```
 
-Omit `--delete-branch` if `--no-delete` was passed.
+Use `--squash` or `--rebase` instead when selected. Omit `--delete-branch` when
+`--no-delete` was passed.
 
-After merging, confirm success to the user with the PR number and title.
+After merging, report the PR number, title, merge strategy, and whether the
+branch was deleted.
 
-## Error handling
+## Stop Conditions
 
-- **PR not found**: Stop and tell the user. Do not guess or create a PR.
-- **`gh` not authenticated**: Stop and tell the user to run `gh auth login`.
-- **`codex` not found**: Skip the review step and note it was skipped.
-- **CI still failing after 3 fix attempts**: Report the last failure log and
-  stop. Do not merge a failing PR.
-- **Codex review finds blocking issue**: Fix it, push, re-enter the CI watch
-  loop from step 2.
+- PR not found, ambiguous, closed, draft, or already merged
+- `gh` is missing or unauthenticated
+- Worktree has unrelated uncommitted changes
+- CI remains failing after 3 fix attempts
+- Required checks are missing, pending too long, or cannot be verified
+- Merge is blocked by conflicts, branch protection, reviews, or permissions
+- Codex review finds a blocking issue that cannot be fixed safely
