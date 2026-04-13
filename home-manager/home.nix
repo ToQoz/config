@@ -105,6 +105,11 @@ in
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
   home.file.".tool-versions".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.tool-versions";
+  home.activation.createXdgDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    # less requires the parent directory to exist before it can write LESSHISTFILE
+    mkdir -p "${config.xdg.dataHome}/less"
+  '';
+
   home.activation.installAsdfPlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${
       lib.makeBinPath (
