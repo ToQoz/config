@@ -14,9 +14,9 @@
 
 ## Sandbox directory for thinking
 
-- Use `./.git/agents/<type>/<YYYYMMDD>-<title>.md` directory to write down plans, progress actively and record anything.
+- Use `~/agents/<type>/<YYYYMMDD>-<title>.md` directory to write down plans, progress actively and record anything.
 - If the directory does not exists, you can create it.
 
 For example:
 
-- `./.git/agents/plans/20260401-logging-feature.md`
+- `~/agents/plans/20260401-logging-feature.md`

@@ -389,9 +389,6 @@ in
           "Edit(*.vars)"
         ];
         allow = [
-          "Read(.git/agents/**)"
-          "Write(.git/agents/**)"
-          "Bash(mkdir -p ./.git/agents/patches)"
           "Read(~/agents/**)"
           "Write(~/agents/**)"
           "Edit(~/agents/**)"
