@@ -14,6 +14,11 @@ Create meaningful git commits that explain not just what changed, but why — gi
 | `--push` | Run `git push` after committing                  |
 | `--pr`   | Push (if needed), then create a PR with `gh pr create`. Implies `--push`. |
 
+> **Important:** Push (and PR creation) only happens when the user explicitly
+> requests it in the current message. A prior "commit and push" instruction does
+> **not** carry over to subsequent fix requests. Each commit request is
+> independent — do not push unless the user asks for it again.
+
 ### `--push`
 
 Check for an upstream before pushing. If no upstream is set:
