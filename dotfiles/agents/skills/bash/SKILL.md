@@ -1,9 +1,12 @@
 ---
-name: bash-special-chars
-description: Rules for safely handling file paths with shell-special characters in Bash commands. Use this skill whenever constructing Bash commands that involve file paths — especially in projects like Next.js (paths with `[]` and `()`) or Remix (paths with `$`). Always apply single-quoting to prevent glob expansion, subshell interpretation, or variable substitution errors.
+name: bash
+description: Best practices for writing safe and correct Bash commands. Use this skill whenever constructing Bash commands — especially when handling file paths with shell-special characters (e.g. Next.js `[]`/`()` routes, Remix `$` params), building pipelines, or writing shell snippets that will be executed by tools.
+user-invocable: false
 ---
 
-# Bash Special Characters in File Paths
+# Bash
+
+## Special Characters in File Paths
 
 File paths in modern web frameworks often contain characters that the shell interprets specially. Passing them unquoted to Bash commands causes silent failures, glob expansion, or errors.
 
