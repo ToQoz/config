@@ -83,7 +83,7 @@ in
   #  /etc/profiles/per-user/toqoz/etc/profile.d/hm-session-vars.sh
   #
   home.sessionVariables = {
-    XDG_STATE_HOME = config.xdg.stateHome; # for .tig_history
+    XDG_DATA_HOME = config.xdg.dataHome; # for .tig_history
     # EDITOR = "emacs";
     Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
     Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
