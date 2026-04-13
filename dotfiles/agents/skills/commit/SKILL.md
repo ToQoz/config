@@ -115,7 +115,7 @@ commit and report the exact missing prerequisite.
    the working diff from the current state — do not reuse stale patches from
    an earlier capture if earlier commits touched the same files:
    ```bash
-   git diff --binary --full-index --find-renames > ~/agents/patches/all_changes.patch
+   git diff --binary --full-index --find-renames > <agent-sandbox-directory>/patches/all_changes.patch
    ```
 
 8. **Post-commit actions** — Execute any actions required by the flags passed
@@ -153,8 +153,8 @@ Never silently omit these changes.
 
 **1. Prepare the patches directory and capture all unstaged changes:**
 ```bash
-mkdir -p ~/agents/patches
-git diff --binary --full-index --find-renames > "~/agents/patches/all_changes.patch"
+mkdir -p <agent-sandbox-directory>/patches
+git diff --binary --full-index --find-renames > "<agent-sandbox-directory>/patches/all_changes.patch"
 ```
 
 Also detect untracked files:
@@ -164,7 +164,7 @@ git ls-files --others --exclude-standard
 
 For new text files, generate a patch with:
 ```bash
-git diff --no-index /dev/null path/to/new-file > "~/agents/patches/new_file.patch"
+git diff --no-index /dev/null path/to/new-file > "<agent-sandbox-directory>/patches/new_file.patch"
 ```
 
 **2. Inspect and plan:**
@@ -191,12 +191,12 @@ index abc1234..def5678 100644
  }
 ```
 
-Save it to `"~/agents/patches/unit_1.patch"`.
+Save it to `"<agent-sandbox-directory>/patches/unit_1.patch"`.
 
 **4. Dry-run, then stage:**
 ```bash
-git apply --cached --check --recount ~/agents/patches/unit_1.patch   # dry-run first
-git apply --cached --recount ~/agents/patches/unit_1.patch           # actual apply
+git apply --cached --check --recount <agent-sandbox-directory>/patches/unit_1.patch   # dry-run first
+git apply --cached --recount <agent-sandbox-directory>/patches/unit_1.patch           # actual apply
 ```
 
 - `--cached` — stages into the index without touching the working tree

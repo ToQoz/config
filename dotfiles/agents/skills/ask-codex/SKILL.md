@@ -8,22 +8,19 @@ description: Get a second opinion from Codex CLI on implementation plans, code r
 Before running `codex exec`, **always write the prompt to a file** using the Write tool to avoid heredoc parsing errors in the Claude Code Bash tool:
 
 ```
-Write tool → ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md
+Write tool → <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md
 ```
-
-where `<project-path>` is the current working directory relative to `~/src`, with `/` replaced by `-`
-(e.g. `pwd` → `/Users/toqoz/src/github.com/ToQoz/myapp` → `github-com-ToQoz-myapp`).
 
 Then pass it via pipe (use `cat |` instead of `<` redirection — Claude Code's allowlist processing may not handle `<` correctly):
 
 ```bash
-cat ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -
+cat <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -
 ```
 
 For complex reasoning, choose a stronger configured model explicitly:
 
 ```bash
-cat ~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -m MODEL_ID -
+cat <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -m MODEL_ID -
 ```
 
 For code reviews, prefer the review command:
@@ -36,7 +33,7 @@ codex exec review --base main --ephemeral
 ## Workflow
 
 1. **Formulate** — Write a self-contained prompt with full context. Codex has no access to your conversation history.
-2. **Write** — Use the Write tool to save the prompt to `~/agents/ask-codex/<project-path>/<YYYYMMDD>-<short-title>.md` (project-path = `pwd` relative to `~/src`, with `/` → `-`).
+2. **Write** — Use the Write tool to save the prompt to `<agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md`.
 3. **Execute** — Run `codex exec` passing the file via `cat path/to/prompt.md |` (not `<` redirection).
 4. **Evaluate** — Do not blindly accept the response. Compare it against your own analysis.
 5. **Synthesize** — If the second opinion materially changes the risk or direction, surface the disagreement and your recommendation.

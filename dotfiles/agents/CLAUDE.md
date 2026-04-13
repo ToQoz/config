@@ -1,5 +1,12 @@
 # User-level Claude Instructions
 
+## Variables
+
+- `<agent-sandbox-directory>` = `~/agents`
+  - The sandbox directory used by agents for thinking and processing tasks.
+- `<cwd-slug>` = Bash(`pwd | sed -e "s,^$HOME/src/,," -e 's,/,-,g'`)
+  - The identifier for the current working directory.
+
 ## Language
 
 - Communicate with user in "Japanese". But think in Eniglish
@@ -15,12 +22,3 @@
 ## Environment Configuration
 
 When editing any configuration or environment setup in `~/src/github.com/ToQoz/config`, always invoke the `nix-dotfiles` skill before making changes. This includes shell, editor, terminal, Claude Code, macOS system settings, and any dotfile.
-
-## Sandbox directory for thinking
-
-- Use `~/agents/<type>/<YYYYMMDD>-<title>.md` directory to write down plans, progress actively and record anything.
-- If the directory does not exists, you can create it.
-
-For example:
-
-- `~/agents/plans/20260401-logging-feature.md`
