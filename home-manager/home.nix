@@ -374,6 +374,10 @@ in
       includeCoAuthoredBy = false;
       enableAllProjectMcpServers = true;
 
+      env = {
+        CLAUDE_CODE_NO_FLICKER = "1";
+      };
+
       permissions = {
         deny = [
           "Bash(sudo *)"
