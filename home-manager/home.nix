@@ -45,6 +45,7 @@ in
       code-cursor
       zed-editor
       slack
+      (callPackage ./portless.nix { })
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
       pkgs.sketchybar
