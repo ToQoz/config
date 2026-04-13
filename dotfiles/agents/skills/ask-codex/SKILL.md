@@ -14,13 +14,13 @@ Write tool → <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-
 Then pass it via pipe (use `cat |` instead of `<` redirection — Claude Code's allowlist processing may not handle `<` correctly):
 
 ```bash
-cat <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -
+cat <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral "$(pwd)" -
 ```
 
 For complex reasoning, choose a stronger configured model explicitly:
 
 ```bash
-cat <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral -C "$(pwd)" -m MODEL_ID -
+cat <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md | codex exec --sandbox read-only --ephemeral "$(pwd)" -m MODEL_ID -
 ```
 
 For code reviews, prefer the review command:

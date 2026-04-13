@@ -109,7 +109,7 @@ Unless `--skip-review` was passed, run Codex review after CI is green:
 
 ```bash
 BASE_BRANCH="$(gh pr view <PR_NUMBER> --json baseRefName --jq '.baseRefName')"
-codex exec review --base "$BASE_BRANCH" --ephemeral --sandbox read-only -C "$(pwd)"
+codex exec review --base "$BASE_BRANCH" --ephemeral --sandbox read-only
 ```
 
 If `codex` is unavailable, report that review was skipped and continue only if
