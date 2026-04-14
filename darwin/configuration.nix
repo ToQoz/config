@@ -28,7 +28,7 @@ let
   };
 
   chromePolicyPlist = pkgs.writeText "com.google.Chrome.plist" (
-    lib.generators.toPlist { } chromePolicy
+    lib.generators.toPlist { escape = true; } chromePolicy
   );
 in
 {
