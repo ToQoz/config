@@ -7,11 +7,7 @@ description: Create a release PR between two branches, wait for CI, run Codex re
 
 Create a release PR using the `release-pr` script, wait for CI to pass, run a Codex review, and append the review as `## Agent Review` at the end of the PR description.
 
-## Arguments
-
-```
-/release-pr <base branch> <head branch>
-```
+**SKILL Bundled Scripts**: `./scripts/release-pr <base branch> <head branch>`
 
 | Argument | Description |
 |---|---|
@@ -25,7 +21,7 @@ Create a release PR using the `release-pr` script, wait for CI to pass, run a Co
 Run the bundled script to create the PR:
 
 ```bash
-pr="$(scripts/create-release-pr <base> <head>)"
+pr="$(./scripts/create-release-pr <base> <head>)"
 pr_number="$(echo "$pr" | jq -r '.number')"
 pr_url="$(echo "$pr" | jq -r '.url')"
 ```

@@ -426,6 +426,7 @@ in
           "Bash(git show *)"
           "Bash(git stash *)"
           "Bash(git status *)"
+          "Bash(gh pr checks *)"
           "Bash(gh pr diff *)"
           "Bash(gh pr list *)"
           "Bash(gh pr status *)"
