@@ -3,6 +3,7 @@
   config,
   pkgs,
   llm-agents,
+  agent-slack,
   anthropic-skills,
   ...
 }:
@@ -45,6 +46,7 @@ in
       code-cursor
       zed-editor
       slack
+      agent-slack.packages.${pkgs.stdenv.hostPlatform.system}.default
       (callPackage ./portless.nix { })
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
@@ -410,6 +412,8 @@ in
           "Bash(ls *)"
           "Bash(mkdir *)"
           "Bash(tail *)"
+          "Bash(agent-slack)"
+          "Bash(agent-slack *)"
           "Bash(git add *)"
           "Bash(git apply *)"
           "Bash(git blame *)"
@@ -476,11 +480,16 @@ in
         path = anthropic-skills;
         subdir = "skills";
       };
+      agent-slack = {
+        path = agent-slack.outPath;
+        subdir = "skills";
+      };
     };
     skills = {
       enableAll = [
         "local"
         "anthropic"
+        "agent-slack"
       ];
     };
     targets.claude.enable = true;

@@ -1,6 +1,6 @@
 # Skills Overview
 
-27 skills installed under `~/.claude/skills/`.
+28 skills installed under `~/.claude/skills/`.
 
 | 凡例 | 意味 |
 |---|---|
@@ -66,6 +66,13 @@ Bash コマンドを安全・正確に書くためのベストプラクティス
 **トリガー**: 「セカンドオピニオンが欲しい」「高リスクな実装判断を独立検証したい」
 
 Codex CLI (`codex exec`) に実装計画・コードレビュー・問題解決を別視点で依頼する。Codexは会話履歴を持たないため、プロンプトにすべてのコンテキストを含めた上でファイル経由で渡す（`cat file | codex exec ...`）。Claude 自身の判断と比較して、食い違いがあれば透明に報告する。
+
+---
+
+### agent-slack
+**トリガー**: Slack メッセージ/スレッド/URL の読み取り、Slack への返信、Slack 検索、チャンネル履歴の確認など
+
+`agent-slack` CLI を使って Slack の読み取り・検索・投稿・リアクション・チャンネル操作・Canvas 取得を行う。macOS では Slack Desktop のローカルデータから自動認証し、必要に応じて Chrome/Firefox import や `SLACK_TOKEN` で認証する。
 
 ---
 
