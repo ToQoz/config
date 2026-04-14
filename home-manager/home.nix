@@ -476,6 +476,16 @@ in
     targets.claude.enable = true;
   };
 
+  programs.chromium = {
+    enable = true;
+    # Installed via homebrew cask; skip Nix installation
+    package = pkgs.emptyDirectory;
+    extensions = [
+      { id = "aeblfdkhhhdcdjpifhhbdiojplfjncoa"; } # 1Password
+      { id = "fmkadmapgofadopljbjfkapdkoienihi"; } # React Developer Tools
+    ];
+  };
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }

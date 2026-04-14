@@ -284,7 +284,7 @@
           run = [ "move-node-to-workspace 2" ];
         }
         {
-          "if".app-id = "com.google.Chrome";
+          "if".app-id = "org.chromium.Chromium";
           run = [ "move-node-to-workspace 3" ];
         }
         {
@@ -419,13 +419,13 @@
     };
 
     casks = [
+      "chromium"
       "1password"
       "karabiner-elements"
       "macskk"
       "aqua-voice"
       "nani"
       "orbstack"
-      "google-chrome"
       "figma"
       "font-sketchybar-app-font"
       "claude"
