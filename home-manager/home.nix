@@ -295,6 +295,9 @@ in
         # http://qiita.com/uasi/items/f19a120e012c0c75d856
         uncommit = "reset HEAD^";
         recommit = "commit -c ORIG_HEAD";
+        # for shell completion
+        ai-commit = "!claude -p /commit";
+        ai-commit-staged = "!claude -p /commit-staged";
       };
 
       core = {
