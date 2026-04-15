@@ -4,6 +4,7 @@
   pkgs,
   llm-agents,
   anthropic-skills,
+  vercel-agent-browser,
   ...
 }:
 let
@@ -47,6 +48,7 @@ in
       slack
       (callPackage ./portless.nix { })
       (callPackage ./mo.nix { })
+      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
       pkgs.sketchybar
@@ -443,6 +445,7 @@ in
           "Bash(cargo tree *)"
           "Bash(npm list *)"
           "Bash(pnpm list *)"
+          "Bash(agent-browser *)"
           "Bash(docker compose ps *)"
           "mcp__Figma__get_code"
           "mcp__Figma__get_code_connect_map"
@@ -477,11 +480,16 @@ in
         path = anthropic-skills;
         subdir = "skills";
       };
+      vercel = {
+        path = vercel-agent-browser;
+        subdir = "skills";
+      };
     };
     skills = {
       enableAll = [
         "local"
         "anthropic"
+        "vercel"
       ];
     };
     targets.claude.enable = true;

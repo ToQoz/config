@@ -27,6 +27,10 @@ Treat the shape of a system as stronger evidence than prose instructions: paths,
 - When creating a topic branch, always branch off from the repository's default branch (e.g. `dev`, `main`) unless the user explicitly specifies a different base.
 - Determine the default branch with: `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
 
+## Web Application Testing
+
+When you modify a web application and there are no corresponding E2E tests covering the change, you MUST use the `webapp-adhoc-testing` skill to manually verify the change. After testing, leave a record of the test procedure and results (e.g. as a comment in the PR description or commit message) so reviewers can confirm what was verified.
+
 ## Environment Configuration
 
 When reading or editing any configuration like dotfiles or environment setup in `~/src/github.com/ToQoz/config`, always invoke the `nix-dotfiles` skill before making changes. This includes shell, editor, terminal, Claude Code, macOS system settings, and any dotfile.

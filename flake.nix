@@ -24,6 +24,10 @@
       url = "github:anthropics/skills";
       flake = false;
     };
+    vercel-agent-browser = {
+      url = "github:vercel-labs/agent-browser";
+      flake = false;
+    };
   };
 
   outputs =
@@ -34,6 +38,7 @@
       llm-agents,
       agent-skills,
       anthropic-skills,
+      vercel-agent-browser,
       ...
     }:
     {
@@ -51,6 +56,7 @@
             home-manager.extraSpecialArgs = {
               inherit llm-agents;
               inherit anthropic-skills;
+              inherit vercel-agent-browser;
             };
             home-manager.users."toqoz" = ./home-manager/home.nix;
           }
