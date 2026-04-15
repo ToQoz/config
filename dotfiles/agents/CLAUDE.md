@@ -29,7 +29,7 @@ Treat the shape of a system as stronger evidence than prose instructions: paths,
 
 ## Web Application Testing
 
-When you modify a web application and there are no corresponding E2E tests covering the change, you MUST use the `webapp-adhoc-testing` skill to manually verify the change. After testing, leave a record of the test procedure and results (e.g. as a comment in the PR description or commit message) so reviewers can confirm what was verified.
+When you modify a web application and there are no corresponding E2E tests covering the change, you MUST use the `exploratory-tester-for-webapp` skill to manually verify the change. After testing, leave a record of the test procedure and results (e.g. as a comment in the PR description or commit message) so reviewers can confirm what was verified.
 
 ## Environment Configuration
 
