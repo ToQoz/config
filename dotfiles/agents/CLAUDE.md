@@ -55,6 +55,15 @@ In unfamiliar code:
 
 After completing a task, check whether any friction signals occurred during the session: instruction contradictions, repeated corrections, missing context, wrong/missed skill triggers, workarounds, or ambiguous triggers. If any are found, invoke the `retrospective` skill to propose improvements to instruction files.
 
+## Webapp Testing
+
+When you change any webapp code — logic, markup, styles, assets, or configuration that affects the browser — you MUST verify the change visually and functionally before considering the task complete.
+
+- If complete automated test coverage exists for the change, those tests are sufficient.
+- Otherwise, invoke the `exploratory-tester-for-webapp` skill and verify the affected behavior in the browser.
+
+This applies unconditionally regardless of change size. A one-line CSS tweak requires the same verification as a feature addition. Minor changes are especially important to verify this way — they are easy to get wrong and easy to confirm quickly.
+
 ## Repository Rules
 
 ### Git Branching
