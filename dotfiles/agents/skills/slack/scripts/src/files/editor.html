@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Draft — {{targetHtml}}</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      background: #fff;
+      color: #1d1c1d;
+    }
+
+    .draft-editor {
+      max-width: 720px;
+      margin: 48px auto;
+      padding: 0 24px;
+    }
+
+    .draft-editor h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .destination {
+      color: #616061;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .reply-context {
+      background: #f8f8f8;
+      border-left: 4px solid #e8912d;
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .reply-context-label {
+      color: #616061;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .reply-context-text {
+      color: #1d1c1d;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .composer {
+      border: 1px solid #d6d0ce;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 2px;
+      padding: 6px 8px;
+      border-bottom: 1px solid #d6d0ce;
+      background: #f8f8f8;
+    }
+
+    .toolbar button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #1d1c1d;
+    }
+
+    .toolbar button:hover {
+      background: #e8e8e8;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      background: #d6d0ce;
+      margin: 2px 4px;
+      align-self: stretch;
+    }
+
+    .editor {
+      padding: 12px;
+      min-height: 160px;
+      outline: none;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .editor:empty::before {
+      content: attr(data-ph);
+      color: #a8a8a8;
+      pointer-events: none;
+    }
+
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 8px 12px;
+      border-top: 1px solid #d6d0ce;
+      background: #f8f8f8;
+      gap: 8px;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #616061;
+    }
+
+    .send-btn {
+      background: #4A154B;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 7px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .send-btn:hover {
+      background: #611f64;
+    }
+
+    .send-btn:disabled {
+      background: #d6d0ce;
+      cursor: not-allowed;
+    }
+
+    .success {
+      background: #f0f9f0;
+      border: 1px solid #aee6a9;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .success a {
+      color: #4A154B;
+      font-weight: 700;
+    }
+
+    .open-slack-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: #4A154B;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 7px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .open-slack-btn:hover {
+      background: #611f64;
+    }
+  </style>
+</head>
+<body>
+  <div class="draft-editor">
+    <h1>New Message</h1>
+    <p class="destination">
+      Workspace: <strong>{{workspaceHtml}}</strong> /
+      Channel: <strong>{{targetHtml}}</strong>{{threadLabelHtml}}
+    </p>
+    {{parentBlockHtml}}
+    <div class="composer">
+      <div class="toolbar">
+        <button title="Bold" onclick="fmt('bold')"><b>B</b></button>
+        <button title="Italic" onclick="fmt('italic')"><em>I</em></button>
+        <button title="Strikethrough" onclick="fmt('strikeThrough')"><s>S</s></button>
+        <div class="toolbar-divider"></div>
+        <button title="Inline code" onclick="wrap('`','`')"><code>code</code></button>
+        <button title="Code block" onclick="wrap('```\n','\n```')">{ }</button>
+      </div>
+      <div id="editor" class="editor" contenteditable="true" data-ph="Message {{targetHtml}}" spellcheck="true"></div>
+      <div class="action-bar">
+        <span class="status" id="status"></span>
+        <button class="send-btn" id="send-btn" onclick="send()">Send</button>
+      </div>
+    </div>
+    <div class="success" id="success">
+      Message sent!
+      <p style="margin-top: 8px; font-size: 13px; color: #616061">You can close this tab.</p>
+      <a class="open-slack-btn" id="open-slack-btn" style="display: none;">Open in Slack</a>
+    </div>
+  </div>
+
+  <script>
+    const INIT = {{initialTextJson}};
+    const THREAD_TS = {{threadTsJson}};
+
+    const editor = document.getElementById("editor");
+    const status = document.getElementById("status");
+    const sendBtn = document.getElementById("send-btn");
+
+    if (INIT) editor.innerText = INIT;
+    editor.focus();
+
+    const range = document.createRange();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    editor.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "b") { e.preventDefault(); fmt("bold"); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "i") { e.preventDefault(); fmt("italic"); }
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); send(); }
+    });
+
+    function fmt(cmd) {
+      document.execCommand(cmd, false, null);
+      editor.focus();
+    }
+
+    function wrap(open, close) {
+      const t = window.getSelection().toString();
+      document.execCommand("insertText", false, t ? open + t + close : open + close);
+      editor.focus();
+    }
+
+    function toMrkdwn(el) {
+      let s = "";
+      for (const n of el.childNodes) {
+        if (n.nodeType === 3) s += n.textContent;
+        else if (n.nodeName === "BR") s += "\n";
+        else if (n.nodeName === "B" || n.nodeName === "STRONG") s += "*" + toMrkdwn(n) + "*";
+        else if (n.nodeName === "I" || n.nodeName === "EM") s += "_" + toMrkdwn(n) + "_";
+        else if (n.nodeName === "S" || n.nodeName === "STRIKE" || n.nodeName === "DEL") s += "~" + toMrkdwn(n) + "~";
+        else if (n.nodeName === "CODE") s += "`" + toMrkdwn(n) + "`";
+        else if (n.nodeName === "DIV" || n.nodeName === "P") s += (s && !s.endsWith("\n") ? "\n" : "") + toMrkdwn(n);
+        else s += toMrkdwn(n);
+      }
+      return s;
+    }
+
+    async function send() {
+      const text = toMrkdwn(editor).trim();
+      if (!text) { status.textContent = "Message is empty."; return; }
+
+      sendBtn.disabled = true;
+      status.textContent = "Sending…";
+
+      try {
+        const res = await fetch("/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, thread_ts: THREAD_TS }),
+        });
+        const d = await res.json();
+        if (!d.ok) throw new Error(d.error || "unknown");
+
+        document.querySelector(".composer").style.display = "none";
+        document.getElementById("success").style.display = "block";
+        if (d.slack_url) {
+          const slackBtn = document.getElementById("open-slack-btn");
+          slackBtn.href = d.slack_url;
+          slackBtn.style.display = "inline-block";
+        }
+        status.textContent = "";
+        sendBtn.disabled = true;
+        // setTimeout(() => fetch("/close"), 1500);
+      } catch (e) {
+        status.textContent = "Error: " + e.message;
+        sendBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
