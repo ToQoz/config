@@ -18,6 +18,13 @@ These variables are defined here for reuse across agent-facing markdown files (e
   - Exception rule 1: Documents and dictionary files whose file names or directory names contain locale should be written in the language corresponding to that locale.
   - Exception rule 2: Follow project's rules.
 
+## Debugging Mindset
+
+> Beginners have a tendency to blame the compiler, the library, or anything other than their own code. Experienced programmers would love to do the same, but they know that, realistically, most problems are their own fault.
+> — Brian W. Kernighan & Rob Pike, *The Practice of Programming* (1999), Chapter 5
+
+When something goes wrong, suspect your own code first. Do not jump to blaming frameworks, libraries, compilers, or the runtime until you have ruled out mistakes in the code you wrote or changed.
+
 ## Structure Is Authority
 
 Treat the shape of a system as stronger evidence than prose instructions: paths, module boundaries, naming patterns, generated directories, ownership markers, and config layering encode the workflow the system actually supports. When instructions and structure disagree, pause and infer the intended source of truth from the structure before acting, because good structure constrains mistakes while prompts only describe them. Prefer changes that make the correct path obvious at the point of use, so future agents can self-correct by navigating the system rather than remembering a warning. In unfamiliar code, follow the architecture's affordances first, then use written guidance to explain what the structure does not make clear.
