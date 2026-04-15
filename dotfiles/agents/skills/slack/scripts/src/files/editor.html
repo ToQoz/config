@@ -277,14 +277,11 @@
 
         document.querySelector(".composer").style.display = "none";
         document.getElementById("success").style.display = "block";
-        if (d.slack_url) {
-          const slackBtn = document.getElementById("open-slack-btn");
-          slackBtn.href = d.slack_url;
-          slackBtn.style.display = "inline-block";
-        }
         status.textContent = "";
         sendBtn.disabled = true;
-        // setTimeout(() => fetch("/close"), 1500);
+        if (d.slack_url) {
+          window.location.href = d.slack_url;
+        }
       } catch (e) {
         status.textContent = "Error: " + e.message;
         sendBtn.disabled = false;

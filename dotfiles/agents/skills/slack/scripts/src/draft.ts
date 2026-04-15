@@ -99,12 +99,15 @@ export async function cmdDraft(positional: string[], flags: Flags, auth: Workspa
           body,
           auth,
         );
+        const msgTs = result.ts.replace(".", "");
+        const threadQs = thread_ts
+          ? `?thread_ts=${thread_ts}&cid=${result.channel}`
+          : "";
         const msgUrl =
-          `${auth.workspaceUrl}/archives/${result.channel}/p${result.ts.replace(".", "")}`;
-        // slack:// URL scheme to open the message in Slack Desktop
-        const slackUrl = teamId
-          ? `slack://channel?team=${teamId}&id=${result.channel}&message=${result.ts}`
-          : null;
+          `${auth.workspaceUrl}/archives/${result.channel}/p${msgTs}${threadQs}`;
+        // Use the message permalink as a universal link — Slack Desktop
+        // registers as the handler for *.slack.com/archives/* URLs.
+        const slackUrl = msgUrl;
         setTimeout(() => resolveReady(), 1500);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, message_url: msgUrl, slack_url: slackUrl }));
@@ -112,12 +115,6 @@ export async function cmdDraft(positional: string[], flags: Flags, auth: Workspa
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: false, error: (e as Error).message }));
       }
-      return;
-    }
-
-    if (url.pathname === "/close") {
-      setTimeout(() => resolveReady(), 100);
-      res.end("ok");
       return;
     }
 
