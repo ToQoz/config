@@ -49,6 +49,11 @@ In unfamiliar code:
 - `debugging-discipline` — use for investigation, reproduction, and root-cause analysis
 - `exploratory-tester-for-webapp` — use for manual verification (logic, visual etc) of web application changes when E2E coverage is missing
 - `nix-dotfiles` — use before reading or editing configuration in `~/src/github.com/ToQoz/config`
+- `retrospective` — use after completing a task when friction signals were observed (see below)
+
+## Retrospective
+
+After completing a task, check whether any friction signals occurred during the session: instruction contradictions, repeated corrections, missing context, wrong/missed skill triggers, workarounds, or ambiguous triggers. If any are found, invoke the `retrospective` skill to propose improvements to instruction files.
 
 ## Repository Rules
 
