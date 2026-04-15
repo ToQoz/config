@@ -240,6 +240,7 @@ in
             if [[ -d "$org_dir" ]]; then
               (cd "$org_dir" && command ghq "$@")
               cd "$repo_dir"
+              return
             fi
           fi
         fi
