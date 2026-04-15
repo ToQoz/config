@@ -1,0 +1,54 @@
+#!/usr/bin/env -S node --experimental-transform-types --no-warnings=ExperimentalWarning
+/**
+ * slack-cli — unified entry point for Slack operations.
+ *
+ * Usage:
+ *   slack-cli message <get|list|send|edit|delete|draft|react> [args]
+ *   slack-cli channel list [--all] [--limit N]
+ *   slack-cli search  <messages|files|all> <query> [options]
+ *   slack-cli auth    [import-desktop|import-token --token ...]
+ */
+
+const USAGE = `Usage: slack-cli <command> [subcommand] [args]
+
+Commands:
+  message   get|list|send|edit|delete|draft|react
+  channel   list
+  search    messages|files|all <query>
+  auth      import-desktop | import-token --token ...
+
+Common options:
+  --workspace <url-or-substring>   Select workspace (multi-workspace)
+
+Run 'slack-cli <command>' with no subcommand for detailed help.`;
+
+const cmd = process.argv[2];
+const rest = process.argv.slice(3);
+
+const dir = new URL(".", import.meta.url).pathname;
+
+switch (cmd) {
+  case "message": case "msg": case "m": {
+    const { main } = await import(`${dir}src/message.ts`);
+    await main(rest);
+    break;
+  }
+  case "channel": case "ch": case "c": {
+    const { main } = await import(`${dir}src/channel.ts`);
+    await main(rest);
+    break;
+  }
+  case "search": case "s": {
+    const { main } = await import(`${dir}src/search.ts`);
+    await main(rest);
+    break;
+  }
+  case "auth": case "a": {
+    const { main } = await import(`${dir}src/auth.ts`);
+    await main(rest);
+    break;
+  }
+  default:
+    console.error(USAGE);
+    process.exit(cmd ? 1 : 0);
+}

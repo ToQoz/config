@@ -20,10 +20,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    agent-slack = {
-      url = "github:stablyai/agent-slack";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     anthropic-skills = {
       url = "github:anthropics/skills";
       flake = false;
@@ -37,7 +33,6 @@
       nix-darwin,
       llm-agents,
       agent-skills,
-      agent-slack,
       anthropic-skills,
       ...
     }:
@@ -55,7 +50,6 @@
             ];
             home-manager.extraSpecialArgs = {
               inherit llm-agents;
-              inherit agent-slack;
               inherit anthropic-skills;
             };
             home-manager.users."toqoz" = ./home-manager/home.nix;
