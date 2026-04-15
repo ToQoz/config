@@ -3,11 +3,11 @@
 # Use bash 4+ for capitalization (${var^})
 
 # USAGE
-#   $ release-pr <base> <head>
+#   $ create-release-pr <base> <head>
 # EXAMPLE
-#   $ release-pr main feature/a
-#   $ release-pr develop feature/a
-#   $ release-pr release develop
+#   $ create-release-pr main feature/a
+#   $ create-release-pr develop feature/a
+#   $ create-release-pr release develop
 
 base="$1"
 head="$2"

@@ -13,7 +13,7 @@ Usage:
 /release-pr [env]
 ```
 
-**SKILL Bundled Scripts**: `./scripts/release-pr <base branch> <head branch>`
+**SKILL Bundled Scripts**: `./scripts/create-release-pr <base branch> <head branch>`
 
 | Argument | Description |
 |---|---|
