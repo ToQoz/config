@@ -7,12 +7,48 @@ description: Create a release PR between two branches, wait for CI, run Codex re
 
 Create a release PR using the `release-pr` script, wait for CI to pass, run a Codex review, and append the review as `## Agent Review` at the end of the PR description.
 
+Usage:
+
+```
+/release-pr [env]
+```
+
 **SKILL Bundled Scripts**: `./scripts/release-pr <base branch> <head branch>`
 
 | Argument | Description |
 |---|---|
 | `base branch` | The target branch (e.g. `main`, `production`) |
 | `head branch` | The source branch being merged (e.g. `develop`, `feature/x`) |
+
+## Branch Resolution
+
+When `env` is provided, use it to determine the base and head branches according to the project's branching convention.
+
+When `env` is **omitted**, resolve the branch pair interactively:
+
+1. Fetch remote branches:
+
+```bash
+git fetch origin
+git branch -r --list 'origin/*' --sort=-committerdate | sed 's|origin/||' | grep -vE 'HEAD|dependabot/|renovate/'
+```
+
+2. Identify candidate release pairs. Look for branches that form a natural promotion chain (e.g. `develop` → `main`, `staging` → `production`, `main` → `release`). A valid candidate pair `(head → base)` must satisfy:
+   - Both branches exist on the remote.
+   - `head` has commits ahead of `base` (`git rev-list --count origin/<base>..origin/<head>` > 0).
+
+3. Present the candidates to the user with the commit count for each pair, and ask them to choose:
+
+```
+Release PR の対象ブランチを選んでください:
+
+1. develop → main (3 commits ahead)
+2. main → production (7 commits ahead)
+```
+
+4. If no valid candidate pairs are found, list all remote branches and ask the user to specify `<base>` and `<head>` manually.
+
+Proceed to the workflow below once the base and head branches are determined.
 
 ## Workflow
 
