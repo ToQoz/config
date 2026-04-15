@@ -325,8 +325,8 @@ in
         uncommit = "reset HEAD^";
         recommit = "commit -c ORIG_HEAD";
         # for shell completion
-        ai-commit = "!zsh -c 'claude -p /commit'";
-        ai-commit-staged = "!zsh -c 'claude -p /commit-staged'";
+        ai-commit = "!zsh -c 'claude -p \"/commit $*\"' --";
+        ai-commit-staged = "!zsh -c 'claude -p \"/commit-staged $*\"' --";
       };
 
       core = {
