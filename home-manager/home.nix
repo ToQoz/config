@@ -450,12 +450,13 @@ in
           "Bash(pnpm list *)"
           "Bash(agent-browser *)"
           "Bash(docker compose ps *)"
-          "mcp__Figma__get_code"
-          "mcp__Figma__get_code_connect_map"
-          "mcp__Figma__get_image"
-          "mcp__Figma__get_metadata"
-          "mcp__Figma__get_screenshot"
-          "mcp__Figma__get_variable_defs"
+          "mcp__plugin_claude-code-home-manager_Figma__get_code"
+          "mcp__plugin_claude-code-home-manager_Figma__get_code_connect_map"
+          "mcp__plugin_claude-code-home-manager_Figma__get_design_context"
+          "mcp__plugin_claude-code-home-manager_Figma__get_image"
+          "mcp__plugin_claude-code-home-manager_Figma__get_metadata"
+          "mcp__plugin_claude-code-home-manager_Figma__get_screenshot"
+          "mcp__plugin_claude-code-home-manager_Figma__get_variable_defs"
         ];
       };
     };
