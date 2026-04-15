@@ -62,6 +62,21 @@ EOF
 Use the commit subject as the PR title and body as the PR description.
 Before opening the PR, verify `gh` is installed and authenticated.
 
+## Branch Guard
+
+Before committing, check the current branch:
+
+```bash
+git branch --show-current
+```
+
+If it matches `main`, `master`, `develop`, `dev`, `staging`, `prod`,
+`production`, `release`, or any other release/stable branch name, **stop
+and refuse the commit**. Ask the user to create a topic branch first.
+
+This guard may be relaxed only when the project's `CLAUDE.md` explicitly
+permits direct commits to that branch.
+
 ## Workflow
 
 1. **Check the staged diff:**

@@ -70,6 +70,21 @@ Before opening the PR, verify `gh` is installed and authenticated. For `--push`
 and `--pr`, verify a remote exists. If prerequisites are missing, stop after the
 commit and report the exact missing prerequisite.
 
+## Branch Guard
+
+Before committing, check the current branch:
+
+```bash
+git branch --show-current
+```
+
+If it matches `main`, `master`, `develop`, `dev`, `staging`, `prod`,
+`production`, `release`, or any other release/stable branch name, **stop
+and refuse the commit**. Ask the user to create a topic branch first.
+
+This guard may be relaxed only when the project's `CLAUDE.md` explicitly
+permits direct commits to that branch.
+
 ## Workflow
 
 1. **Inspect repository state:**
