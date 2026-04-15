@@ -26,27 +26,71 @@ When `env` is provided, use it to determine the base and head branches according
 
 When `env` is **omitted**, resolve the branch pair interactively:
 
-1. Fetch remote branches:
+### Step 1 — Fetch and list remote branches
 
 ```bash
 git fetch origin
 git branch -r --list 'origin/*' --sort=-committerdate | sed 's|origin/||' | grep -vE 'HEAD|dependabot/|renovate/'
 ```
 
-2. Identify candidate release pairs. Look for branches that form a natural promotion chain (e.g. `develop` → `main`, `staging` → `production`, `main` → `release`). A valid candidate pair `(head → base)` must satisfy:
-   - Both branches exist on the remote.
-   - `head` has commits ahead of `base` (`git rev-list --count origin/<base>..origin/<head>` > 0).
+### Step 2 — Detect the branching model
 
-3. Present the candidates to the user with the commit count for each pair, and ask them to choose:
+Normalize remote branch names using this alias table:
+
+| Canonical | Matches |
+|---|---|
+| `main` | `main`, `master` |
+| `develop` | `develop`, `development` |
+| `dev` | `dev` |
+| `staging` | `staging`, `stg` |
+| `production` | `production`, `prod` |
+
+Use the **first matching** model below (ordered by specificity):
+
+#### GitLab Flow (environment promotion from main)
+
+**Condition:** `main` exists AND at least two of {`dev`, `staging`, `production`} exist.
+
+Promotion chain (skip any missing link): `main` → `dev` → `staging` → `production`
+
+Example pairs: `main` → `dev`, `dev` → `staging`, `staging` → `production`
+
+#### Environment promotion (without main as source)
+
+**Condition:** `develop` exists AND at least one of {`staging`, `production`} exists.
+
+Promotion chain (skip any missing link): `develop` → `staging` → `production`
+
+#### Git Flow
+
+**Condition:** `main` exists AND (`develop` or `dev`) exists AND none of {`staging`, `production`} exist as separate environment branches.
+
+Promotion chain: `develop` (or `dev`) → `main`
+
+#### Fallback
+
+No pattern matched — skip to step 4.
+
+**Important:** When generating pairs from the matched chain, always use the **actual remote branch name** (e.g. `stg` not `staging`) in all git commands and PR creation.
+
+### Step 3 — Present candidates
+
+From the matched chain, generate candidate pairs for adjacent branches. A valid pair `(head → base)` must satisfy:
+- Both branches exist on the remote.
+- `head` has commits ahead of `base` (`git rev-list --count origin/<base>..origin/<head>` > 0).
+
+Present valid candidates with commit counts:
 
 ```
 Release PR の対象ブランチを選んでください:
 
-1. develop → main (3 commits ahead)
-2. main → production (7 commits ahead)
+1. main → dev (3 commits ahead)
+2. dev → stg (7 commits ahead)
 ```
 
-4. If no valid candidate pairs are found, list all remote branches and ask the user to specify `<base>` and `<head>` manually.
+### Step 4 — Manual fallback
+
+If no valid candidate pairs are found, list all remote branches and ask the user to specify `<base>` and `<head>` manually.
 
 Proceed to the workflow below once the base and head branches are determined.
 
