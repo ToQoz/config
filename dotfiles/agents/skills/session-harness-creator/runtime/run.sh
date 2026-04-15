@@ -182,6 +182,24 @@ bounded-loop)
     else
       DIFF_STAT=$(git diff --stat 2>/dev/null | tail -5)
       FAILED=$(verifier_fail_summary "$VOUT")
+
+      # Carry forward session memory files from previous iteration
+      SCRATCHPAD=""
+      if [[ -f "$HARNESS_DIR/state/scratchpad.md" ]]; then
+        SCRATCHPAD="
+
+## Scratchpad (from previous iteration)
+$(cat "$HARNESS_DIR/state/scratchpad.md")"
+      fi
+
+      PROGRESS=""
+      if [[ -f "$HARNESS_DIR/state/progress.md" ]]; then
+        PROGRESS="
+
+## Progress (from previous iteration)
+$(cat "$HARNESS_DIR/state/progress.md")"
+      fi
+
       PROMPT="## Task (reminder)
 $(cat "$HARNESS_DIR/prompt.md")
 
@@ -191,9 +209,11 @@ $DIFF_STAT
 
 ## Verifier failures (iteration $((iteration - 1)))
 $FAILED
+${SCRATCHPAD}${PROGRESS}
 
 Fix the failing checks above. Do not modify verifier.sh unless a check is
-demonstrably wrong. When done, stop."
+demonstrably wrong. Update state/scratchpad.md and state/progress.md as you
+work. When done, stop."
     fi
 
     # Run agent

@@ -22,6 +22,27 @@ AGENT_PERMISSION_MODE="acceptEdits"
 AGENT_MAX_TURNS=30
 ```
 
+## plan.md
+
+```markdown
+# Plan: <task-slug>
+
+## Approach
+<how the task will be implemented — 1-3 paragraphs>
+
+## Key Decisions
+- <decision 1>: <rationale>
+- <decision 2>: <rationale>
+
+## File Touch List
+| File | Action | Why |
+|---|---|---|
+| <path> | create/modify/delete | <reason> |
+
+## Trade-offs
+- <option considered and rejected>: <why rejected>
+```
+
 ## prompt.md
 
 ```markdown
@@ -40,6 +61,27 @@ AGENT_MAX_TURNS=30
 <what "done" means — should match verifier.sh checks>
 - [ ] <criterion 1>
 - [ ] <criterion 2>
+
+## Working files
+
+You MUST maintain these two files throughout your work. They live in the
+`state/` directory next to this prompt.
+
+### state/progress.md
+Track your progress as a checklist. Update it as you complete steps.
+- Create it at the start with your planned steps.
+- Check off items as you finish them.
+- Add new items if you discover work not originally planned.
+
+### state/scratchpad.md
+Write down observations, failed approaches, and anything a future session
+would need to know. This file is your memory across iterations.
+- What you tried and what happened.
+- Surprising findings about the codebase.
+- Hypotheses about remaining failures.
+
+If these files already exist when you start, READ THEM FIRST — a previous
+iteration wrote them for you.
 
 When you believe you are done, stop.
 ```
