@@ -93,6 +93,8 @@ Preferred forms:
 - command output
 - runtime behavior that can be directly checked
 
+**Web applications.** If the change touches a web application and there are no E2E tests covering it, use the `exploratory-tester-for-webapp` skill to verify the change before reporting completion. This applies to all webapp changes — not just UI changes.
+
 Do not treat "looks right" as verification.
 
 ## Internal Checklist

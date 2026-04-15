@@ -87,6 +87,7 @@ Save all test artifacts and a detailed action log under `<agent-sandbox-director
 
 - **Summary (`summary.md`)**: at the end of the session, write a result table (test item / result / notes) and list any bugs found.
 - **Network logs**: when API failures are relevant, paste the filtered `agent-browser network requests` output into the action log step. **Mask sensitive values** (tokens, passwords, session IDs, cookies, API keys) — replace them with `***` or `<REDACTED>` before writing to the log.
+- **Visibility for reviewers**: after testing, leave a record of what was tested and the results in the PR description or commit message so reviewers can confirm what was verified.
 
 ## Network Monitoring
 

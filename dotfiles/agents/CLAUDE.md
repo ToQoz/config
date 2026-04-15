@@ -45,9 +45,9 @@ In unfamiliar code:
 
 ## Skills
 
-- `implementation-discipline` — default for non-trivial coding tasks
+- `implementation-discipline` — use for coding tasks
 - `debugging-discipline` — use for investigation, reproduction, and root-cause analysis
-- `exploratory-tester-for-webapp` — use for manual verification of web application changes when E2E coverage is missing
+- `exploratory-tester-for-webapp` — use for manual verification (logic, visual etc) of web application changes when E2E coverage is missing
 - `nix-dotfiles` — use before reading or editing configuration in `~/src/github.com/ToQoz/config`
 
 ## Repository Rules
@@ -57,11 +57,6 @@ In unfamiliar code:
 - When creating a topic branch, always branch off from the repository's default branch unless the user explicitly specifies a different base.
 - Determine the default branch with:
   `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
-
-### Web Application Testing
-
-- When you modify a web application and there are no corresponding E2E tests covering the change, you MUST use the `exploratory-tester-for-webapp` skill to manually verify the change.
-- After testing, leave a record of the test procedure and results, such as in the PR description or commit message, so reviewers can confirm what was verified.
 
 ### Environment Configuration
 
