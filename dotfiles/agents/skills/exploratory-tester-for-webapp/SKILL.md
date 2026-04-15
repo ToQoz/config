@@ -110,6 +110,20 @@ When testing flows that involve external authentication providers, use `--headed
 
 This pattern works for any external auth (OAuth, SAML, LINE Login, etc.) that cannot be automated due to third-party login forms or MFA.
 
+## Element Selection Priority
+
+When identifying elements to interact with, prefer queries that reflect **what the user sees and how they interact with the page**. Fall back to implementation details only when semantic queries are insufficient.
+
+**Priority order (highest to lowest):**
+
+1. **Role + accessible name** — buttons, links, headings, form controls by their ARIA role and label (e.g., the button labeled "Submit", the link "Sign in")
+2. **Label text** — form fields by their associated `<label>` text
+3. **Visible text content** — elements by the text they display
+4. **Placeholder / alt text** — when no better semantic handle exists
+5. **id / class / data attributes** — last resort when the above do not uniquely identify the element
+
+This order matters because semantic queries are resilient to refactors (class renames, markup restructuring) and verify that the UI is actually accessible. If you find yourself reaching for `id` or `class`, pause and check whether a role or text query would work first.
+
 ## Best Practices
 
 - **Always load the agent-browser skill first** — run `agent-browser skills get agent-browser` before any browser commands
