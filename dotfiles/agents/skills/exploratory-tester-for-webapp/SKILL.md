@@ -65,6 +65,29 @@ python scripts/with_server.py \
 
 4. **Execute actions** using the discovered element refs
 
+## Test Records
+
+Save all test artifacts and a detailed action log under `<agent-sandbox-directory>/testing/<cwd-slug>/YYYYMMDD-<short-title>/`.
+
+- **Create the directory** at the start of a testing session (e.g., `~/agents/testing/github-acme-app/20260415-line-login-flow/`)
+- **Screenshots**: save every screenshot there instead of `/tmp` (e.g., `01-init-page.png`, `02-tos-checked.png`, …). Use zero-padded sequential prefixes to preserve order.
+- **Action log (`log.md`)**: record each step as it happens — action performed, observed result, and pass/fail. Include the screenshot filename on each step so the log and images cross-reference. Example:
+
+  ```markdown
+  ## 1. Open /mini/init
+  - Action: `agent-browser open http://localhost:4001/mini/init`
+  - Screenshot: 01-init-page.png
+  - Result: Logo, TOS checkbox (unchecked), disabled button displayed. **OK**
+
+  ## 2. Check TOS checkbox
+  - Action: `agent-browser check @e1`
+  - Screenshot: 02-tos-checked.png
+  - Result: Button enabled. **OK**
+  ```
+
+- **Summary (`summary.md`)**: at the end of the session, write a result table (test item / result / notes) and list any bugs found.
+- **Network logs**: when API failures are relevant, paste the filtered `agent-browser network requests` output into the action log step. **Mask sensitive values** (tokens, passwords, session IDs, cookies, API keys) — replace them with `***` or `<REDACTED>` before writing to the log.
+
 ## Network Monitoring
 
 Use `agent-browser network` subcommands to monitor and debug API calls during testing. This is essential for verifying that the correct requests are made and responses are received.
