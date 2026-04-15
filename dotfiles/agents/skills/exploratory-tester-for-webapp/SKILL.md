@@ -65,11 +65,33 @@ python scripts/with_server.py \
 
 4. **Execute actions** using the discovered element refs
 
+## Network Monitoring
+
+Use `agent-browser network` subcommands to monitor and debug API calls during testing. This is essential for verifying that the correct requests are made and responses are received.
+
+- **Clear before action**: `agent-browser network requests --clear` before triggering the action under test
+- **Inspect after action**: `agent-browser network requests --type fetch,xhr` to see API calls
+- **Filter by pattern**: `agent-browser network requests --filter "session"` to narrow results
+- **Filter by status**: `agent-browser network requests --status 5xx` to find errors
+- **View detail**: `agent-browser network request <requestId>` for full request/response body
+
+## External Authentication (OAuth, LINE Login, etc.)
+
+When testing flows that involve external authentication providers, use `--headed` mode so the user can interact with the browser window directly:
+
+1. **Launch in headed mode**: `agent-browser --headed open <url>`
+2. **Automate up to the auth boundary**: use agent-browser commands to navigate to the login screen
+3. **Ask the user to complete auth manually** in the visible browser window
+4. **Resume automated verification** after the user confirms completion — check URL, network requests, and page state
+
+This pattern works for any external auth (OAuth, SAML, LINE Login, etc.) that cannot be automated due to third-party login forms or MFA.
+
 ## Best Practices
 
 - **Always load the agent-browser skill first** — run `agent-browser skills get agent-browser` before any browser commands
 - **Use bundled scripts as black boxes** — check `scripts/` helpers with `--help` before writing custom solutions
 - **Prefer accessibility-tree snapshots** over DOM inspection for identifying interactive elements
 - **Take screenshots** for visual verification alongside snapshots
+- **Monitor network requests** during testing to verify API calls succeed — don't rely solely on UI state
 - **Use `with_server.py`** for managing server lifecycle — don't start servers manually in the background
-- **Delegate unresolvable steps to the user** — when encountering OAuth or other external-provider authentication that the agent cannot complete, ask the user to perform those steps and resume testing after confirmation
+- **Use `--headed` mode** when user interaction is needed (e.g., external auth) — default headless mode does not show a browser window
