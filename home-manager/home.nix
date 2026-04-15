@@ -182,6 +182,34 @@ in
     envExtra = ''
       source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
       fpath=(${pkgs.asdf-vm}/share/zsh/site-functions $fpath)
+
+      # Why claude() is in .zshenv: it's used by git aliases
+      claude() {
+        local print=false
+        local args=()
+        while [[ $# -gt 0 ]]; do
+          case "$1" in
+            -p) print=true; shift ;;
+            *) args+=("$1"); shift ;;
+          esac
+        done
+
+        if $print; then
+          local hr="$(printf '%*s\n' "$(tput cols)" "" | tr ' ' '-')"
+          command claude --output-format stream-json --verbose "''${args[@]}" | jq -cr '
+            if .type == "assistant" then
+              (.message.content[] | .text // empty)
+            elif .type == "result" then
+              .result
+            elif (.type == "user" or .type == "system" or .type == "rate_limit_event") then
+              empty
+            else @json
+            end | ., "'"$hr"'"
+          '
+        else
+          command claude "''${args[@]}"
+        fi
+      }
     '';
     # .zprofile
     profileExtra = ''
@@ -297,8 +325,8 @@ in
         uncommit = "reset HEAD^";
         recommit = "commit -c ORIG_HEAD";
         # for shell completion
-        ai-commit = "!claude -p /commit";
-        ai-commit-staged = "!claude -p /commit-staged";
+        ai-commit = "!zsh -c 'claude -p /commit'";
+        ai-commit-staged = "!zsh -c 'claude -p /commit-staged'";
       };
 
       core = {
