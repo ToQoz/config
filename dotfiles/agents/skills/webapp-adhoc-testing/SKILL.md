@@ -72,3 +72,4 @@ python scripts/with_server.py \
 - **Prefer accessibility-tree snapshots** over DOM inspection for identifying interactive elements
 - **Take screenshots** for visual verification alongside snapshots
 - **Use `with_server.py`** for managing server lifecycle — don't start servers manually in the background
+- **Delegate unresolvable steps to the user** — when encountering OAuth or other external-provider authentication that the agent cannot complete, ask the user to perform those steps and resume testing after confirmation
