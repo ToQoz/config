@@ -1,7 +1,6 @@
 ---
 name: pr-merge
 description: Watch CI, fix failures, review, and merge the current branch's PR.
-disable-model-invocation: true
 ---
 
 # pr-merge
@@ -11,6 +10,7 @@ and merge only when the PR is safe to merge.
 
 ## Prerequisites
 
+- The user explicitly requested this skill (do not invoke autonomously)
 - `gh` CLI authenticated
 - A PR exists for the current branch
 - `codex` CLI available for review, unless `--skip-review` is passed
