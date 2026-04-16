@@ -47,8 +47,15 @@ Import credentials from Slack Desktop (macOS, one-time):
 ```
 
 ### Draft (browser rich-text editor)
-Opens a Slack-styled editor in the browser. Send button posts to Slack and shows
-a "View in Slack" link.
+Opens a Slack-styled editor in the **user's default browser**. The command
+blocks until the user sends the message or the idle timeout (10 minutes) fires.
+Send button posts to Slack and shows a "View in Slack" link.
+
+**Agent workflow:** The command opens a browser window for the *user*, not for
+the agent. Do **not** try to open the draft URL with `agent-browser`. Run the
+command with `run_in_background: true` and wait for the background task
+notification — when it completes, the user has sent (or dismissed) the draft.
+
 ```bash
 # Post to channel
 ./scripts/slack-cli \

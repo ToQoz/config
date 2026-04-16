@@ -67,6 +67,7 @@ export async function cmdDraft(positional: string[], flags: Flags, auth: Workspa
 
   let resolveReady: () => void;
   const done = new Promise<void>((r) => { resolveReady = r; });
+  let idleTimer: ReturnType<typeof setTimeout> | undefined;
 
   function readBody(req: IncomingMessage): Promise<string> {
     return new Promise((resolve) => {
@@ -108,7 +109,7 @@ export async function cmdDraft(positional: string[], flags: Flags, auth: Workspa
         // Use the message permalink as a universal link — Slack Desktop
         // registers as the handler for *.slack.com/archives/* URLs.
         const slackUrl = msgUrl;
-        setTimeout(() => resolveReady(), 1500);
+        setTimeout(() => { clearTimeout(idleTimer); resolveReady(); }, 1500);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ ok: true, message_url: msgUrl, slack_url: slackUrl }));
       } catch (e) {
@@ -129,8 +130,16 @@ export async function cmdDraft(positional: string[], flags: Flags, auth: Workspa
   console.error(`Draft editor: ${editorUrl}`);
   spawn("open", [editorUrl], { detached: true, stdio: "ignore" }).unref();
 
-  process.on("SIGINT", () => resolveReady());
+  // Idle timeout: shut down if the user never interacts (default 10 minutes)
+  const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+  idleTimer = setTimeout(() => {
+    console.error("Draft editor timed out (no interaction). Shutting down.");
+    resolveReady();
+  }, IDLE_TIMEOUT_MS);
+
+  process.on("SIGINT", () => { clearTimeout(idleTimer); resolveReady(); });
   await done;
+  clearTimeout(idleTimer);
   server.close();
 }
 
