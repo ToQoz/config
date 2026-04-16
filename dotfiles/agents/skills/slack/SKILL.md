@@ -129,11 +129,13 @@ Requires a user token (`xoxc` or `xoxp`). Bot tokens (`xoxb`) lack `search:read`
 
 ## Multi-workspace
 
-If multiple workspaces are configured, use `--workspace` to disambiguate:
+When multiple workspaces are configured, **always pass `--workspace`**. The CLI does not infer the workspace from Slack URLs — omitting the flag silently falls back to the first workspace, which causes `channel_not_found` errors or sends messages to the wrong workspace.
+
+Extract the workspace from the Slack URL subdomain (e.g. `https://<team>.slack.com/...` → `--workspace <team>`).
 
 ```bash
 ./scripts/slack-cli \
-  message list general --workspace myteam
+  message list general --workspace <team>
 ```
 
 `--workspace` accepts a URL substring (e.g. `myteam` matches `https://myteam.slack.com`).
