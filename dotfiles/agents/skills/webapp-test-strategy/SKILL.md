@@ -1,5 +1,5 @@
 ---
-name: test-strategy-for-webapp
+name: webapp-test-strategy
 description: Decide test levels for server-side web applications with browser frontends, favoring static analysis and integration tests while keeping end-to-end coverage narrow, stable, and high-value.
 ---
 

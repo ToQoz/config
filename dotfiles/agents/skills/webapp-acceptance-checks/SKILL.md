@@ -1,5 +1,5 @@
 ---
-name: exploratory-tester-for-webapp
+name: webapp-acceptance-checks
 description: Toolkit for interacting with and testing local web applications using agent-browser. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.
 allowed-tools: Bash(agent-browser:*), Bash(npx agent-browser:*)
 ---

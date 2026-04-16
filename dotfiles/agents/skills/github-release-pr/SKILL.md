@@ -1,16 +1,16 @@
 ---
-name: release-pr
-description: Create a release PR between two branches, wait for CI, run Codex review, and append the review result to the PR description. Use this skill whenever the user says /release-pr or wants to open a release pull request from one branch to another.
+name: github-release-pr
+description: Create a release PR between two branches, wait for CI, run Codex review, and append the review result to the PR description. Use this skill whenever the user says /github-release-pr or wants to open a release pull request from one branch to another.
 ---
 
-# release-pr
+# github-release-pr
 
 Create a release PR using the `release-pr` script, wait for CI to pass, run a Codex review, and append the review as `## Agent Review` at the end of the PR description.
 
 Usage:
 
 ```
-/release-pr [env]
+/github-release-pr [env]
 ```
 
 **SKILL Bundled Scripts**: `./scripts/create-release-pr <base branch> <head branch>`

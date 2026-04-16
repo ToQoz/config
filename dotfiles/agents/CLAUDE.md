@@ -45,22 +45,22 @@ In unfamiliar code:
 
 ## Skills
 
-- `implementation-discipline` — use for coding tasks
-- `debugging-discipline` — use for investigation, reproduction, and root-cause analysis
-- `exploratory-tester-for-webapp` — use for manual verification (logic, visual etc) of web application changes when E2E coverage is missing
-- `nix-dotfiles` — use before reading or editing configuration in `~/src/github.com/ToQoz/config`
-- `retrospective` — use after completing a task when friction signals were observed (see below)
+- `coding-practice` — use for coding tasks
+- `debugging-practice` — use for investigation, reproduction, and root-cause analysis
+- `webapp-acceptance-checks` — use for manual verification (logic, visual etc) of web application changes when E2E coverage is missing
+- `computer-configuration` — use before reading or editing configuration in `~/src/github.com/ToQoz/config`
+- `retro-agent-instructions` — use after completing a task when friction signals were observed (see below)
 
 ## Retrospective
 
-After completing a task, check whether any friction signals occurred during the session: instruction contradictions, repeated corrections, missing context, wrong/missed skill triggers, workarounds, or ambiguous triggers. If any are found, invoke the `retrospective` skill to propose improvements to instruction files.
+After completing a task, check whether any friction signals occurred during the session: instruction contradictions, repeated corrections, missing context, wrong/missed skill triggers, workarounds, or ambiguous triggers. If any are found, invoke the `retro-agent-instructions` skill to propose improvements to instruction files.
 
 ## Webapp Testing
 
 When you change any webapp code — logic, markup, styles, assets, or configuration that affects the browser — you MUST verify the change visually and functionally before considering the task complete.
 
 - If complete automated test coverage exists for the change, those tests are sufficient.
-- Otherwise, invoke the `exploratory-tester-for-webapp` skill and verify the affected behavior in the browser.
+- Otherwise, invoke the `webapp-acceptance-checks` skill and verify the affected behavior in the browser.
 
 This applies unconditionally regardless of change size. A one-line CSS tweak requires the same verification as a feature addition. Minor changes are especially important to verify this way — they are easy to get wrong and easy to confirm quickly.
 
@@ -74,5 +74,5 @@ This applies unconditionally regardless of change size. A one-line CSS tweak req
 
 ### Environment Configuration
 
-- When reading or editing configuration in `~/src/github.com/ToQoz/config`, always invoke the `nix-dotfiles` skill before making changes.
+- When reading or editing configuration in `~/src/github.com/ToQoz/config`, always invoke the `computer-configuration` skill before making changes.
 - This includes shell, editor, terminal, Claude Code, macOS system settings, and any other dotfile or environment configuration managed there.

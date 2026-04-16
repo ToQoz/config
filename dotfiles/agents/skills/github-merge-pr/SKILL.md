@@ -1,9 +1,9 @@
 ---
-name: pr-merge
+name: github-merge-pr
 description: Watch CI, fix failures, review, and merge the current branch's PR.
 ---
 
-# pr-merge
+# github-merge-pr
 
 Watch the current branch's PR, self-heal CI failures, review the final diff,
 and merge only when the PR is safe to merge.

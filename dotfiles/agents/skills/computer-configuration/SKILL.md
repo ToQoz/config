@@ -1,5 +1,5 @@
 ---
-name: nix-dotfiles
+name: computer-configuration
 description: Guidelines for editing environment configuration files managed by the ToQoz/config nix repository. Use this skill whenever modifying shell (zsh), editor (neovim), terminal (wezterm, tmux), Claude Code, or any other dotfile configuration — especially when the task involves ~/.config, ~/.claude, or similar home directory paths.
 user-invocable: false
 ---

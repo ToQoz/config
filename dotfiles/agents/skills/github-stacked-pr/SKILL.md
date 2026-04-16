@@ -1,5 +1,5 @@
 ---
-name: stacked-pr
+name: github-stacked-pr
 description: Create stacked PRs by splitting a large change into a chain of independently-reviewable pull requests using gh-stack. Use this skill whenever the user wants to split a large task into multiple PRs, mentions "stacked PRs", "PR stack", "split into PRs", "break into layers", or wants to create a series of dependent pull requests where each targets the branch below it. Always invoke this skill rather than manually wiring up branches and PRs one-by-one.
 ---
 

@@ -1,9 +1,9 @@
 ---
-name: debugging-discipline
+name: debugging-practice
 description: Use this for debugging, reproduction, and root-cause analysis. Suspect recent changes and local assumptions before blaming external systems.
 ---
 
-# debugging-discipline
+# debugging-practice
 
 ## Intent
 

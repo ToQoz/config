@@ -1,9 +1,9 @@
 ---
-name: retrospective
+name: retro-agent-instructions
 description: After completing a task, reflect on whether CLAUDE.md, AGENTS.md, or SKILL files could be improved based on friction observed during the session. Proposes atomic, evidence-based changes to instruction files.
 ---
 
-# retrospective
+# retro-agent-instructions
 
 ## Intent
 

@@ -1,9 +1,9 @@
 ---
-name: implementation-discipline
+name: coding-practice
 description: Default workflow for non-trivial coding tasks. Covers task clarification, constrained execution, design choices, and concrete verification.
 ---
 
-# implementation-discipline
+# coding-practice
 
 ## Intent
 
@@ -93,7 +93,7 @@ Preferred forms:
 - command output
 - runtime behavior that can be directly checked
 
-**Web applications.** If the change touches a web application and there are no E2E tests covering it, use the `exploratory-tester-for-webapp` skill to verify the change before reporting completion. This applies to all webapp changes — not just UI changes.
+**Web applications.** If the change touches a web application and there are no E2E tests covering it, use the `webapp-acceptance-checks` skill to verify the change before reporting completion. This applies to all webapp changes — not just UI changes.
 
 Do not treat "looks right" as verification.
 
