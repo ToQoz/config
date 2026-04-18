@@ -30,12 +30,24 @@ export function output(data: unknown): void {
   console.log(JSON.stringify(data, null, 2));
 }
 
+export class FatalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "FatalError";
+  }
+}
+
+export class UsageError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UsageError";
+  }
+}
+
 export function fatal(msg: string): never {
-  console.error(`Error: ${msg}`);
-  process.exit(1);
+  throw new FatalError(msg);
 }
 
 export function usage(text: string): never {
-  console.error(text);
-  process.exit(1);
+  throw new UsageError(text);
 }

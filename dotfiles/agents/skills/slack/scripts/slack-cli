@@ -26,29 +26,42 @@ const cmd = process.argv[2];
 const rest = process.argv.slice(3);
 
 const dir = new URL(".", import.meta.url).pathname;
+const { FatalError, UsageError } = await import(`${dir}src/helpers/cli.ts`);
 
-switch (cmd) {
-  case "message": case "msg": case "m": {
-    const { main } = await import(`${dir}src/message.ts`);
-    await main(rest);
-    break;
+try {
+  switch (cmd) {
+    case "message": case "msg": case "m": {
+      const { main } = await import(`${dir}src/message.ts`);
+      await main(rest);
+      break;
+    }
+    case "channel": case "ch": case "c": {
+      const { main } = await import(`${dir}src/channel.ts`);
+      await main(rest);
+      break;
+    }
+    case "search": case "s": {
+      const { main } = await import(`${dir}src/search.ts`);
+      await main(rest);
+      break;
+    }
+    case "auth": case "a": {
+      const { main } = await import(`${dir}src/auth.ts`);
+      await main(rest);
+      break;
+    }
+    default:
+      console.error(USAGE);
+      process.exit(cmd ? 1 : 0);
   }
-  case "channel": case "ch": case "c": {
-    const { main } = await import(`${dir}src/channel.ts`);
-    await main(rest);
-    break;
+} catch (e) {
+  if (e instanceof FatalError) {
+    console.error(`Error: ${e.message}`);
+    process.exit(1);
   }
-  case "search": case "s": {
-    const { main } = await import(`${dir}src/search.ts`);
-    await main(rest);
-    break;
+  if (e instanceof UsageError) {
+    console.error(e.message);
+    process.exit(1);
   }
-  case "auth": case "a": {
-    const { main } = await import(`${dir}src/auth.ts`);
-    await main(rest);
-    break;
-  }
-  default:
-    console.error(USAGE);
-    process.exit(cmd ? 1 : 0);
+  throw e;
 }
