@@ -41,6 +41,7 @@ in
       lazygit
       ripgrep
       fd
+      fence
       asdf-vm
       vscode
       code-cursor
