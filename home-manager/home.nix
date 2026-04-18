@@ -41,6 +41,8 @@ in
       lazygit
       ripgrep
       fd
+      bun
+      deno
       fence
       asdf-vm
       vscode
