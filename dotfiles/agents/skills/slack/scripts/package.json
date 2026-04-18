@@ -1,1 +1,6 @@
-{ "type": "module" }
+{
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-transform-types --no-warnings=ExperimentalWarning --test src/**/*.test.ts"
+  }
+}
