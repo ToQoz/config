@@ -48,6 +48,7 @@ in
       slack
       (callPackage ./portless.nix { })
       (callPackage ./mo.nix { })
+      (callPackage ./pi-coding-agent.nix { })
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
