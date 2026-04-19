@@ -1,6 +1,6 @@
 # 001. WezTerm の mux を使う
 
-- Status: Accepted
+- Status: Superseded by [002](002-tmux-mux.md)
 - Date: 2026-03-27
 
 ## Context

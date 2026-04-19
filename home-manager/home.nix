@@ -287,6 +287,8 @@ in
       bindkey "^xg" select-repository
       # C-r: Alt bck-i-search
       bindkey '^r' select-history
+      # Unbind C-t (fzf file widget) so tmux prefix passes through
+      bindkey -r '^t'
       # Cmd-r: Redo
       bindkey "^[r" redo # Cmd-r
     '';
