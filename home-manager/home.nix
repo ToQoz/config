@@ -232,10 +232,14 @@ in
       zle -N edit-command-line
 
       select-repository() {
-        local d
-        d=$(ghq list -p | fzf --no-sort --exact)
+        local root d
+        root=$(ghq root)
+        d=$(ghq list -p | sed "s|^$root/github.com/|github:|; s|^$root/||" | fzf --no-sort --exact)
         if [ $? = 0 -a -n "$d" ]; then
-          cd $d
+          d=''${d/#github:/$root/github.com/}
+          # If still relative (non-github host), prepend root
+          [[ "$d" != /* ]] && d="$root/$d"
+          cd "$d"
           zle reset-prompt
         fi
       }
