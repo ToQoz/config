@@ -300,6 +300,8 @@ in
       # Env
       ".env"
       "*.env$"
+      # Claude
+      "settings.local.json"
     ];
 
     settings = {
