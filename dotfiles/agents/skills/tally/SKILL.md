@@ -282,7 +282,7 @@ A clause with no `supersedes` referring to it and `signature_status: signed` is 
 
 ### Step 3 — Verify, present, confirm
 
-1. **Re-verify signatures from files — run `scripts/tally-verify`.** The verifier walks `contract.yaml` against the filesystem and checks every signed clause (record exists, frontmatter complete, outcome matches, requirement_id cross-links with observation `requirement_ids`, evidence body non-empty) plus per-R-### coverage (at least one effective signed clause cites an `independent: true` observation; no unsuperseded failing or unsigned clause remains). Its exit code is authoritative:
+1. **Re-verify signatures from files — run `scripts/tally-verify`.** The verifier walks `contract.yaml` against the filesystem and checks every signed clause (record exists, frontmatter complete, outcome matches, requirement_id cross-links with observation `requirement_ids`, evidence body non-empty, **observation `produced_by` is in the clause's oracle `allowed_producers` list — or the clause carries `substituted_check: true` with a non-empty `substitution_reason` and `oracle-map.md` has an authorizing `## Reopened` note**) plus per-R-### coverage (at least one effective signed clause cites an `independent: true` observation; no unsuperseded failing or unsigned clause remains). Its exit code is authoritative:
 
    - `0` — all clauses verified, Step 3 may proceed.
    - `1` — one or more violations printed. Each reported clause-level failure means that clause's `signature_status` should be reset to `unsigned` in `contract.yaml` (or the clause should be resolved by a superseding one); each reported R-### failure means that requirement is not yet satisfied and the loop returns to Step 2.

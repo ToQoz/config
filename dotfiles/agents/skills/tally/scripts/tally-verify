@@ -27,6 +27,13 @@ Per-Requirement-ID coverage:
     - at least one effective signed clause cites an observation with
       `independent: true` frontmatter flag (see SKILL.md § Invariants)
     - no unsuperseded failing or unsigned clause remains for this R-###
+
+Oracle-method enforcement:
+    Each signed clause's observation `produced_by` must appear in the
+    clause's oracle's `allowed_producers` (parsed from oracle-map.md).
+    A substitution is allowed only when the clause carries
+    `substituted_check: true`, a non-empty `substitution_reason`, and
+    `oracle-map.md` contains an authorizing `## Reopened` note.
 """
 
 from __future__ import annotations
@@ -81,6 +88,43 @@ def parse_frontmatter(md_path: pathlib.Path) -> tuple[dict | None, str]:
     return frontmatter, body
 
 
+def parse_producers_cell(raw: str) -> list[str]:
+    s = raw.strip()
+    if s.startswith("[") and s.endswith("]"):
+        s = s[1:-1]
+    if not s:
+        return []
+    return [p.strip().strip("`") for p in s.split(",") if p.strip()]
+
+
+def parse_oracle_map(path: pathlib.Path) -> dict[str, dict]:
+    """Parse oracle-map.md's structured table. Returns R-### -> {observation_method, allowed_producers}."""
+    if not path.exists():
+        return {}
+    oracles: dict[str, dict] = {}
+    for line in path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if parts and parts[0] == "":
+            parts = parts[1:]
+        if parts and parts[-1] == "":
+            parts = parts[:-1]
+        if len(parts) < 6:
+            continue
+        req_id = parts[0].strip("`")
+        if not re.fullmatch(r"R-\d+", req_id):
+            continue
+        method = parts[4].strip("`")
+        producers = parse_producers_cell(parts[5])
+        oracles[req_id] = {
+            "observation_method": method,
+            "allowed_producers": producers,
+        }
+    return oracles
+
+
 def verify(workspace: pathlib.Path) -> int:
     contract_path = workspace / "contract.yaml"
     if not contract_path.exists():
@@ -95,6 +139,11 @@ def verify(workspace: pathlib.Path) -> int:
 
     clauses = contract.get("clauses") or []
     observations_dir = workspace / "observations"
+
+    oracle_map_path = workspace / "oracle-map.md"
+    oracles = parse_oracle_map(oracle_map_path)
+    oracle_map_text = oracle_map_path.read_text() if oracle_map_path.exists() else ""
+    has_reopen_note = "## Reopened" in oracle_map_text
 
     # Build supersedes map (old_clause_id -> superseding_clause_id)
     superseded_by: dict[str, str] = {}
@@ -184,6 +233,58 @@ def verify(workspace: pathlib.Path) -> int:
                 )
             )
             continue
+
+        oracle = oracles.get(req_id)
+        if oracle is None:
+            violations.append(
+                (cid, f"no oracle row found in oracle-map.md for {req_id}")
+            )
+            continue
+        allowed = set(oracle.get("allowed_producers") or [])
+        if not allowed:
+            violations.append(
+                (
+                    cid,
+                    f"oracle {req_id} has no allowed_producers declared; "
+                    "cannot verify any observation against it",
+                )
+            )
+            continue
+        if produced_by not in allowed:
+            if c.get("substituted_check") is True:
+                reason = (c.get("substitution_reason") or "").strip()
+                if not reason:
+                    violations.append(
+                        (
+                            cid,
+                            "substituted_check=true requires a non-empty "
+                            "substitution_reason",
+                        )
+                    )
+                    continue
+                if not has_reopen_note:
+                    violations.append(
+                        (
+                            cid,
+                            "substituted_check=true requires an authorizing "
+                            "'## Reopened' note in oracle-map.md — no such note "
+                            "was found",
+                        )
+                    )
+                    continue
+                # Authorized substitution: allow through.
+            else:
+                violations.append(
+                    (
+                        cid,
+                        f"observation produced_by={produced_by!r} not in "
+                        f"oracle {req_id} allowed_producers={sorted(allowed)}; "
+                        "set substituted_check=true with substitution_reason "
+                        "and an oracle-map.md '## Reopened' authorization note "
+                        "if the substitution is user-approved",
+                    )
+                )
+                continue
 
     # Per-Requirement-ID coverage
     by_req: dict[str, list[dict]] = {}
