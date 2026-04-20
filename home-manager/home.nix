@@ -135,8 +135,9 @@ in
   home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
   # tmux
   xdg.configFile."tmux".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux";
-  xdg.dataFile."tmux/plugins/tmux-agent-sidebar".source =
-    "${pkgs.callPackage ./tmux-agent-sidebar.nix { }}/share/tmux-plugins/tmux-agent-sidebar";
+  xdg.dataFile."tmux/plugins/tmux-agent-sidebar".source = "${
+    pkgs.callPackage ./tmux-agent-sidebar.nix { }
+  }/share/tmux-plugins/tmux-agent-sidebar";
   # asdf
   xdg.configFile."asdf/.asdfrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
@@ -304,6 +305,45 @@ in
       }
       zle -N select-history
 
+      ai() {
+        case "$1" in
+          commit)
+            shift
+            if [[ "$1" == "--staged" ]]; then
+              shift
+              claude -p "/commit-staged $*"
+            else
+              claude -p "/commit $*"
+            fi
+            ;;
+          *)
+            echo "Usage: ai commit [--staged] [args...]" >&2
+            return 1
+            ;;
+        esac
+      }
+      _ai() {
+        local state line
+        _arguments -C \
+          '1: :->subcmd' \
+          '*:: :->args'
+        case $state in
+          subcmd)
+            local -a subcmds
+            subcmds=('commit:generate a commit message with Claude')
+            _describe 'subcommand' subcmds
+            ;;
+          args)
+            case $line[1] in
+              commit)
+                _arguments '--staged[commit only staged changes]'
+                ;;
+            esac
+            ;;
+        esac
+      }
+      compdef _ai ai
+
       ghq() {
         setopt LOCAL_OPTIONS ERR_EXIT
         if [[ "$1" == "get" ]]; then
@@ -380,9 +420,6 @@ in
         # http://qiita.com/uasi/items/f19a120e012c0c75d856
         uncommit = "reset HEAD^";
         recommit = "commit -c ORIG_HEAD";
-        # for shell completion
-        ai-commit = "!zsh -c 'claude -p \"/commit $*\"' --";
-        ai-commit-staged = "!zsh -c 'claude -p \"/commit-staged $*\"' --";
       };
 
       core = {
