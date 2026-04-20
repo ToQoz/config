@@ -26,7 +26,10 @@ Frontmatter populated automatically:
     requirement_ids [R-###, ...]
     command         full argv as a single quoted string
     cwd             actual working directory at run time
-    env             platform string (e.g., "Darwin-25.4.0-arm64-arm-64bit")
+    env             mapping with {os, [tool_versions], [relevant_env_vars]}
+                    os is populated from platform.platform() automatically;
+                    tool_versions (from --tool name=version) and
+                    relevant_env_vars (from --capture-env NAME) are optional
     timestamp       ISO-8601 UTC (%Y-%m-%dT%H:%M:%SZ)
     outcome         pass | fail | error (derived from exit_code + --expect)
     exit_code       the subprocess exit code
@@ -155,6 +158,20 @@ def main() -> int:
     parser.add_argument("--cwd", default=None)
     parser.add_argument("--notes", default=None)
     parser.add_argument(
+        "--tool",
+        action="append",
+        default=[],
+        metavar="NAME=VERSION",
+        help="Record a tool version under env.tool_versions. Repeatable.",
+    )
+    parser.add_argument(
+        "--capture-env",
+        action="append",
+        default=[],
+        metavar="NAME",
+        help="Capture the named environment variable under env.relevant_env_vars. Repeatable.",
+    )
+    parser.add_argument(
         "command",
         nargs=argparse.REMAINDER,
         help="Command to run after --.",
@@ -217,12 +234,33 @@ def main() -> int:
 
     outcome = determine_outcome(exit_code, args.expect)
 
+    env_block: dict = {"os": platform.platform()}
+    if args.tool:
+        tool_versions: dict[str, str] = {}
+        for entry in args.tool:
+            if "=" not in entry:
+                sys.stderr.write(
+                    f"tally-record: --tool expects NAME=VERSION, got '{entry}'\n"
+                )
+                return 2
+            name, version = entry.split("=", 1)
+            tool_versions[name.strip()] = version.strip()
+        if tool_versions:
+            env_block["tool_versions"] = tool_versions
+    if args.capture_env:
+        captured: dict[str, str] = {}
+        for var_name in args.capture_env:
+            if var_name in os.environ:
+                captured[var_name] = os.environ[var_name]
+        if captured:
+            env_block["relevant_env_vars"] = captured
+
     frontmatter: dict = {
         "id": record_id,
         "requirement_ids": requirement_ids,
         "command": format_command(command),
         "cwd": str(run_cwd),
-        "env": platform.platform(),
+        "env": env_block,
         "timestamp": iso_timestamp(),
         "outcome": outcome,
         "exit_code": exit_code,

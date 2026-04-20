@@ -133,6 +133,17 @@ def verify(workspace: pathlib.Path) -> int:
             )
             continue
 
+        env = fm.get("env")
+        if not isinstance(env, dict) or "os" not in env:
+            violations.append(
+                (
+                    cid,
+                    "observation env must be a mapping with at least `os`; "
+                    f"got {type(env).__name__}",
+                )
+            )
+            continue
+
         if not body.strip():
             violations.append((cid, "observation evidence body is empty"))
             continue

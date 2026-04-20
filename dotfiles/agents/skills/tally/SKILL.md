@@ -54,13 +54,16 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
 - **Step 1 files are stable after Step 1 completes — amendments require a dated note.** `requirement.md` and `oracle-map.md` are not edited silently afterwards. Legitimate reopens are expected when a Step-2 finding reveals a requirement defect; mark them explicitly by appending a `## Reopened <date> — reason: <why>` note at the bottom of the affected file, then edit. A silent edit is oracle drift in file form; a dated reopen is a normal Step-1 round-trip with the user.
 - **Observations are append-only.** Never edit an existing `observations/<id>.md` after its outcome is written. Corrections are a new record whose frontmatter includes `supersedes: <old-id>`.
 - **Observation record schema (required frontmatter).** A file under `observations/` is only a valid evidence source if its frontmatter contains at least:
-  ```
+  ```yaml
   ---
   id: <matches filename stem>
   requirement_ids: [R-###, ...]
   command: <exact command, test name, or action>
   cwd: <working directory>
-  env: <platform string, tool versions, or relevant env vars>
+  env:                      # mapping; at minimum `os` must be present
+    os: <platform string>
+    tool_versions: {...}    # optional map of name -> version
+    relevant_env_vars: {...}  # optional map of NAME -> value
   timestamp: <ISO-8601>
   outcome: pass | fail | error
   exit_code: <integer or n/a>
@@ -137,6 +140,8 @@ Internal code-quality properties (maintainability, extensibility, readability, t
    ```
 
 6. Initialize `contract.yaml` with `slug:`, `feature_title:`, and an empty `clauses: []` list. Clauses are added during Step 2.
+
+Starting points for each file live in `templates/` (`requirement.md.tmpl`, `oracle-map.md.tmpl`, `contract.yaml.tmpl`). Copy them into the workspace and fill in the placeholders — the structure is then consistent across tasks and across agents working on the same project.
 
 7. Tell the user that the workspace lives at `./.agents/tally/<slug>/` and that committing vs. gitignoring it is their call.
 

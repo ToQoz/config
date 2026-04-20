@@ -1,0 +1,19 @@
+# contract.yaml — canonical source of truth for the observed contract.
+# Lifecycle state (unsigned | signed | superseded) lives in per-clause fields,
+# not in sectioning. scripts/tally-verify is the authoritative reader.
+
+slug: {{SLUG}}
+feature_title: "{{FEATURE_TITLE}}"
+
+clauses: []
+
+# Clause shape (added by Step 2, one per drafting):
+#
+# - clause_id: C-001                  # stable, monotonically issued
+#   requirement_id: R-001             # from oracle-map.md
+#   observed_behavior: "..."          # quote or summarize from the record body
+#   observation_record_id: <id>       # must match a file in observations/
+#   oracle_result: pass | fail        # against the Step-1 pass/fail criterion
+#   signature_status: unsigned        # set to `signed` only after file re-check
+#   signed_at: "2026-...Z"            # ISO-8601 UTC, set when signed_status becomes signed
+#   supersedes: <old-clause-id>       # optional; marks the named prior clause inactive

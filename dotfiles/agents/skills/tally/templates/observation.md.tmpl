@@ -1,0 +1,41 @@
+# Observation record — authoritative schema reference
+#
+# You should not write these files by hand — run scripts/tally-record (or let a
+# companion skill emit its own record). This template documents the frontmatter
+# shape that tally-verify will accept.
+
+---
+id: {{RECORD_ID}}                 # matches filename stem
+requirement_ids:                  # list of R-### ids this observation speaks to
+  - R-001
+command: "<exact command or action>"
+cwd: "<working directory the subprocess ran in>"
+env:
+  os: "<platform string, e.g. Darwin-25.4.0-arm64>"
+  tool_versions:                  # optional map of name -> version
+    python: "3.12.1"
+  relevant_env_vars:              # optional map of NAME -> value
+    LANG: "en_US.UTF-8"
+timestamp: "2026-04-20T10:22:11Z" # ISO-8601 UTC
+outcome: pass                     # pass | fail | error
+exit_code: 0                      # integer from the subprocess (or -1 for exec failure)
+produced_by: tally-record         # tally-record or a known companion skill
+independent: true                 # optional; true when this observation qualifies
+                                  # for the independent-observation invariant
+# Optional metadata:
+# supersedes: <old-record-id>     # record-level supersession (observations are append-only)
+# artifacts: ["path/to/file"]     # relative paths captured alongside this record
+# notes: "<free text context>"
+---
+
+## stdout
+
+```
+<captured stdout from the real subprocess>
+```
+
+## stderr
+
+```
+<captured stderr from the real subprocess>
+```
