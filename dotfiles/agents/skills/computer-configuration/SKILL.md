@@ -16,7 +16,7 @@ All environment configuration is managed via Nix/Home Manager in `~/src/github.c
 - **Don't build directly.** When a rebuild is needed:
   1. Open a new tmux split pane with the command pre-filled (using `send-keys` without pressing Enter) so the user can review and execute it:
      ```
-     tmux split-window -v -l 15 \; send-keys 'darwin-rebuild switch' ''
+     tmux split-window -v -l 15 \; send-keys 'sudo darwin-rebuild switch --flake .' ''
      ```
   2. After the user starts the build, monitor progress by polling with `tmux capture-pane -t <pane_id> -p` every 10 seconds.
   3. If the output stops changing for 1 minute, stop monitoring and ask the user to check the status.
