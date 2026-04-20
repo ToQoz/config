@@ -372,6 +372,7 @@ in
     vimdiffAlias = true;
     withRuby = false;
     withPython3 = false;
+    sideloadInitLua = true;
 
     extraWrapperArgs = [
       "--set"
@@ -425,7 +426,7 @@ in
     enableMcpIntegration = true;
     package = llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
 
-    memory.source = ../dotfiles/agents/CLAUDE.md;
+    context = ../dotfiles/agents/CLAUDE.md;
     settings = {
       autoUpdates = false;
       includeCoAuthoredBy = false;
