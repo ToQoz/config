@@ -47,7 +47,7 @@ If all candidates fail, omit `-m` entirely and let Codex CLI use its default.
 Models embedded in the installed binary (hints, not guarantees — availability depends on account and plan):
 
 ```bash
-strings $(which codex) 2>/dev/null | rg -oN '"(gpt-[0-9a-z.-]+|o[0-9][a-z0-9.-]+)"' -r '$1' | sort -u
+strings $(which codex) 2>/dev/null | rg -oN 'gpt-[0-9a-z.-]+|o[0-9][a-z0-9.-]+' | sort -u
 ```
 
 ## Consultation Mode
