@@ -9,7 +9,9 @@
 #   tui::send "$SESSION" "echo hello" Enter
 #   tui::wait "$SESSION" 'hello' 5000
 #   tui::capture "$SESSION"
-#   tui::kill "$SESSION"
+#   # Do NOT kill the session at the end of a successful run — the user may be
+#   # attached to observe live. Call tui::kill only to reclaim a stale name
+#   # before a new run, or when the user asks you to tear it down.
 #
 # All functions take the tmux session name as $1. Every function that polls
 # returns the current pane content on timeout — the caller decides whether a
@@ -41,6 +43,9 @@ tui::new() {
 
 # tui::kill <session>
 # Tear down the session. Safe to call when the session does not exist.
+# Do NOT call at the end of a successful run — leave the session alive so the
+# user can attach and inspect. Use only to reclaim a colliding session name or
+# when the user explicitly asks for teardown.
 tui::kill() {
   local session="$1"
   tmux kill-session -t "$session" 2>/dev/null || true

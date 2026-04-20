@@ -53,10 +53,17 @@ Always use a **detached** session with a fixed size — the default size follows
 ```bash
 tmux new-session -d -s "$SESSION" -x 120 -y 40
 # ... interact ...
-tmux kill-session -t "$SESSION"
+# Do NOT kill the session at the end of a successful run.
 ```
 
 Name the session uniquely per test run (include `$$` or a counter) so parallel runs do not collide.
+
+**Leave the session alive when the run finishes.** The user may be attached via another pane to observe the TUI live, and killing the session disconnects them mid-inspection. At the end of a run, print the session name (and an `tmux attach -t <session>` hint) so the user can inspect it on their own schedule. Only call `tui::kill` / `tmux kill-session` when:
+
+- recovering from a stale session with a colliding name before a new run, or
+- the user has explicitly asked you to tear it down.
+
+Stale detached sessions are cheap; a lost observation window is not.
 
 ### Input
 
