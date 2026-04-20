@@ -479,6 +479,7 @@ in
 
       env = {
         CLAUDE_CODE_NO_FLICKER = "1";
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       };
 
       hooks =
