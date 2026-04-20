@@ -14,9 +14,9 @@ All environment configuration is managed via Nix/Home Manager in `~/src/github.c
 - **Only edit files in `~/src/github.com/ToQoz/config`.**
 - **For Claude skills**, read and edit the canonical source under `dotfiles/agents/skills/` — treat `~/.claude/skills/` as a generated projection.
 - **Don't build directly.** When a rebuild is needed:
-  1. Open a new tmux split pane with the command pre-filled (using `send-keys` without pressing Enter) so the user can review and execute it:
+  1. Open a new tmux split pane with the command pre-filled (using `send-keys` without pressing Enter) so the user can review and execute it. Always target your own pane with `-t "$TMUX_PANE"` — otherwise tmux splits whichever pane was last active, which is often a window the user is actively using elsewhere:
      ```
-     tmux split-window -v -l 15 \; send-keys 'sudo darwin-rebuild switch --flake .' ''
+     tmux split-window -v -l 15 -t "$TMUX_PANE" \; send-keys 'sudo darwin-rebuild switch --flake .' ''
      ```
   2. After the user starts the build, monitor progress by polling with `tmux capture-pane -t <pane_id> -p` every 10 seconds.
   3. If the output stops changing for 1 minute, stop monitoring and ask the user to check the status.
