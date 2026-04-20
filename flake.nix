@@ -28,6 +28,10 @@
       url = "github:vercel-labs/agent-browser";
       flake = false;
     };
+    sence = {
+      url = "github:toqoz/sence";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -39,6 +43,7 @@
       agent-skills,
       anthropic-skills,
       vercel-agent-browser,
+      sence,
       ...
     }:
     {
@@ -57,6 +62,7 @@
               inherit llm-agents;
               inherit anthropic-skills;
               inherit vercel-agent-browser;
+              inherit sence;
             };
             home-manager.users."toqoz" = ./home-manager/home.nix;
           }

@@ -5,6 +5,7 @@
   llm-agents,
   anthropic-skills,
   vercel-agent-browser,
+  sence,
   ...
 }:
 let
@@ -89,7 +90,7 @@ in
       (callPackage ./portless.nix { })
       (callPackage ./mo.nix { })
       (callPackage ./pi-coding-agent.nix { })
-      (callPackage ./sence.nix { })
+      sence.packages.${pkgs.stdenv.hostPlatform.system}.default
       (callPackage ./tmux-agent-sidebar.nix { })
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     ]

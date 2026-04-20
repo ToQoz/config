@@ -224,7 +224,28 @@
         "llm-agents": "llm-agents",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",
+        "sence": "sence",
         "vercel-agent-browser": "vercel-agent-browser"
+      }
+    },
+    "sence": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776675919,
+        "narHash": "sha256-6dGOKPbKr/MvQq6s+dZ0Yb+HH+yy/6RCcFliqmJMN+E=",
+        "owner": "toqoz",
+        "repo": "sence",
+        "rev": "b462d6ae35889a8429b40a1f519ed21efd24c856",
+        "type": "github"
+      },
+      "original": {
+        "owner": "toqoz",
+        "repo": "sence",
+        "type": "github"
       }
     },
     "systems": {
