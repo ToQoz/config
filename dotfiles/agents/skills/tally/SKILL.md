@@ -60,15 +60,17 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
   requirement_ids: [R-###, ...]
   command: <exact command, test name, or action>
   cwd: <working directory>
-  env: <relevant env vars, tool versions, or "default">
+  env: <platform string, tool versions, or relevant env vars>
   timestamp: <ISO-8601>
   outcome: pass | fail | error
   exit_code: <integer or n/a>
+  produced_by: <tool or skill that generated this record>
   ---
   ```
   Plus the body: the actual `stdout` / `stderr` / observed output, or a relative path to a captured artifact. Empty evidence body = invalid record. Optional: `supersedes`, `artifacts`, `notes`, `independent`.
 
   Set `independent: true` in the frontmatter when the observation is one that qualifies the Requirement ID under the **Independent observation** invariant below — i.e., the expected value was not hand-authored in this change (feature run log, debugger trace whose values were not pre-selected from requirement text, benchmark, companion-skill output). Omit the field or set `false` when the observation is, e.g., a unit test whose assertions you just wrote. `tally-verify` requires at least one effective signed clause per R-### to cite a record with `independent: true`.
+- **Provenance — no hand-written records.** `observations/<id>.md` is produced by `scripts/tally-record`, which runs a real subprocess and stamps `produced_by: tally-record` after capturing stdout/stderr/exit_code/timestamp/cwd/env from the actual process. Hand-writing an observation file with a plausible-looking frontmatter is the fabrication failure mode this skill exists to shut; `tally-verify` rejects records whose `produced_by` is absent or unrecognized. Companion skills listed in Skill Dependencies may alternatively produce records directly — in that case they stamp their own `produced_by: <skill-name>`. Human free-form inputs are not valid evidence; route them through `tally-record` to anchor them as real runs.
 - **Signature is derived, not trusted.** Treat `signature_status: signed` in `contract.yaml` as a claim, not a fact. The authoritative check is `scripts/tally-verify <workspace>`, which re-derives each signature from the filesystem (record exists, frontmatter complete, outcome matches, cross-link holds, evidence body non-empty) and also runs per-R-### coverage checks (effective signed clause + independent observation + no unsuperseded failing clause). Always run it before Step 3 presentation; its exit code is the truth.
 - **Independent observation.** For every Requirement ID, at least one of its signed clauses must cite an **independent observation** — evidence whose expected value was not hand-authored in the same change that wrote the implementation. Qualifying sources: a feature run log (not a unit test whose assertions you just wrote), a debugger trace whose recorded values were not pre-selected from the requirement text, a benchmark measurement, or the output of a companion skill listed in Skill Dependencies. Unit tests you authored alongside the implementation satisfy the observation requirement for an individual clause, but not the independence requirement for the Requirement ID — the implementation validating itself is a closed loop, and the independence rule exists to break it.
 
@@ -163,9 +165,20 @@ Repeat until every requirement item carries a signed clause.
    - **Benchmarks** — for numeric non-functional requirements, record the measured number with its conditions.
 
    For each observation:
-   1. Actually run it.
-   2. Write `./.agents/tally/<slug>/observations/<record-id>.md` with the required frontmatter (see Workspace § Invariants) and the actual stdout/stderr/measurement in the body. If the run hasn't happened, the file doesn't get written — no file, no record.
-   3. Then, and only then, append an **unsigned** clause to `contract.yaml` under `clauses:`:
+   1. Actually run it through `scripts/tally-record`, which wraps the real subprocess and writes `./.agents/tally/<slug>/observations/<record-id>.md` with full frontmatter (`produced_by: tally-record`, timestamp, cwd, env, outcome, exit_code) and the captured stdout/stderr in the body:
+
+      ```
+      scripts/tally-record \
+        --slug <slug> \
+        --requirement-ids R-001[,R-002] \
+        [--id <record-id>] \
+        [--independent] \
+        [--expect pass|fail] \
+        -- <real command>
+      ```
+
+      If the observation comes from a companion skill (step-through-code, tui-acceptance-checks, webapp-acceptance-checks), let that skill emit its record directly — it stamps its own `produced_by: <skill-name>`. Do not hand-write `observations/<id>.md`; `tally-verify` rejects records without a recognized `produced_by`.
+   2. Then, and only then, append an **unsigned** clause to `contract.yaml` under `clauses:`:
 
    ```yaml
    - clause_id: C-###          # stable
@@ -258,7 +271,7 @@ The workspace can be committed as an audit artifact, kept as a regression guardr
 - **Drafting clauses during Step 1.** Step 1 produces acceptance criteria only. Writing behavior-style clauses before code runs re-creates the forward-spec brittleness this workflow exists to avoid.
 - **Composing clauses from memory instead of observation.** Writing a clause from your plan rather than from a completed run produces fiction with clause formatting.
 - **Contract laundering.** Signing a clause whose Observation record ID points at nothing complete — a planned test that never ran, a paraphrased log, a forward-declared placeholder. A clause without a reproducible observation is unsigned, regardless of how convincing the prose looks.
-- **Fabricated observation file.** Writing `observations/<id>.md` with a plausible-looking frontmatter and made-up outputs to satisfy the existence check. The point of the file is to be a real run; if the run did not happen, the file must not exist.
+- **Fabricated observation file.** Writing `observations/<id>.md` by hand rather than running it through `scripts/tally-record` (or letting a companion skill produce the record). The provenance invariant exists to close this off structurally: any record whose `produced_by` is missing or not in the known-producer whitelist is rejected by `tally-verify`. If the run did not happen, the file must not exist.
 - **Evidence laundering.** Citing flaky or non-deterministic runs, missing reproduction steps, or copy-pasting run output without the command that produced it. Every record must be something another agent could re-run.
 - **Oracle drift.** Silently editing `oracle-map.md` to match what the implementation happens to do. If the oracle needs to change, reopen the file with a dated `## Reopened` note and close the gap with the user first.
 - **Retroactive observation editing.** Observations are append-only. Changing an existing record after its outcome is written erases the history the contract is anchored to. Corrections are a new record with `supersedes: <old-id>`.

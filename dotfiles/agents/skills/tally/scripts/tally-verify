@@ -56,6 +56,16 @@ REQUIRED_OBS_FIELDS = (
     "timestamp",
     "outcome",
     "exit_code",
+    "produced_by",
+)
+
+KNOWN_PRODUCERS = frozenset(
+    {
+        "tally-record",
+        "step-through-code",
+        "tui-acceptance-checks",
+        "webapp-acceptance-checks",
+    }
 )
 
 
@@ -125,6 +135,18 @@ def verify(workspace: pathlib.Path) -> int:
 
         if not body.strip():
             violations.append((cid, "observation evidence body is empty"))
+            continue
+
+        produced_by = fm.get("produced_by")
+        if produced_by not in KNOWN_PRODUCERS:
+            violations.append(
+                (
+                    cid,
+                    f"observation produced_by={produced_by!r} is not in the known "
+                    f"producer whitelist ({', '.join(sorted(KNOWN_PRODUCERS))}); "
+                    "hand-written records are not valid evidence",
+                )
+            )
             continue
 
         oracle_result = c.get("oracle_result")
