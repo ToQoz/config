@@ -168,6 +168,7 @@ Repeat until every requirement item carries a signed clause.
    Observation record ID: <record-id>  (must match a file in observations/)
    Oracle result:         pass | fail  (against the Step-1 pass/fail criterion)
    Signature status:      unsigned
+   Supersedes:            <old-clause-id>  (optional; marks the named prior clause inactive for this R-###)
    ```
 
    A forward-declared record ID — no file yet, no outcome yet — is a placeholder. A clause whose record file is missing, whose frontmatter is incomplete, or whose evidence body is empty is, by definition, unsigned.
@@ -177,10 +178,12 @@ Repeat until every requirement item carries a signed clause.
 3. **Sign, or classify the defect.** Walk each unsigned clause:
    - If `Oracle result = pass`, verify the observation record file exists with a valid frontmatter and a non-empty evidence body → edit the clause in `contract.md` to `Signature status: signed`.
    - If `Oracle result = fail`, decide which side owns the gap:
-     - **Implementation defect** — the oracle is clear, the observation shows the code doesn't meet it. Fix code; re-observe (write a **new** observation record — observations are append-only); supersede the prior record via `supersedes:` frontmatter if relevant; draft a new clause.
+     - **Implementation defect** — the oracle is clear, the observation shows the code doesn't meet it. Fix code; re-observe (write a **new** observation record — observations are append-only); draft a new clause that carries `Supersedes: <old-clause-id>` referencing the failing clause. The prior clause is not deleted — it moves into the "Superseded clauses" section as a history record.
      - **Requirement defect** — the oracle is missing, ambiguous, contradictory, infeasible, or silent on a case that matters. Return to Step 1 with the specific conflict; close it with the user; reopen `oracle-map.md` with a `## Reopened <date> — reason: <why>` note; update; re-enter the loop.
 
    Do not sign across a disagreement. Do not quietly edit `oracle-map.md` to match the implementation — that is oracle drift, and the reopen-note protocol exists specifically to block it.
+
+   **Clause supersession — effective clause per Requirement ID.** A Requirement ID is never satisfied just because *some* clause for it is signed. Every failing or unsigned clause for a given R-### must be resolved before exit. The only way to resolve one (short of the clause becoming signed itself) is to supersede it: a later clause cites `Supersedes: <old-clause-id>`, after which the old clause is no longer the effective clause for that R-###. An unsuperseded failing clause blocks the Requirement ID from being considered satisfied, even if other clauses for the same R-### are signed. This closes the "ignore the failing clause, rely on the passing one" gaming pattern.
 
 #### Observed contract — shape
 
@@ -188,6 +191,7 @@ Repeat until every requirement item carries a signed clause.
 ## Signed clauses
 - [Clause <id>] <Requirement ID> → <observed behavior>
   (record: <observation record id>, result: pass, evidence: <test | command+input+env>)
+  [supersedes: <old-clause-id>]  (optional)
 
 ## Non-functional signed clauses
 - [Clause <id>] <Requirement ID>: <measured value> under <conditions>
@@ -195,13 +199,16 @@ Repeat until every requirement item carries a signed clause.
 
 ## Unsigned clauses (to resolve before exit)
 - [Clause <id>] <Requirement ID>: blocked because <missing record | failing oracle | requirement defect>
+
+## Superseded clauses (history; not counted for satisfaction)
+- [Clause <id>] <Requirement ID>: superseded by <new-clause-id> on <date> — <reason>
 ```
 
-The "Unsigned clauses" list is the loop's open worklist; it must be empty to exit.
+The "Unsigned clauses" list is the loop's open worklist; it must be empty to exit. The "Superseded clauses" list is kept for audit but does not block exit.
 
 #### Loop control
 
-- **Exit** when every Step-1 Requirement ID has at least one signed clause, at least one of its signed clauses cites an independent observation (see Workspace § Invariants), and the unsigned list is empty.
+- **Exit** when every Step-1 Requirement ID has at least one *effective* signed clause (signed and not superseded by a later clause), at least one of its effective signed clauses cites an independent observation (see Workspace § Invariants), every failing or unsigned clause for that R-### has been explicitly superseded, and the unsigned list is empty.
 - **Loop with a code change** when the oracle is clear and observations show an implementation defect.
 - **Return to Step 1** when an oracle is missing, observations conflict on a user-intent question, or a gap needs new intent from the user.
 - **Escalation rule.** If the same Requirement ID fails to get a signed clause across two iterations without new information from the user, stop coding and return to Step 1. Repeated local fixes without new information is the signature of a requirement defect being misdiagnosed as an implementation defect.
@@ -217,7 +224,7 @@ The "Unsigned clauses" list is the loop's open worklist; it must be empty to exi
 
    Any signature that fails re-verification is downgraded to `unsigned` and flagged in the "Unsigned clauses" section with the reason. The "signed" label in the file is a claim, not a trust; verification is the trust.
 
-   **Per-requirement coverage check.** After per-clause re-verification, walk each Step-1 Requirement ID and confirm that at least one of its signed clauses cites an independent observation (see Workspace § Invariants). A Requirement ID whose only signed clauses cite hand-authored-test observations is not considered satisfied — flag it as an independence gap and send the work back to Step 2 to record at least one independent observation before exiting.
+   **Per-requirement coverage check.** After per-clause re-verification, walk each Step-1 Requirement ID and confirm (a) at least one of its *effective* signed clauses (signed and not listed as superseded) cites an independent observation (see Workspace § Invariants), and (b) no failing or unsigned clause remains for this R-### without an explicit `Supersedes:` pointer from a later clause. A Requirement ID whose only signed clauses cite hand-authored-test observations fails (a); a Requirement ID with a lingering unresolved failing clause fails (b). Either failure sends the work back to Step 2 — record an independent observation, or draft a superseding clause — before exiting.
 
 2. **Update `meta.md`** — set `current step: step-3-presented` and record the verification timestamp.
 
@@ -240,6 +247,7 @@ The workspace can be committed as an audit artifact, kept as a regression guardr
 - **Evidence laundering.** Citing flaky or non-deterministic runs, missing reproduction steps, or copy-pasting run output without the command that produced it. Every record must be something another agent could re-run.
 - **Oracle drift.** Silently editing `oracle-map.md` to match what the implementation happens to do. If the oracle needs to change, reopen the file with a dated `## Reopened` note and close the gap with the user first.
 - **Retroactive observation editing.** Observations are append-only. Changing an existing record after its outcome is written erases the history the contract is anchored to. Corrections are a new record with `supersedes: <old-id>`.
+- **Ignoring failing clauses.** Treating a Requirement ID as satisfied because *some* clause for it is signed, while a failing or unsigned clause for the same R-### remains unsuperseded. A failing clause that is not explicitly resolved (by a later clause citing `Supersedes:` it) blocks the requirement regardless of how many other passing clauses exist. Fix the implementation, draft the superseding clause, and file the old one under "Superseded clauses" — don't just look past it.
 - **Test oracle copied from requirement text.** A test whose expected value is paraphrased requirement prose is not itself sufficient evidence — the implementation is validating itself. This is enforced by the independent-observation invariant (Workspace § Invariants) and the per-requirement coverage check in Step 3; the anti-pattern here is thinking a freshly-authored green test closes the loop on its own.
 - **Skipping the dialog.** Interpreting the requirement unilaterally removes the requirement side of the contract entirely — there is no counterparty to sign against.
 - **Treating the implementation as an intent-negotiating party.** Implementation only demonstrates behavior. If a clause fails because the code "thinks differently" about the requirement, that is still a requirement defect or an implementation defect — never a negotiation.
