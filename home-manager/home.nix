@@ -402,6 +402,8 @@ in
       "*.env$"
       # Claude
       "settings.local.json"
+      # Misc
+      ".todo.md"
     ];
 
     settings = {
