@@ -122,13 +122,15 @@ codex exec review --commit abc1234 --ephemeral
 2. **Write** — Consultation only: save the prompt to `<agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md` using the Write tool.
 3. **Select model** — Follow the family → depth → resolve steps above. Default to fast code unless the task calls for more.
 4. **Execute** — Consultation: `codex exec ... - < path/to/prompt.md`. Review: `codex exec review` with the appropriate scope flag.
-5. **Evaluate** — Do not blindly accept the response. Compare it against your own analysis and codebase context.
-6. **Synthesize** — Present both your assessment and Codex's perspective. Highlight agreements and disagreements. If the second opinion materially changes the risk or direction, surface it clearly and let the user decide.
+5. **Retrieve (if persisted)** — If the tool result says the output was saved to a file, read only the last ~6KB with `tail -c 6000 <path>`. Codex structures reviews/consultations so the verdict and findings sit at the end; the leading bytes are prompt echo and reasoning trace.
+6. **Evaluate** — Do not blindly accept the response. Compare it against your own analysis and codebase context.
+7. **Synthesize** — Present both your assessment and Codex's perspective. Highlight agreements and disagreements. If the second opinion materially changes the risk or direction, surface it clearly and let the user decide.
 
 ## Guidelines
 
 - Include enough context in consultation prompts — Codex cannot see your conversation
 - Keep prompts focused and specific — avoid dumping entire codebases
+- Cap response length in the prompt ("Report in under 800 words, keep each finding to 2–3 sentences") — codex will otherwise produce long reasoning that gets persisted to a file and requires post-processing
 - If Codex conflicts with established project patterns, prefer project patterns
 - Report material disagreements transparently
 - Treat the response as one data point, not as authoritative truth
