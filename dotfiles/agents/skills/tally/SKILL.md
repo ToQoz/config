@@ -49,7 +49,7 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
 ### Invariants (the rules that make the workspace load-bearing)
 
 - **Stable IDs.** Every requirement line in `requirement.md` carries `R-###`. `oracle-map.md` rows reference only those IDs. `contract.md` clauses reference only those IDs and an observation record ID.
-- **Step 1 files are closed after Step 1 completes.** `requirement.md` and `oracle-map.md` are not edited silently afterwards. If a Step-2 finding forces a change, reopen them explicitly by appending a `## Reopened <date> — reason: <why>` note at the bottom of the affected file, then edit. A silent edit is oracle drift in file form.
+- **Step 1 files are stable after Step 1 completes — amendments require a dated note.** `requirement.md` and `oracle-map.md` are not edited silently afterwards. Legitimate reopens are expected when a Step-2 finding reveals a requirement defect; mark them explicitly by appending a `## Reopened <date> — reason: <why>` note at the bottom of the affected file, then edit. A silent edit is oracle drift in file form; a dated reopen is a normal Step-1 round-trip with the user.
 - **Observations are append-only.** Never edit an existing `observations/<id>.md` after its outcome is written. Corrections are a new record whose frontmatter includes `supersedes: <old-id>`.
 - **Observation record schema (required frontmatter).** A file under `observations/` is only a valid evidence source if its frontmatter contains at least:
   ```
