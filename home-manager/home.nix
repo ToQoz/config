@@ -220,6 +220,11 @@ in
       ];
     };
     enableCompletion = true; # For autocomplete
+    shellAliases = {
+      # Wrap interactive claude with sence in auto permission mode.
+      # Use `=claude` (zsh path expansion) to bypass the alias for plain claude.
+      claude = "sence --interactive -- claude --permission-mode auto";
+    };
     # .zshenv
     envExtra = ''
       source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
@@ -468,6 +473,8 @@ in
       autoUpdates = false;
       includeCoAuthoredBy = false;
       enableAllProjectMcpServers = true;
+      skipAutoPermissionPrompt = true;
+      defaultMode = "plan";
 
       env = {
         CLAUDE_CODE_NO_FLICKER = "1";
