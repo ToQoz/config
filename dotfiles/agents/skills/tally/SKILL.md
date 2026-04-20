@@ -66,6 +66,7 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
   ```
   Plus the body: the actual `stdout` / `stderr` / observed output, or a relative path to a captured artifact. Empty evidence body = invalid record. Optional: `supersedes`, `artifacts`, `notes`.
 - **Signature is derived, not trusted.** Treat `Signature status: signed` in `contract.md` as a claim that must re-verify from files — valid observation record exists, frontmatter complete, outcome matches the clause's oracle result. Always re-verify before Step 3.
+- **Independent observation.** For every Requirement ID, at least one of its signed clauses must cite an **independent observation** — evidence whose expected value was not hand-authored in the same change that wrote the implementation. Qualifying sources: a feature run log (not a unit test whose assertions you just wrote), a debugger trace whose recorded values were not pre-selected from the requirement text, a benchmark measurement, or the output of a companion skill listed in Skill Dependencies. Unit tests you authored alongside the implementation satisfy the observation requirement for an individual clause, but not the independence requirement for the Requirement ID — the implementation validating itself is a closed loop, and the independence rule exists to break it.
 
 ### gitignore policy
 
@@ -200,7 +201,7 @@ The "Unsigned clauses" list is the loop's open worklist; it must be empty to exi
 
 #### Loop control
 
-- **Exit** when every Step-1 Requirement ID has at least one signed clause and the unsigned list is empty.
+- **Exit** when every Step-1 Requirement ID has at least one signed clause, at least one of its signed clauses cites an independent observation (see Workspace § Invariants), and the unsigned list is empty.
 - **Loop with a code change** when the oracle is clear and observations show an implementation defect.
 - **Return to Step 1** when an oracle is missing, observations conflict on a user-intent question, or a gap needs new intent from the user.
 - **Escalation rule.** If the same Requirement ID fails to get a signed clause across two iterations without new information from the user, stop coding and return to Step 1. Repeated local fixes without new information is the signature of a requirement defect being misdiagnosed as an implementation defect.
@@ -215,6 +216,8 @@ The "Unsigned clauses" list is the loop's open worklist; it must be empty to exi
    - The clause's `Requirement ID` appears in the record's `requirement_ids` list — without this, the clause and the observation are not about the same contract item even if both are individually well-formed.
 
    Any signature that fails re-verification is downgraded to `unsigned` and flagged in the "Unsigned clauses" section with the reason. The "signed" label in the file is a claim, not a trust; verification is the trust.
+
+   **Per-requirement coverage check.** After per-clause re-verification, walk each Step-1 Requirement ID and confirm that at least one of its signed clauses cites an independent observation (see Workspace § Invariants). A Requirement ID whose only signed clauses cite hand-authored-test observations is not considered satisfied — flag it as an independence gap and send the work back to Step 2 to record at least one independent observation before exiting.
 
 2. **Update `meta.md`** — set `current step: step-3-presented` and record the verification timestamp.
 
@@ -237,7 +240,7 @@ The workspace can be committed as an audit artifact, kept as a regression guardr
 - **Evidence laundering.** Citing flaky or non-deterministic runs, missing reproduction steps, or copy-pasting run output without the command that produced it. Every record must be something another agent could re-run.
 - **Oracle drift.** Silently editing `oracle-map.md` to match what the implementation happens to do. If the oracle needs to change, reopen the file with a dated `## Reopened` note and close the gap with the user first.
 - **Retroactive observation editing.** Observations are append-only. Changing an existing record after its outcome is written erases the history the contract is anchored to. Corrections are a new record with `supersedes: <old-id>`.
-- **Test oracle copied from requirement text.** A test whose expected value is paraphrased requirement prose, without an independent observation (manual run, log, trace) corroborating it, is the implementation validating itself. Require at least one independent observation per Requirement ID.
+- **Test oracle copied from requirement text.** A test whose expected value is paraphrased requirement prose is not itself sufficient evidence — the implementation is validating itself. This is enforced by the independent-observation invariant (Workspace § Invariants) and the per-requirement coverage check in Step 3; the anti-pattern here is thinking a freshly-authored green test closes the loop on its own.
 - **Skipping the dialog.** Interpreting the requirement unilaterally removes the requirement side of the contract entirely — there is no counterparty to sign against.
 - **Treating the implementation as an intent-negotiating party.** Implementation only demonstrates behavior. If a clause fails because the code "thinks differently" about the requirement, that is still a requirement defect or an implementation defect — never a negotiation.
 - **Asking the user about internal code quality.** Maintainability, extensibility, readability are the agent's responsibility. Raising them in the dialog clutters it and pushes real ambiguities out.
