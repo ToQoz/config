@@ -226,7 +226,7 @@ in
     shellAliases = {
       # Wrap interactive claude with sence in auto permission mode.
       # Use `=claude` (zsh path expansion) to bypass the alias for plain claude.
-      claude = "sence --interactive -- claude --permission-mode auto";
+      claude = "sence --profile code:claude --interactive -- claude --permission-mode auto";
     };
     # .zshenv
     envExtra = ''
