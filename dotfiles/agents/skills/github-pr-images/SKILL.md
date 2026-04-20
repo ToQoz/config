@@ -66,11 +66,19 @@ stdout. The caller decides how to render them — inline image, link text,
 `<details>` block, table, etc. Filenames often make poor alt text, so
 producing Markdown here would force a bad default.
 
+Fetch the asset list once and resolve names locally — per-file API calls
+waste chatter and can hit transient consistency gaps right after upload.
+Pass filenames via `--arg` so names containing quotes or backslashes do
+not break the `jq` filter.
+
 ```bash
+assets=$(gh api "repos/${REPO}/releases/tags/${TAG}" -R "$REPO" \
+  --jq '[.assets[] | {name, url: .browser_download_url}]')
+
 for f in "$@"; do
   name=$(basename "$f")
-  url=$(gh api "repos/${REPO}/releases/tags/${TAG}" -R "$REPO" \
-    --jq ".assets[] | select(.name==\"${name}\") | .browser_download_url")
+  url=$(printf '%s' "$assets" | jq -r --arg n "$name" \
+    '.[] | select(.name == $n) | .url')
   printf '%s\t%s\n' "$name" "$url"
 done
 ```
