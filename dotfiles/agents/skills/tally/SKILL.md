@@ -32,11 +32,13 @@ The workflow persists its state on disk so that clauses, observations, and oracl
 ├── meta.md              # workspace identity: slug, feature title, created_at, current step, status
 ├── requirement.md       # Step 1: finalized user intent, one item per line with stable Requirement IDs (R-001, R-002, …)
 ├── oracle-map.md        # Step 1 closing: acceptance-oracle map — one row per Requirement ID
-├── contract.md          # Step 2/3: signed + unsigned clauses, the spec as it emerges
+├── contract.yaml        # Step 2/3: signed + unsigned clauses, the spec as it emerges (canonical, machine-readable)
 └── observations/
     ├── <record-id>.md   # one file per completed test/run/benchmark
     └── ...
 ```
+
+`contract.yaml` is the canonical machine-readable source of truth for the contract. The accompanying `scripts/tally-verify` CLI walks it and re-verifies every signed clause against the filesystem — use it as the authoritative check in Step 3 rather than inspecting by eye.
 
 ### Slug
 
@@ -48,7 +50,7 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
 
 ### Invariants (the rules that make the workspace load-bearing)
 
-- **Stable IDs.** Every requirement line in `requirement.md` carries `R-###`. `oracle-map.md` rows reference only those IDs. `contract.md` clauses reference only those IDs and an observation record ID.
+- **Stable IDs.** Every requirement line in `requirement.md` carries `R-###`. `oracle-map.md` rows reference only those IDs. `contract.yaml` clauses reference only those IDs and an observation record ID.
 - **Step 1 files are stable after Step 1 completes — amendments require a dated note.** `requirement.md` and `oracle-map.md` are not edited silently afterwards. Legitimate reopens are expected when a Step-2 finding reveals a requirement defect; mark them explicitly by appending a `## Reopened <date> — reason: <why>` note at the bottom of the affected file, then edit. A silent edit is oracle drift in file form; a dated reopen is a normal Step-1 round-trip with the user.
 - **Observations are append-only.** Never edit an existing `observations/<id>.md` after its outcome is written. Corrections are a new record whose frontmatter includes `supersedes: <old-id>`.
 - **Observation record schema (required frontmatter).** A file under `observations/` is only a valid evidence source if its frontmatter contains at least:
@@ -64,8 +66,10 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
   exit_code: <integer or n/a>
   ---
   ```
-  Plus the body: the actual `stdout` / `stderr` / observed output, or a relative path to a captured artifact. Empty evidence body = invalid record. Optional: `supersedes`, `artifacts`, `notes`.
-- **Signature is derived, not trusted.** Treat `Signature status: signed` in `contract.md` as a claim that must re-verify from files — valid observation record exists, frontmatter complete, outcome matches the clause's oracle result. Always re-verify before Step 3.
+  Plus the body: the actual `stdout` / `stderr` / observed output, or a relative path to a captured artifact. Empty evidence body = invalid record. Optional: `supersedes`, `artifacts`, `notes`, `independent`.
+
+  Set `independent: true` in the frontmatter when the observation is one that qualifies the Requirement ID under the **Independent observation** invariant below — i.e., the expected value was not hand-authored in this change (feature run log, debugger trace whose values were not pre-selected from requirement text, benchmark, companion-skill output). Omit the field or set `false` when the observation is, e.g., a unit test whose assertions you just wrote. `tally-verify` requires at least one effective signed clause per R-### to cite a record with `independent: true`.
+- **Signature is derived, not trusted.** Treat `signature_status: signed` in `contract.yaml` as a claim, not a fact. The authoritative check is `scripts/tally-verify <workspace>`, which re-derives each signature from the filesystem (record exists, frontmatter complete, outcome matches, cross-link holds, evidence body non-empty) and also runs per-R-### coverage checks (effective signed clause + independent observation + no unsuperseded failing clause). Always run it before Step 3 presentation; its exit code is the truth.
 - **Independent observation.** For every Requirement ID, at least one of its signed clauses must cite an **independent observation** — evidence whose expected value was not hand-authored in the same change that wrote the implementation. Qualifying sources: a feature run log (not a unit test whose assertions you just wrote), a debugger trace whose recorded values were not pre-selected from the requirement text, a benchmark measurement, or the output of a companion skill listed in Skill Dependencies. Unit tests you authored alongside the implementation satisfy the observation requirement for an individual clause, but not the independence requirement for the Requirement ID — the implementation validating itself is a closed loop, and the independence rule exists to break it.
 
 ### gitignore policy
@@ -130,7 +134,9 @@ Internal code-quality properties (maintainability, extensibility, readability, t
    R-001 | <requirement statement> | <observable signal> | <pass/fail oracle>
    ```
 
-6. Tell the user that the workspace lives at `./.agents/tally/<slug>/` and that committing vs. gitignoring it is their call.
+6. Initialize `contract.yaml` with `slug:`, `feature_title:`, and an empty `clauses: []` list. Clauses are added during Step 2.
+
+7. Tell the user that the workspace lives at `./.agents/tally/<slug>/` and that committing vs. gitignoring it is their call.
 
 `requirement.md` and `oracle-map.md` are **not** a contract; they are only the requirement-side acceptance criteria. They say what *would* need to be observed. They say nothing about *how* the implementation will behave internally, and they contain no clauses.
 
@@ -159,16 +165,16 @@ Repeat until every requirement item carries a signed clause.
    For each observation:
    1. Actually run it.
    2. Write `./.agents/tally/<slug>/observations/<record-id>.md` with the required frontmatter (see Workspace § Invariants) and the actual stdout/stderr/measurement in the body. If the run hasn't happened, the file doesn't get written — no file, no record.
-   3. Then, and only then, append an **unsigned** clause to `contract.md`:
+   3. Then, and only then, append an **unsigned** clause to `contract.yaml` under `clauses:`:
 
-   ```
-   Clause ID:             C-### (stable)
-   Requirement ID:        R-###  (from oracle-map.md)
-   Observed behavior:     what the code actually did (quote or summarize from the record body)
-   Observation record ID: <record-id>  (must match a file in observations/)
-   Oracle result:         pass | fail  (against the Step-1 pass/fail criterion)
-   Signature status:      unsigned
-   Supersedes:            <old-clause-id>  (optional; marks the named prior clause inactive for this R-###)
+   ```yaml
+   - clause_id: C-###          # stable
+     requirement_id: R-###     # from oracle-map.md
+     observed_behavior: "..."  # what the code actually did
+     observation_record_id: <record-id>  # must match a file in observations/
+     oracle_result: pass | fail  # against the Step-1 pass/fail criterion
+     signature_status: unsigned
+     supersedes: <old-clause-id>  # optional; marks the named prior clause inactive for this R-###
    ```
 
    A forward-declared record ID — no file yet, no outcome yet — is a placeholder. A clause whose record file is missing, whose frontmatter is incomplete, or whose evidence body is empty is, by definition, unsigned.
@@ -176,7 +182,7 @@ Repeat until every requirement item carries a signed clause.
    **Cross-link requirement.** The clause's `Requirement ID` must appear in the observation record's `requirement_ids` frontmatter list. An observation that does not claim to cover this requirement cannot evidence a clause about this requirement, no matter how real the run was. If the match fails, either the clause is wrong (re-draft it against a record that covers this requirement) or the observation's `requirement_ids` list was under-specified and needs a new record (observations are append-only — do not edit the existing record).
 
 3. **Sign, or classify the defect.** Walk each unsigned clause:
-   - If `Oracle result = pass`, verify the observation record file exists with a valid frontmatter and a non-empty evidence body → edit the clause in `contract.md` to `Signature status: signed`.
+   - If `oracle_result: pass`, verify the observation record file exists with a valid frontmatter and a non-empty evidence body → set `signature_status: signed` on the clause in `contract.yaml`.
    - If `Oracle result = fail`, decide which side owns the gap:
      - **Implementation defect** — the oracle is clear, the observation shows the code doesn't meet it. Fix code; re-observe (write a **new** observation record — observations are append-only); draft a new clause that carries `Supersedes: <old-clause-id>` referencing the failing clause. The prior clause is not deleted — it moves into the "Superseded clauses" section as a history record.
      - **Requirement defect** — the oracle is missing, ambiguous, contradictory, infeasible, or silent on a case that matters. Return to Step 1 with the specific conflict; close it with the user; reopen `oracle-map.md` with a `## Reopened <date> — reason: <why>` note; update; re-enter the loop.
@@ -187,24 +193,36 @@ Repeat until every requirement item carries a signed clause.
 
 #### Observed contract — shape
 
+`contract.yaml` grows a flat list of clauses. The lifecycle state of each (unsigned / signed / superseded) lives in its fields, not in separate sections, so every clause stays in the same list in draft order and is classified by `scripts/tally-verify` rather than by section heading.
+
+```yaml
+slug: <slug>
+feature_title: "<short feature title>"
+clauses:
+  - clause_id: C-001
+    requirement_id: R-001
+    observed_behavior: "returns 422 with body {error: 'email required'}"
+    observation_record_id: obs-2026-04-20T10-22-11Z-missing-email
+    oracle_result: pass
+    signature_status: signed
+    signed_at: "2026-04-20T10:30:00Z"
+  - clause_id: C-002
+    requirement_id: R-002
+    observed_behavior: "(earlier run showed wrong charset)"
+    observation_record_id: obs-2026-04-20T10-24-02Z-charset
+    oracle_result: fail
+    signature_status: unsigned
+  - clause_id: C-003
+    requirement_id: R-002
+    observed_behavior: "UTF-8 BOM written as expected"
+    observation_record_id: obs-2026-04-20T10-40-18Z-charset-fixed
+    oracle_result: pass
+    signature_status: signed
+    supersedes: C-002
+    signed_at: "2026-04-20T10:45:00Z"
 ```
-## Signed clauses
-- [Clause <id>] <Requirement ID> → <observed behavior>
-  (record: <observation record id>, result: pass, evidence: <test | command+input+env>)
-  [supersedes: <old-clause-id>]  (optional)
 
-## Non-functional signed clauses
-- [Clause <id>] <Requirement ID>: <measured value> under <conditions>
-  (record: <benchmark run id>, result: pass, evidence: <command + env>)
-
-## Unsigned clauses (to resolve before exit)
-- [Clause <id>] <Requirement ID>: blocked because <missing record | failing oracle | requirement defect>
-
-## Superseded clauses (history; not counted for satisfaction)
-- [Clause <id>] <Requirement ID>: superseded by <new-clause-id> on <date> — <reason>
-```
-
-The "Unsigned clauses" list is the loop's open worklist; it must be empty to exit. The "Superseded clauses" list is kept for audit but does not block exit.
+A clause with no `supersedes` referring to it and `signature_status: signed` is an **effective signed clause** — the only kind that counts toward satisfying its Requirement ID. An unsigned or failing clause without a later supersession is an open worklist item that must be resolved before exit. A clause listed in some later clause's `supersedes:` field is a history record, useful for audit but not counted for satisfaction. `tally-verify` does this classification deterministically; the exit code is the signal.
 
 #### Loop control
 
@@ -215,23 +233,20 @@ The "Unsigned clauses" list is the loop's open worklist; it must be empty to exi
 
 ### Step 3 — Verify, present, confirm
 
-1. **Re-verify signatures from files.** Before presenting, walk every `signed` clause in `contract.md` and re-check:
-   - `observations/<record-id>.md` exists.
-   - Its frontmatter has all required fields.
-   - Its `outcome` matches the clause's `Oracle result`.
-   - Its evidence body is non-empty.
-   - The clause's `Requirement ID` appears in the record's `requirement_ids` list — without this, the clause and the observation are not about the same contract item even if both are individually well-formed.
+1. **Re-verify signatures from files — run `scripts/tally-verify`.** The verifier walks `contract.yaml` against the filesystem and checks every signed clause (record exists, frontmatter complete, outcome matches, requirement_id cross-links with observation `requirement_ids`, evidence body non-empty) plus per-R-### coverage (at least one effective signed clause cites an `independent: true` observation; no unsuperseded failing or unsigned clause remains). Its exit code is authoritative:
 
-   Any signature that fails re-verification is downgraded to `unsigned` and flagged in the "Unsigned clauses" section with the reason. The "signed" label in the file is a claim, not a trust; verification is the trust.
+   - `0` — all clauses verified, Step 3 may proceed.
+   - `1` — one or more violations printed. Each reported clause-level failure means that clause's `signature_status` should be reset to `unsigned` in `contract.yaml` (or the clause should be resolved by a superseding one); each reported R-### failure means that requirement is not yet satisfied and the loop returns to Step 2.
+   - `2` — invocation error (workspace missing, YAML parse failure). Fix the structural issue and re-run.
 
-   **Per-requirement coverage check.** After per-clause re-verification, walk each Step-1 Requirement ID and confirm (a) at least one of its *effective* signed clauses (signed and not listed as superseded) cites an independent observation (see Workspace § Invariants), and (b) no failing or unsigned clause remains for this R-### without an explicit `Supersedes:` pointer from a later clause. A Requirement ID whose only signed clauses cite hand-authored-test observations fails (a); a Requirement ID with a lingering unresolved failing clause fails (b). Either failure sends the work back to Step 2 — record an independent observation, or draft a superseding clause — before exiting.
+   Do not hand-verify in place of running the script; hand-verification was the "signed but really?" failure mode this skill is built to eliminate.
 
 2. **Update `meta.md`** — set `current step: step-3-presented` and record the verification timestamp.
 
 3. **Present to the user**, pointing at files rather than pasting everything inline:
    - The finalized requirement and oracle map — reference `requirement.md` and `oracle-map.md`.
    - Implementation — what changed, at a useful level of detail.
-   - The signed contract — reference `contract.md`, summarize the signed clauses inline for context.
+   - The signed contract — reference `contract.yaml` (and the `tally-verify` exit status), summarize the signed clauses inline for context.
    - Reconciliation check — every Step-1 Requirement ID mapped to the clause(s) that satisfy it. Call out anything that got downgraded by re-verification.
 
 4. Wait for approval or revision. Revisions re-enter Step 1 (if intent changes — reopen `requirement.md`/`oracle-map.md` with a note) or Step 2 (if a clause needs re-observation — write a new observation record).

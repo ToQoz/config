@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""
+tally-verify — walk a tally workspace and re-verify every signed clause
+from the filesystem. Treats contract.yaml as the source of truth.
+
+Usage:
+    tally-verify <workspace-dir>
+
+    Example:
+    tally-verify ./.agents/tally/user-export-csv
+
+Exit codes:
+    0  all signed clauses verify; per-requirement coverage OK
+    1  one or more violations (printed to stdout)
+    2  invocation or parse error (printed to stderr)
+
+Verification per signed clause:
+    - observations/<record-id>.md exists
+    - frontmatter has required fields (id, requirement_ids, command, cwd,
+      env, timestamp, outcome, exit_code)
+    - frontmatter outcome matches clause oracle_result
+    - clause requirement_id is in observation requirement_ids
+    - evidence body is non-empty
+
+Per-Requirement-ID coverage:
+    - at least one effective (signed, not superseded) clause exists
+    - at least one effective signed clause cites an observation with
+      `independent: true` frontmatter flag (see SKILL.md § Invariants)
+    - no unsuperseded failing or unsigned clause remains for this R-###
+"""
+
+from __future__ import annotations
+
+import pathlib
+import re
+import sys
+
+try:
+    import yaml
+except ImportError:
+    sys.stderr.write(
+        "tally-verify requires PyYAML.\n"
+        "Install with one of:\n"
+        "  nix-shell -p python3Packages.pyyaml --run 'tally-verify ...'\n"
+        "  pip install pyyaml\n"
+    )
+    sys.exit(2)
+
+
+REQUIRED_OBS_FIELDS = (
+    "id",
+    "requirement_ids",
+    "command",
+    "cwd",
+    "env",
+    "timestamp",
+    "outcome",
+    "exit_code",
+)
+
+
+def parse_frontmatter(md_path: pathlib.Path) -> tuple[dict | None, str]:
+    text = md_path.read_text()
+    if not text.startswith("---\n"):
+        return None, text
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        return None, text
+    frontmatter = yaml.safe_load(text[4:end])
+    body = text[end + 5 :]
+    return frontmatter, body
+
+
+def verify(workspace: pathlib.Path) -> int:
+    contract_path = workspace / "contract.yaml"
+    if not contract_path.exists():
+        sys.stderr.write(f"error: {contract_path} not found\n")
+        return 2
+
+    try:
+        contract = yaml.safe_load(contract_path.read_text()) or {}
+    except yaml.YAMLError as e:
+        sys.stderr.write(f"error: failed to parse {contract_path}: {e}\n")
+        return 2
+
+    clauses = contract.get("clauses") or []
+    observations_dir = workspace / "observations"
+
+    # Build supersedes map (old_clause_id -> superseding_clause_id)
+    superseded_by: dict[str, str] = {}
+    for c in clauses:
+        sup = c.get("supersedes")
+        if sup:
+            superseded_by[sup] = c["clause_id"]
+
+    violations: list[tuple[str, str]] = []
+
+    # Per-clause verification (for signed clauses only)
+    for c in clauses:
+        cid = c.get("clause_id", "<no-id>")
+        if c.get("signature_status") != "signed":
+            continue
+
+        record_id = c.get("observation_record_id")
+        if not record_id:
+            violations.append((cid, "no observation_record_id"))
+            continue
+
+        record_path = observations_dir / f"{record_id}.md"
+        if not record_path.exists():
+            violations.append((cid, f"observation file not found: {record_path}"))
+            continue
+
+        fm, body = parse_frontmatter(record_path)
+        if not fm:
+            violations.append((cid, "observation missing or malformed frontmatter"))
+            continue
+
+        missing = [f for f in REQUIRED_OBS_FIELDS if f not in fm]
+        if missing:
+            violations.append(
+                (cid, f"observation frontmatter missing: {', '.join(missing)}")
+            )
+            continue
+
+        if not body.strip():
+            violations.append((cid, "observation evidence body is empty"))
+            continue
+
+        oracle_result = c.get("oracle_result")
+        outcome = fm.get("outcome")
+        if oracle_result == "pass" and outcome != "pass":
+            violations.append(
+                (cid, f"clause oracle_result=pass but observation outcome={outcome}")
+            )
+            continue
+        if oracle_result == "fail" and outcome == "pass":
+            violations.append(
+                (cid, "clause oracle_result=fail but observation outcome=pass")
+            )
+            continue
+
+        req_id = c.get("requirement_id")
+        obs_req_ids = fm.get("requirement_ids") or []
+        if req_id not in obs_req_ids:
+            violations.append(
+                (
+                    cid,
+                    f"clause Requirement ID {req_id} not in observation "
+                    f"requirement_ids {obs_req_ids}",
+                )
+            )
+            continue
+
+    # Per-Requirement-ID coverage
+    by_req: dict[str, list[dict]] = {}
+    for c in clauses:
+        by_req.setdefault(c.get("requirement_id"), []).append(c)
+
+    # Gather declared R-### ids from requirement.md if present (so we can flag
+    # requirements with zero clauses too)
+    declared_req_ids: set[str] = set()
+    req_md = workspace / "requirement.md"
+    if req_md.exists():
+        for line in req_md.read_text().splitlines():
+            for m in re.finditer(r"\bR-\d+\b", line):
+                declared_req_ids.add(m.group())
+
+    all_req_ids = declared_req_ids | set(k for k in by_req.keys() if k)
+    for rid in sorted(all_req_ids):
+        cs = by_req.get(rid, [])
+        if not cs:
+            violations.append((rid, "no clauses for this Requirement ID"))
+            continue
+
+        effective_signed = [
+            c
+            for c in cs
+            if c.get("signature_status") == "signed"
+            and c.get("clause_id") not in superseded_by
+        ]
+        if not effective_signed:
+            violations.append(
+                (rid, "no effective signed clause (signed and not superseded)")
+            )
+            continue
+
+        pending = [
+            c
+            for c in cs
+            if (
+                c.get("signature_status") != "signed"
+                or c.get("oracle_result") == "fail"
+            )
+            and c.get("clause_id") not in superseded_by
+        ]
+        if pending:
+            pending_ids = ", ".join(c.get("clause_id", "<no-id>") for c in pending)
+            violations.append(
+                (
+                    rid,
+                    f"unsuperseded unsigned/failing clauses remain: {pending_ids}",
+                )
+            )
+            continue
+
+        any_independent = False
+        for c in effective_signed:
+            rec_id = c.get("observation_record_id")
+            if not rec_id:
+                continue
+            rec_path = observations_dir / f"{rec_id}.md"
+            if not rec_path.exists():
+                continue
+            fm, _ = parse_frontmatter(rec_path)
+            if fm and fm.get("independent") is True:
+                any_independent = True
+                break
+        if not any_independent:
+            violations.append(
+                (
+                    rid,
+                    "no effective signed clause cites an independent observation "
+                    "(observation frontmatter needs `independent: true`)",
+                )
+            )
+
+    if not violations:
+        print(f"ok: all clauses verified for {workspace}")
+        return 0
+
+    for target, reason in violations:
+        print(f"FAIL [{target}]: {reason}")
+    print(f"\n{len(violations)} violation(s) in {workspace}")
+    return 1
+
+
+def main() -> int:
+    if len(sys.argv) != 2 or sys.argv[1] in ("-h", "--help"):
+        sys.stderr.write(__doc__)
+        return 2
+    workspace = pathlib.Path(sys.argv[1]).resolve()
+    if not workspace.is_dir():
+        sys.stderr.write(f"error: {workspace} is not a directory\n")
+        return 2
+    return verify(workspace)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
