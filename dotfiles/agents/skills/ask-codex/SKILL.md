@@ -96,9 +96,10 @@ Use `codex exec review` for structured code reviews. This subcommand is purpose-
 | "review my changes" (default) | `codex exec review --uncommitted --ephemeral` |
 | "review against main" / branch comparison | `codex exec review --base main --ephemeral` |
 | "review this commit" | `codex exec review --commit <SHA> --ephemeral` |
-| Custom review instructions | `codex exec review "Focus on error handling" --ephemeral` |
 
 When the user asks for a review without specifying scope, default to `--uncommitted`.
+
+PROMPT (positional) is itself a scope and cannot be combined with `--uncommitted`, `--base`, or `--commit`. If you need custom review instructions against a specific scope, use Consultation Mode and include `git diff` context in the prompt file.
 
 The `review` subcommand accepts the same `-m` flag for model selection. Note: `review` does not accept `--sandbox` — it runs in read-only mode by design.
 
