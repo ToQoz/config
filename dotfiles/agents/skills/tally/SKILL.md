@@ -52,6 +52,8 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
 
 - **Stable IDs.** Every requirement line in `requirement.md` carries `R-###`. `oracle-map.md` rows reference only those IDs. `contract.yaml` clauses reference only those IDs and an observation record ID.
 - **Step 1 files are stable after Step 1 completes — amendments require a dated note.** `requirement.md` and `oracle-map.md` are not edited silently afterwards. Legitimate reopens are expected when a Step-2 finding reveals a requirement defect; mark them explicitly by appending a `## Reopened <date> — reason: <why>` note at the bottom of the affected file, then edit. A silent edit is oracle drift in file form; a dated reopen is a normal Step-1 round-trip with the user.
+
+  **"Inconvenience" is not a valid reopen reason.** Feeling that the observation method the oracle names is effortful, slow, or "overkill" is not data — it is a vibe, and one that has been observed to drive silent oracle substitution in the wild. Before invoking an infeasibility argument: (a) enumerate what tooling is actually available for this method — check the skill's listed dependencies and any relevant helpers already on disk, (b) estimate the actual minutes required, and if that estimate is under ~15 the argument is void, (c) if you have not actually tried the named method, you cannot yet claim it is infeasible. A reopen whose stated reason reduces to "this is annoying to verify" is not authorized; take it to the user first.
 - **Observations are append-only.** Never edit an existing `observations/<id>.md` after its outcome is written. Corrections are a new record whose frontmatter includes `supersedes: <old-id>`.
 - **Observation record schema (required frontmatter).** A file under `observations/` is only a valid evidence source if its frontmatter contains at least:
   ```yaml
@@ -76,6 +78,20 @@ If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continu
 - **Provenance — no hand-written records.** `observations/<id>.md` is produced by `scripts/tally-record`, which runs a real subprocess and stamps `produced_by: tally-record` after capturing stdout/stderr/exit_code/timestamp/cwd/env from the actual process. Hand-writing an observation file with a plausible-looking frontmatter is the fabrication failure mode this skill exists to shut; `tally-verify` rejects records whose `produced_by` is absent or unrecognized. Companion skills listed in Skill Dependencies may alternatively produce records directly — in that case they stamp their own `produced_by: <skill-name>`. Human free-form inputs are not valid evidence; route them through `tally-record` to anchor them as real runs.
 - **Signature is derived, not trusted.** Treat `signature_status: signed` in `contract.yaml` as a claim, not a fact. The authoritative check is `scripts/tally-verify <workspace>`, which re-derives each signature from the filesystem (record exists, frontmatter complete, outcome matches, cross-link holds, evidence body non-empty) and also runs per-R-### coverage checks (effective signed clause + independent observation + no unsuperseded failing clause). Always run it before Step 3 presentation; its exit code is the truth.
 - **Independent observation.** For every Requirement ID, at least one of its signed clauses must cite an **independent observation** — evidence whose expected value was not hand-authored in the same change that wrote the implementation. Qualifying sources: a feature run log (not a unit test whose assertions you just wrote), a debugger trace whose recorded values were not pre-selected from the requirement text, a benchmark measurement, or the output of a companion skill listed in Skill Dependencies. Unit tests you authored alongside the implementation satisfy the observation requirement for an individual clause, but not the independence requirement for the Requirement ID — the implementation validating itself is a closed loop, and the independence rule exists to break it.
+- **Observation method is fixed by the oracle, not by the agent.** Each row in `oracle-map.md` carries two structured fields — `observation_method` (an enum from the controlled vocabulary below) and `allowed_producers` (a whitelist of `produced_by` values that are acceptable as evidence for this oracle). A signed clause's observation record must have a `produced_by` value in its oracle's `allowed_producers` list. This closes the substitution path observed in practice, where an agent takes a cheaper shell-level check (e.g. listing a file, deriving a path) in place of the heavier method the oracle actually demanded (e.g. driving a TUI through a real session). `tally-verify` enforces the match mechanically. If a legitimate substitution is needed, it requires an explicit `substituted_check: true` on the clause plus a `## Reopened` note in `oracle-map.md` authorizing it.
+
+  The controlled vocabulary for `observation_method`:
+
+  | value             | what the oracle demands                                                        | intended producers                      |
+  |-------------------|--------------------------------------------------------------------------------|-----------------------------------------|
+  | `unit-test`       | a unit-level test run whose assertions you write                               | `tally-record`                          |
+  | `integration-run` | end-to-end execution of a feature path (HTTP, CLI invocation, pipeline run)    | `tally-record`                          |
+  | `tui-check`       | interactive terminal UI verified through a real tmux/TTY session               | `tui-acceptance-checks`                 |
+  | `webapp-check`    | browser UI verified through a real page load and interaction                   | `webapp-acceptance-checks`              |
+  | `debugger-trace`  | step-through of changed code in a real debugger, recording variable values     | `step-through-code`                     |
+  | `benchmark`       | numeric measurement against a threshold (latency, throughput, memory)          | `tally-record`                          |
+
+  `allowed_producers` may narrow or widen these defaults per-oracle (e.g. a custom harness producer), but cannot be empty.
 
 ### gitignore policy
 
@@ -133,11 +149,13 @@ Internal code-quality properties (maintainability, extensibility, readability, t
 2. Create `./.agents/tally/<slug>/` (preserve and read any existing files if the directory already exists — resume, don't overwrite).
 3. Write `meta.md` with slug, feature title, created_at, current step (`step-1-complete`), and status.
 4. Write `requirement.md` — finalized user intent, one item per line, each with a stable `R-###` identifier.
-5. Write `oracle-map.md` — one row per Requirement ID:
+5. Write `oracle-map.md` — one row per Requirement ID, with structured columns (see Workspace § Invariants for the enum vocabulary):
 
    ```
-   R-001 | <requirement statement> | <observable signal> | <pass/fail oracle>
+   R-001 | <requirement statement> | <observable signal> | <pass/fail oracle> | <observation_method> | <allowed_producers>
    ```
+
+   `observation_method` is picked **now**, before Step-2 friction can bias the choice. If TUI / webapp / debugger verification will be required, declare it here; the dependent skill will be your only valid producer for that oracle.
 
 6. Initialize `contract.yaml` with `slug:`, `feature_title:`, and an empty `clauses: []` list. Clauses are added during Step 2.
 

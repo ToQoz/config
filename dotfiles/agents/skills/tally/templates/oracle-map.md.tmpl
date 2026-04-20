@@ -1,9 +1,11 @@
 # Acceptance-Oracle Map — {{FEATURE_TITLE}}
 
-One row per Requirement ID. Each oracle must pass the quality gate (falsifiable + binary, externally observable, concretely set up — see SKILL § Step 1). No behavior descriptions here; only observable signals and pass/fail criteria.
+One row per Requirement ID. Each oracle must pass the quality gate (falsifiable + binary, externally observable, concretely set up — see SKILL § Step 1). No behavior descriptions here; only observable signals, pass/fail criteria, and the fixed observation method.
 
-| Requirement ID | Requirement                        | Observable signal                                  | Pass/fail oracle                                   |
-|----------------|------------------------------------|----------------------------------------------------|----------------------------------------------------|
-| R-001          | <statement of intent from user>    | <test / run / benchmark / trace that would speak>  | <result that counts as "satisfied">                |
-| R-002          |                                    |                                                    |                                                    |
-| R-003          |                                    |                                                    |                                                    |
+`observation_method` is one of: `unit-test` | `integration-run` | `tui-check` | `webapp-check` | `debugger-trace` | `benchmark`. `allowed_producers` is a whitelist of `produced_by` values that may supply evidence for this oracle — see SKILL § Invariants for the default mapping. Both fields are fixed here at Step 1 and cannot be changed silently in Step 2.
+
+| Requirement ID | Requirement                        | Observable signal                                     | Pass/fail oracle                                   | observation_method | allowed_producers            |
+|----------------|------------------------------------|-------------------------------------------------------|----------------------------------------------------|--------------------|------------------------------|
+| R-001          | <statement of intent from user>    | <test / run / benchmark / trace that would speak>     | <result that counts as "satisfied">                | <enum>             | [<producer>, ...]            |
+| R-002          |                                    |                                                       |                                                    |                    |                              |
+| R-003          |                                    |                                                       |                                                    |                    |                              |
