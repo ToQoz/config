@@ -48,6 +48,7 @@ In unfamiliar code:
 - `coding-practice` — use for coding tasks
 - `debugging-practice` — use for investigation, reproduction, and root-cause analysis
 - `webapp-acceptance-checks` — use for manual verification (logic, visual etc) of web application changes when E2E coverage is missing
+- `tui-acceptance-checks` — use for manual verification of TUI / interactive CLI changes when automated coverage is missing
 - `computer-configuration` — use before reading or editing configuration in `~/src/github.com/ToQoz/config`
 - `retro-agent-instructions` — use after completing a task when friction signals were observed (see below)
 
@@ -63,6 +64,15 @@ When you change any webapp code — logic, markup, styles, assets, or configurat
 - Otherwise, invoke the `webapp-acceptance-checks` skill and verify the affected behavior in the browser.
 
 This applies unconditionally regardless of change size. A one-line CSS tweak requires the same verification as a feature addition. Minor changes are especially important to verify this way — they are easy to get wrong and easy to confirm quickly.
+
+## TUI Testing
+
+When you change any TUI or interactive CLI code — prompts, key bindings, redraw behavior, signal handling, full-screen UI, TTY-gated output — you MUST verify the change functionally before considering the task complete.
+
+- If complete automated test coverage exists for the change, those tests are sufficient.
+- Otherwise, invoke the `tui-acceptance-checks` skill and verify the affected behavior through a tmux pane.
+
+This applies unconditionally regardless of change size. A one-line keybinding tweak requires the same verification as a feature addition.
 
 ## Repository Rules
 

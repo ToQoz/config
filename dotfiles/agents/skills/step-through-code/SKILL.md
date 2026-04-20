@@ -420,6 +420,7 @@ A verification is only valid if ALL of these exist in the session directory:
 - **`coding-practice`** step 6 may invoke this skill for high-risk Node.js paths.
 - **`debugging-practice`** may invoke this skill after isolating a suspect code path, to confirm the fix.
 - **`webapp-acceptance-checks`** provides structured browser verification (screenshots, a11y inspection, network monitoring, test records). Use it when the browser interaction is verification, not just triggering.
+- **`tui-acceptance-checks`** provides structured TUI / interactive CLI verification through tmux (send-keys, capture-pane, marker-isolated runs). Use it when the acceptance check does not need debugger-level introspection — this skill and that one are complementary, not overlapping.
 - **`agent-browser`** is the low-level browser automation primitive. Use it directly for trigger-only actions (open, click, submit) that exist solely to reach a breakpoint or exercise a code path. Load its command syntax with `agent-browser skills get agent-browser` before first use.
 
 ## Helper Scripts
