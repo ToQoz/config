@@ -144,7 +144,16 @@ in
   programs.direnv = {
     enable = true;
     enableZshIntegration = true;
+    # Nix devShells export dozens of internal variables; the diff is noise, not signal.
+    # Variable changes are tied to flake.nix edits, so hiding the diff loses nothing useful.
+    config.global.hide_env_diff = true;
   };
+
+  # In a flake + direnv workflow the working tree is always dirty during development,
+  # so the warning fires on every shell entry with zero informational value.
+  xdg.configFile."nix/nix.conf".text = ''
+    warn-dirty = false
+  '';
 
   programs.wezterm = {
     enable = true;
