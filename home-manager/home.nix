@@ -89,6 +89,7 @@ in
       (callPackage ./portless.nix { })
       (callPackage ./mo.nix { })
       (callPackage ./pi-coding-agent.nix { })
+      (callPackage ./sence.nix { })
       (callPackage ./tmux-agent-sidebar.nix { })
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     ]
