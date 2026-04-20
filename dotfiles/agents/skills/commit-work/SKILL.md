@@ -125,6 +125,13 @@ A commit should be coherent, reviewable, and independently revertable. If
 the work naturally produces a large but cohesive change (e.g., a new feature
 with its tests), that is fine. But if it spans unrelated concerns, flag it.
 
+**Layer separation rule:** Changes that cross layer boundaries must be
+in separate commits, even when they are part of the same work. If two
+changes have different review concerns or revert granularity, they
+belong in different commits. Examples: instruction files vs application
+code, schema migrations vs application logic, infrastructure vs
+application, build config vs source code.
+
 ### 5. Check for dependencies
 
 Before staging, check whether the changes you plan to commit depend on
