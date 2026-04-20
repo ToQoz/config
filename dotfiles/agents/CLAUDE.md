@@ -72,6 +72,11 @@ This applies unconditionally regardless of change size. A one-line CSS tweak req
 - Determine the default branch with:
   `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
 
+### Git Committing
+
+- Commit skills (`commit`, `commit-work`, `commit-staged`) normally refuse direct commits to the default/shared branch and require a topic branch.
+- Exception: for personal repositories under `~/src/github.com/toqoz/`, direct commits to the default branch are allowed. The commit Branch Guard is relaxed for these projects without requiring a per-project opt-in in the project's `CLAUDE.md`.
+
 ### Environment Configuration
 
 - When reading or editing configuration in `~/src/github.com/ToQoz/config`, always invoke the `computer-configuration` skill before making changes.

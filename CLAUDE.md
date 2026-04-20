@@ -2,10 +2,6 @@
 
 This repo manages the machine environment with Nix, nix-darwin, and Home Manager.
 
-## Git Branching
-
-Since this is a purely personal repository, committing directly to main is allowed.
-
 ## Editing Guide
 
 Key split:
