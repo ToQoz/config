@@ -159,9 +159,11 @@ Internal code-quality properties (maintainability, extensibility, readability, t
 
 6. Initialize `contract.yaml` with `slug:`, `feature_title:`, and an empty `clauses: []` list. Clauses are added during Step 2.
 
+7. Populate `meta.md` with `verification_skills:` — the distinct `allowed_producers` across every oracle row, minus `tally-record` (which is always available). This is your committed list of dependent skills for the task; referencing one that isn't listed is a Step-1 round-trip, not a Step-2 improvisation.
+
 Starting points for each file live in `templates/` (`requirement.md.tmpl`, `oracle-map.md.tmpl`, `contract.yaml.tmpl`). Copy them into the workspace and fill in the placeholders — the structure is then consistent across tasks and across agents working on the same project.
 
-7. Tell the user that the workspace lives at `./.agents/tally/<slug>/` and that committing vs. gitignoring it is their call.
+8. Tell the user that the workspace lives at `./.agents/tally/<slug>/` and that committing vs. gitignoring it is their call.
 
 `requirement.md` and `oracle-map.md` are **not** a contract; they are only the requirement-side acceptance criteria. They say what *would* need to be observed. They say nothing about *how* the implementation will behave internally, and they contain no clauses.
 
@@ -181,11 +183,20 @@ Repeat until every requirement item carries a signed clause.
 
 2. **Observe, record, then draft the clause — in that order.** A clause is drafted only after the observation file exists on disk with a complete outcome.
 
-   Observation sources, in rough preference order:
-   - **Tests** — extend or write tests, record what the implementation actually produces. Here tests are an observation tool; test-technique decisions (coverage strategy, property-based testing) are out of scope for tally.
-   - **Exploratory runs** — run the feature end-to-end and record the result.
-   - **Debugger inspection** — for subtle internal paths, step through and record the values that matter.
-   - **Benchmarks** — for numeric non-functional requirements, record the measured number with its conditions.
+   **The method is already fixed.** Look up the current oracle's `observation_method` in `oracle-map.md`. That value decides how to observe — not convenience, not the method that "feels equivalent". Each method maps to a required producer:
+
+   | `observation_method` | How to observe                                                                                     |
+   |----------------------|----------------------------------------------------------------------------------------------------|
+   | `unit-test`          | write/extend a unit test and run it through `tally-record`                                         |
+   | `integration-run`    | exercise the feature end-to-end (HTTP, CLI, pipeline) through `tally-record`                       |
+   | `tui-check`          | **invoke the `tui-acceptance-checks` skill**; it produces its own record with `produced_by: tui-acceptance-checks` |
+   | `webapp-check`       | **invoke the `webapp-acceptance-checks` skill**; it produces its own record                       |
+   | `debugger-trace`     | **invoke the `step-through-code` skill**; it produces its own record                              |
+   | `benchmark`          | run the benchmark command through `tally-record`                                                   |
+
+   **Do not substitute a cheaper-feeling method.** The failure mode observed in practice: the agent read the skill, saw `tui-acceptance-checks` listed, felt it was effortful, and ran a shell command through `tally-record` instead — the resulting `produced_by: tally-record` did not match the oracle's `allowed_producers: [tui-acceptance-checks]`, and `tally-verify` rejected the clause. The rule is mechanical, not disciplinary. If the oracle's method genuinely is wrong for the requirement (not just inconvenient), that is a Step-1 round-trip with the user — see the "Inconvenience is not a valid reopen reason" invariant in Workspace § Invariants before you invoke it.
+
+   For a legitimate, user-authorized substitution: the clause must carry `substituted_check: true` with `substitution_reason: <text>`, and `oracle-map.md` must have a dated `## Reopened` note recording the authorization. Any other mismatch between `produced_by` and `allowed_producers` auto-fails the clause at Step 3.
 
    For each observation:
    1. Actually run it through `scripts/tally-record`, which wraps the real subprocess and writes `./.agents/tally/<slug>/observations/<record-id>.md` with full frontmatter (`produced_by: tally-record`, timestamp, cwd, env, outcome, exit_code) and the captured stdout/stderr in the body:
@@ -211,6 +222,8 @@ Repeat until every requirement item carries a signed clause.
      oracle_result: pass | fail  # against the Step-1 pass/fail criterion
      signature_status: unsigned
      supersedes: <old-clause-id>  # optional; marks the named prior clause inactive for this R-###
+     substituted_check: false    # default; set to true ONLY with an authorizing oracle-map.md Reopen note
+     substitution_reason: "..."  # required when substituted_check is true; short explanation
    ```
 
    A forward-declared record ID — no file yet, no outcome yet — is a placeholder. A clause whose record file is missing, whose frontmatter is incomplete, or whose evidence body is empty is, by definition, unsigned.
@@ -299,6 +312,8 @@ The workspace can be committed as an audit artifact, kept as a regression guardr
 - **Oracle drift.** Silently editing `oracle-map.md` to match what the implementation happens to do. If the oracle needs to change, reopen the file with a dated `## Reopened` note and close the gap with the user first.
 - **Retroactive observation editing.** Observations are append-only. Changing an existing record after its outcome is written erases the history the contract is anchored to. Corrections are a new record with `supersedes: <old-id>`.
 - **Ignoring failing clauses.** Treating a Requirement ID as satisfied because *some* clause for it is signed, while a failing or unsigned clause for the same R-### remains unsuperseded. A failing clause that is not explicitly resolved (by a later clause citing `Supersedes:` it) blocks the requirement regardless of how many other passing clauses exist. Fix the implementation, draft the superseding clause, and file the old one under "Superseded clauses" — don't just look past it.
+- **Method substitution by convenience.** Running a cheaper shell check through `tally-record` in place of the heavier method the oracle actually demanded (e.g. listing a file or deriving a path when the oracle says `tui-check`). This is the exact failure that motivated the method-enforcement invariant: the agent read the skill, saw the required dependency listed, felt it was effortful, and substituted. `tally-verify` now rejects such clauses mechanically; `substituted_check: true` exists for genuinely user-authorized substitutions, not for rebranding a convenience call.
+- **Dressing up a "similar" check as equivalent.** "Path derivation plus file existence is *basically the same* as a TUI session" — no, it isn't, and the word *basically* is the warning sign. Integration bugs (argument ignored, owner mismatch, redraw skipped) are invisible to the cheaper check even when the algebraic form looks identical. The oracle's method was chosen precisely because it exercises the integration surface; anything weaker is substitution.
 - **Test oracle copied from requirement text.** A test whose expected value is paraphrased requirement prose is not itself sufficient evidence — the implementation is validating itself. This is enforced by the independent-observation invariant (Workspace § Invariants) and the per-requirement coverage check in Step 3; the anti-pattern here is thinking a freshly-authored green test closes the loop on its own.
 - **Skipping the dialog.** Interpreting the requirement unilaterally removes the requirement side of the contract entirely — there is no counterparty to sign against.
 - **Treating the implementation as an intent-negotiating party.** Implementation only demonstrates behavior. If a clause fails because the code "thinks differently" about the requirement, that is still a requirement defect or an implementation defect — never a negotiation.
