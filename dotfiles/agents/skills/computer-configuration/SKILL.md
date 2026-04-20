@@ -13,8 +13,12 @@ All environment configuration is managed via Nix/Home Manager in `~/src/github.c
 - **Never edit files directly** under `~/.config/nvim`, `~/.claude`, or other symlinked home directories. Those paths are Nix store outputs or symlinks — direct edits will be lost on the next build.
 - **Only edit files in `~/src/github.com/ToQoz/config`.**
 - **For Claude skills**, read and edit the canonical source under `dotfiles/agents/skills/` — treat `~/.claude/skills/` as a generated projection.
-- **Don't build.** Stop after editing files. When a rebuild is needed, open a new tmux split pane with the command pre-filled (using `send-keys` without pressing Enter) so the user can review and execute it themselves:
-  ```
-  tmux split-window -v -l 15 \; send-keys 'darwin-rebuild switch' ''
-  ```
+- **Don't build directly.** When a rebuild is needed:
+  1. Open a new tmux split pane with the command pre-filled (using `send-keys` without pressing Enter) so the user can review and execute it:
+     ```
+     tmux split-window -v -l 15 \; send-keys 'darwin-rebuild switch' ''
+     ```
+  2. After the user starts the build, monitor progress by polling with `tmux capture-pane -t <pane_id> -p` every 10 seconds.
+  3. If the output stops changing for 1 minute, stop monitoring and ask the user to check the status.
+  4. When the build finishes, check the captured output for errors or warnings. If any are found, proceed to fix them.
 - **If the target config is not tracked in this repository**, ask the user what to do rather than editing in-place.
