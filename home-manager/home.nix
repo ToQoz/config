@@ -89,6 +89,7 @@ in
       slack
       (callPackage ./portless.nix { })
       (callPackage ./mo.nix { })
+      (callPackage ./vite-plus.nix { })
       (callPackage ./pi-coding-agent.nix { })
       sence.packages.${pkgs.stdenv.hostPlatform.system}.default
       (callPackage ./tmux-agent-sidebar.nix { })
