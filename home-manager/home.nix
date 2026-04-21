@@ -304,6 +304,10 @@ in
       autoload -U edit-command-line
       zle -N edit-command-line
 
+      # Never auto-execute on paste; Enter is always required.
+      autoload -Uz bracketed-paste-magic
+      zle -N bracketed-paste bracketed-paste-magic
+
       select-repository() {
         local root d
         root=$(ghq root)
