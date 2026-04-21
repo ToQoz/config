@@ -92,7 +92,6 @@ in
       (callPackage ./vite-plus.nix { })
       (callPackage ./pi-coding-agent.nix { })
       sence.packages.${pkgs.stdenv.hostPlatform.system}.default
-      (callPackage ./tmux-agent-sidebar.nix { })
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     ]
     ++ lib.optionals pkgs.stdenv.isDarwin [
@@ -137,9 +136,6 @@ in
   home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
   # tmux
   xdg.configFile."tmux".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux";
-  xdg.dataFile."tmux/plugins/tmux-agent-sidebar".source = "${
-    pkgs.callPackage ./tmux-agent-sidebar.nix { }
-  }/share/tmux-plugins/tmux-agent-sidebar";
   # asdf
   xdg.configFile."asdf/.asdfrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
@@ -499,37 +495,6 @@ in
         CLAUDE_CODE_NO_FLICKER = "1";
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       };
-
-      hooks =
-        let
-          sidebarHook = event: {
-            matcher = "";
-            hooks = [
-              {
-                type = "command";
-                command = "tmux-agent-sidebar hook claude ${event}";
-              }
-            ];
-          };
-        in
-        {
-          CwdChanged = [ (sidebarHook "cwd-changed") ];
-          Notification = [ (sidebarHook "notification") ];
-          PermissionDenied = [ (sidebarHook "permission-denied") ];
-          PostToolUse = [ (sidebarHook "activity-log") ];
-          SessionEnd = [ (sidebarHook "session-end") ];
-          SessionStart = [ (sidebarHook "session-start") ];
-          Stop = [ (sidebarHook "stop") ];
-          StopFailure = [ (sidebarHook "stop-failure") ];
-          SubagentStart = [ (sidebarHook "subagent-start") ];
-          SubagentStop = [ (sidebarHook "subagent-stop") ];
-          TaskCompleted = [ (sidebarHook "task-completed") ];
-          TaskCreated = [ (sidebarHook "task-created") ];
-          TeammateIdle = [ (sidebarHook "teammate-idle") ];
-          UserPromptSubmit = [ (sidebarHook "user-prompt-submit") ];
-          WorktreeCreate = [ (sidebarHook "worktree-create") ];
-          WorktreeRemove = [ (sidebarHook "worktree-remove") ];
-        };
 
       permissions = {
         deny = [
