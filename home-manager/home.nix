@@ -305,44 +305,8 @@ in
       }
       zle -N select-history
 
-      ai() {
-        case "$1" in
-          commit)
-            shift
-            if [[ "$1" == "--staged" ]]; then
-              shift
-              claude -p "/commit-staged $*"
-            else
-              claude -p "/commit $*"
-            fi
-            ;;
-          *)
-            echo "Usage: ai commit [--staged] [args...]" >&2
-            return 1
-            ;;
-        esac
-      }
-      _ai() {
-        local state line
-        _arguments -C \
-          '1: :->subcmd' \
-          '*:: :->args'
-        case $state in
-          subcmd)
-            local -a subcmds
-            subcmds=('commit:generate a commit message with Claude')
-            _describe 'subcommand' subcmds
-            ;;
-          args)
-            case $line[1] in
-              commit)
-                _arguments '--staged[commit only staged changes]'
-                ;;
-            esac
-            ;;
-        esac
-      }
-      compdef _ai ai
+      ai-commit() { claude -p "/commit $*"; }
+      ai-commit-staged() { claude -p "/commit-staged $*"; }
 
       ghq() {
         setopt LOCAL_OPTIONS ERR_EXIT
