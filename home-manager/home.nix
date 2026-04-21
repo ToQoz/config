@@ -293,6 +293,10 @@ in
       # Remove superfluous blanks before saving a command.
       setopt HIST_REDUCE_BLANKS
 
+      # fzf integration
+      source <(fzf --zsh)
+
+      # fzf-tab
       source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       # Preview for cd
       zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -1 $realpath'
@@ -313,13 +317,6 @@ in
         fi
       }
       zle -N select-repository
-
-      select-history() {
-        BUFFER=$(history -n 1 | perl -e 'print reverse <>' | fzf --no-sort --exact --query "$LBUFFER")
-        CURSOR=$#BUFFER
-        zle clear-screen
-      }
-      zle -N select-history
 
       ai-commit() { claude -p "/commit $*"; }
       ai-commit-staged() { claude -p "/commit-staged $*"; }
@@ -353,8 +350,6 @@ in
       bindkey "^g" edit-command-line
       # C-x g
       bindkey "^xg" select-repository
-      # C-r: Alt bck-i-search
-      bindkey '^r' select-history
       # Unbind C-t (fzf file widget) so tmux prefix passes through
       bindkey -r '^t'
       # Cmd-r: Redo
