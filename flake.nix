@@ -32,6 +32,10 @@
       url = "github:toqoz/sence";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    android-nixpkgs = {
+      url = "github:tadfisher/android-nixpkgs/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -44,6 +48,7 @@
       anthropic-skills,
       vercel-agent-browser,
       sence,
+      android-nixpkgs,
       ...
     }:
     {
@@ -53,10 +58,15 @@
           home-manager.darwinModules.home-manager
           {
             users.users."toqoz".home = "/Users/toqoz";
+            # android-nixpkgs' hmModule references `pkgs.androidSdk`, which is
+            # supplied by its overlay. Because `home-manager.useGlobalPkgs` is
+            # true, the overlay must live at the nix-darwin `nixpkgs` level.
+            nixpkgs.overlays = [ android-nixpkgs.overlays.default ];
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.sharedModules = [
               agent-skills.homeManagerModules.default
+              android-nixpkgs.hmModule
             ];
             home-manager.extraSpecialArgs = {
               inherit llm-agents;
