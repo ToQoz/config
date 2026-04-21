@@ -322,7 +322,6 @@ in
       ai-commit-staged() { claude -p "/commit-staged $*"; }
 
       ghq() {
-        setopt LOCAL_OPTIONS ERR_EXIT
         if [[ "$1" == "get" ]]; then
           local repo=""
           for arg in "''${@:2}"; do
@@ -330,15 +329,18 @@ in
           done
 
           if [[ -n "$repo" ]]; then
-            # Strip protocol (e.g. https://, git://)
-            local repo_dir="$(command ghq root)/''${repo#*://}"
-            local org_dir="''${repo_dir%/*}"
-
-            if [[ -d "$org_dir" ]]; then
-              (cd "$org_dir" && command ghq "$@")
-              cd "$repo_dir"
-              return
-            fi
+            # Normalize just enough for `ghq list` substring match
+            local q="''${repo##*:}"; q="''${q#//}"; q="''${q%.git}"
+            # Default host to github.com when only user/project is given
+            [[ "$q" == */*/* ]] || q="github.com/$q"
+            mkdir -p "$(command ghq root)/''${q%/*}" || return
+            command ghq "$@"
+            local status=$?
+            local path
+            path="$(command ghq list --full-path "$q" 2>/dev/null)"
+            path="''${path%%$'\n'*}"
+            [[ -n "$path" ]] && cd "$path"
+            return $status
           fi
         fi
         command ghq "$@"
