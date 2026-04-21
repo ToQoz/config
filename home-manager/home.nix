@@ -212,7 +212,20 @@ in
     enable = true;
     package = pkgs.emptyDirectory;
     dotDir = "${config.xdg.configHome}/zsh";
-    history.path = "${config.xdg.stateHome}/zsh/history";
+    history = {
+      path = "${config.xdg.stateHome}/zsh/history";
+      # Keep extra history in memory for smarter trimming before save.
+      size = 200000;
+      save = 150000;
+      # Store timestamps and durations with history entries.
+      extended = true;
+      # Drop a command if it is identical to the previous entry.
+      ignoreDups = true;
+      # When trimming history, remove older duplicate entries first.
+      expireDuplicatesFirst = true;
+      # Do not record commands that start with a space.
+      ignoreSpace = true;
+    };
     syntaxHighlighting = {
       enable = true;
     };
@@ -277,6 +290,8 @@ in
     # .zshrc
     initContent = ''
       setopt IGNORE_EOF
+      # Remove superfluous blanks before saving a command.
+      setopt HIST_REDUCE_BLANKS
 
       source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       # Preview for cd
