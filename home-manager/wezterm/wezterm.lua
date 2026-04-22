@@ -42,6 +42,13 @@ config.keys = {
 		action = wezterm.action.DisableDefaultAssignment,
 	},
 
+	-- Disable CMD+Q to prevent accidental quit.
+	{
+		key = "q",
+		mods = "CMD",
+		action = wezterm.action.DisableDefaultAssignment,
+	},
+
 	-- Command palette
 	{
 		key = "p",
