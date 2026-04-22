@@ -42,6 +42,8 @@ let
   );
 in
 {
+  my.unfreePackages = [ "slack" ];
+
   # General-purpose CLI tools and third-party packages without a dedicated
   # module. Tool-specific installs live with their owning module (e.g.
   # `pkgs.tmux` in `tmux.nix`) to keep each module self-contained.

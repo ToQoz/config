@@ -18,11 +18,4 @@
       config.my.unfreePackages
       ++ (config.home-manager.users.toqoz.my.unfreePackages or [ ])
     );
-
-  # Seed the darwin list with the remaining entries not yet adopted by an
-  # owning module. As modules take over their own entries this list
-  # shrinks.
-  config.my.unfreePackages = [
-    "slack"
-  ];
 }
