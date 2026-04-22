@@ -34,10 +34,10 @@ in
   };
 
   config = {
-    # Seeded with the current set; per-app modules will take over their
-    # entries in follow-up commits.
+    # Seeded with the extensions that have not yet been adopted by an
+    # owning app module. As modules take over their own entries this list
+    # shrinks.
     my.chromeForceInstallExtensions = [
-      "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
       "fmkadmapgofadopljbjfkapdkoienihi" # React Developer Tools
     ];
 

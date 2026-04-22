@@ -2,13 +2,13 @@
 {
   imports = [
     ./aerospace.nix
+    ./apps/1password.nix
     ./chrome-policy.nix
     ./defaults.nix
     ./fonts.nix
     ./homebrew.nix
     ./keyboard.nix
     ./nix.nix
-    ./one-password.nix
     ./pam.nix
     ./unfree.nix
   ];

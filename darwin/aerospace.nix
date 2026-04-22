@@ -199,13 +199,6 @@
           ];
         }
         {
-          "if".app-id = "com.1password.1password";
-          run = [
-            "layout floating"
-            "move-node-to-workspace R"
-          ];
-        }
-        {
           "if".app-id = "com.apple.Music";
           run = [
             "layout floating"

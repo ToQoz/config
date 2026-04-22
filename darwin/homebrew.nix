@@ -10,7 +10,6 @@
 
     casks = [
       "google-chrome"
-      "1password"
       "karabiner-elements"
       "macskk"
       "aqua-voice"
@@ -24,8 +23,6 @@
       "codex-app"
     ];
 
-    masApps = {
-      "1Password for Safari" = 1569813296;
-    };
+    masApps = { };
   };
 }
