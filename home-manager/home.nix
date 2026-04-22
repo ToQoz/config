@@ -16,7 +16,7 @@
     ./repo.nix
     ./scripts.nix
     ./sketchybar.nix
-    ./starship.nix
+    ./starship
     ./tmux
     ./unfree.nix
     ./vscode-family.nix
