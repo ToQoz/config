@@ -33,6 +33,7 @@ let
 in
 {
   imports = [
+    ./fonts.nix
     ./keyboard.nix
   ];
 
@@ -451,10 +452,6 @@ in
   programs._1password = {
     enable = true;
   };
-
-  fonts.packages = with pkgs; [
-    nerd-fonts.fira-code
-  ];
 
   homebrew = {
     enable = true;
