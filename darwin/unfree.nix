@@ -19,14 +19,13 @@
       ++ (config.home-manager.users.toqoz.my.unfreePackages or [ ])
     );
 
-  # Seed the darwin list with the full set for now; individual modules will
-  # adopt their own entries in follow-up commits, shrinking this list to
-  # only the darwin-owned names.
+  # Seed the darwin list with the remaining entries not yet adopted by an
+  # owning module. As modules take over their own entries this list
+  # shrinks.
   config.my.unfreePackages = [
     "vscode"
     "cursor"
     "claude-code"
     "slack"
-    "1password-cli"
   ];
 }
