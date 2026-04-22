@@ -1,16 +1,10 @@
 {
   lib,
   config,
-  pkgs,
-  llm-agents,
-  anthropic-skills,
-  vercel-agent-browser,
-  sence,
   ...
 }:
 let
   root = "${config.home.homeDirectory}/src/github.com/ToQoz/config";
-  dotfiles = "${root}/dotfiles";
 in
 {
   imports = [
@@ -49,26 +43,6 @@ in
   # release notes.
   home.stateVersion = "25.11"; # Please read the comment before changing.
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
-  home.file = { };
-
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. These will be explicitly sourced when using a
-  # shell provided by Home Manager. If you don't want to manage your shell
-  # through Home Manager then you have to manually source 'hm-session-vars.sh'
-  # located at either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/toqoz/etc/profile.d/hm-session-vars.sh
-  #
   home.sessionVariables = {
     XDG_DATA_HOME = config.xdg.dataHome; # for .tig_history
     # EDITOR = "emacs";
