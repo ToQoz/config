@@ -40,6 +40,18 @@
       ];
     };
     enableCompletion = true; # For autocomplete
+    setOptions = [
+      "IGNORE_EOF"
+      # Remove superfluous blanks before saving a command.
+      "HIST_REDUCE_BLANKS"
+    ];
+    plugins = [
+      {
+        name = "fzf-tab";
+        src = "${pkgs.zsh-fzf-tab}/share/fzf-tab";
+        file = "fzf-tab.plugin.zsh";
+      }
+    ];
     # .zshenv
     envExtra = ''
       source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
@@ -64,15 +76,7 @@
     '';
     # .zshrc
     initContent = ''
-      setopt IGNORE_EOF
-      # Remove superfluous blanks before saving a command.
-      setopt HIST_REDUCE_BLANKS
-
-      # fzf integration
-      source <(fzf --zsh)
-
       # fzf-tab
-      source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       # Preview for cd
       zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -1 $realpath'
       # Show fzf on the first TAB even when matches share a common prefix.
