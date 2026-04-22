@@ -19,7 +19,7 @@
     ./starship
     ./tmux
     ./unfree.nix
-    ./vscode-family.nix
+    ./vscode-family
     ./wezterm
     ./xdg-misc.nix
     ./zsh.nix
