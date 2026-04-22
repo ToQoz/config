@@ -20,20 +20,23 @@
 # Geometry is fixed at 120x40 by default so captures are deterministic across
 # machines. Override via TUI_COLS / TUI_ROWS before calling tui::new.
 #
-# Server isolation is automatic and non-opt-out: every helper targets a
-# workspace-local tmux server at $PWD/.agents/tmux/tui.sock. Keeping the
-# socket inside the workspace means agent sandboxes can write it, and running
-# all tests on a dedicated server prevents commands like `switch-client` or
-# `kill-server` from reaching the user's real sessions. Override TUI_SOCKET to
-# a different path if you truly need a separate server.
+# Server isolation is opt-in. By default the helpers run on the user's
+# default tmux server so `tmux ls` / eye-on-glass stays easy. Call
+# `tui::isolate <name>` before `tui::new` when the tested code touches
+# server-wide state (switch-client, kill-server, global `set -g`, any
+# client-targeting command). The name keys the socket so parallel runs
+# get independent servers.
 
 : "${TUI_COLS:=120}"
 : "${TUI_ROWS:=40}"
-: "${TUI_SOCKET:=${PWD}/.agents/tmux/tui.sock}"
 
-# Internal: run tmux against the workspace-isolated server.
+# Internal: run tmux, targeting the isolated server when TUI_SOCKET is set.
 _tui_tmux() {
-  command tmux -S "$TUI_SOCKET" "$@"
+  if [ -n "${TUI_SOCKET:-}" ]; then
+    command tmux -S "$TUI_SOCKET" "$@"
+  else
+    command tmux "$@"
+  fi
 }
 
 # Millisecond clock. GNU `date +%s%3N` works on Linux but not on BSD/macOS,
@@ -47,22 +50,44 @@ _tui_now_ms() {
   esac
 }
 
+# tui::isolate <name>
+# Opt in to server isolation. Points subsequent helper calls at a
+# workspace-local tmux server whose socket lives at
+# $PWD/.agents/tmux/<name>.sock. The name must be unique across concurrent
+# runs so parallel tests do not share a server. Path choice is the helper's
+# concern — callers only pass the name.
+tui::isolate() {
+  local name="$1"
+  if [ -z "$name" ]; then
+    echo "tui::isolate: name required" >&2
+    return 1
+  fi
+  TUI_SOCKET="${PWD}/.agents/tmux/${name}.sock"
+  export TUI_SOCKET
+  mkdir -p "$(dirname "$TUI_SOCKET")"
+}
+
 # tui::new <session>
-# Create a detached session with fixed geometry on the isolated server.
-# The socket's parent dir is created on demand.
+# Create a detached session with fixed geometry. When tui::isolate was
+# called first, the session lives on the isolated server; otherwise it
+# lives on the default tmux server.
 tui::new() {
   local session="$1"
-  mkdir -p "$(dirname "$TUI_SOCKET")"
   _tui_tmux new-session -d -s "$session" -x "$TUI_COLS" -y "$TUI_ROWS"
 }
 
 # tui::attach_hint <session>
 # Print the command the user runs to attach to this session from another
 # pane. Callers should emit this at the end of a successful run so the
-# isolated server stays discoverable.
+# session stays discoverable — especially important after tui::isolate,
+# where the server does not show up in plain `tmux ls`.
 tui::attach_hint() {
   local session="$1"
-  printf 'tmux -S %s attach -t %s\n' "$TUI_SOCKET" "$session"
+  if [ -n "${TUI_SOCKET:-}" ]; then
+    printf 'tmux -S %s attach -t %s\n' "$TUI_SOCKET" "$session"
+  else
+    printf 'tmux attach -t %s\n' "$session"
+  fi
 }
 
 # tui::kill <session>
