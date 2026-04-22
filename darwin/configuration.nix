@@ -37,6 +37,7 @@ in
     ./keyboard.nix
     ./nix.nix
     ./one-password.nix
+    ./pam.nix
   ];
 
   nixpkgs.hostPlatform = "aarch64-darwin";
@@ -51,16 +52,6 @@ in
       "slack"
       "1password-cli"
     ];
-
-  # security.pam.services.sudo_local.touchIdAuth = true;
-  environment.systemPackages = [
-    pkgs.pam-reattach
-  ];
-  environment.etc."pam.d/sudo_local".text = ''
-    # managed by nix-darwin
-    auth       optional       ${pkgs.pam-reattach}/lib/pam/pam_reattach.so
-    auth       sufficient     pam_tid.so
-  '';
 
   # For homebrew
   system.primaryUser = "toqoz";
