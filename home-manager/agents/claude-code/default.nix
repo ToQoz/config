@@ -2,7 +2,7 @@
 {
   my.unfreePackages = [ "claude-code" ];
 
-  home.file.".claude/CLAUDE.md".source = ../../dotfiles/agents/CLAUDE.md;
+  home.file.".claude/CLAUDE.md".source = ./CLAUDE.md;
   home.file.".claude/skills/README.md".text = ''
     # Generated directory — do not edit here
 
@@ -10,7 +10,7 @@
     Edits made here will be lost on the next `darwin-rebuild switch`.
 
     Canonical source for skills:
-      ~/src/github.com/ToQoz/config/dotfiles/agents/skills/
+      ~/src/github.com/ToQoz/config/home-manager/agents/agent-skills/skills/
   '';
 
   programs.claude-code = {
@@ -18,7 +18,7 @@
     enableMcpIntegration = true;
     package = llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
 
-    context = ../../dotfiles/agents/CLAUDE.md;
+    context = ./CLAUDE.md;
     settings = {
       autoUpdates = false;
       includeCoAuthoredBy = false;

@@ -2,7 +2,7 @@
 {
   imports = [
     ./agents/agent-skills.nix
-    ./agents/claude-code.nix
+    ./agents/claude-code
     ./agents/mcp.nix
     ./android.nix
     ./asdf
