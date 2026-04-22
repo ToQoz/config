@@ -1,12 +1,6 @@
 { ... }:
 {
-  services.aerospace.settings.on-window-detected = [
-    {
-      "if".app-id = "com.apple.systempreferences";
-      run = [
-        "layout floating"
-        "move-node-to-workspace R"
-      ];
-    }
-  ];
+  # macOS built-in. This file exists so aerospace can reference the
+  # bundle ID by semantic name.
+  my.apps.system-preferences.appId = "com.apple.systempreferences";
 }

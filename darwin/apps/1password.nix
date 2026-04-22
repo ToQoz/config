@@ -1,5 +1,7 @@
 { ... }:
 {
+  my.apps."1password".appId = "com.1password.1password";
+
   # 1Password CLI (system-level)
   programs._1password.enable = true;
   my.unfreePackages = [ "1password-cli" ];
@@ -10,15 +12,4 @@
 
   # 1Password Chrome extension (force-installed via managed policy)
   my.chromeForceInstallExtensions = [ "aeblfdkhhhdcdjpifhhbdiojplfjncoa" ];
-
-  # Aerospace: floating, on workspace R
-  services.aerospace.settings.on-window-detected = [
-    {
-      "if".app-id = "com.1password.1password";
-      run = [
-        "layout floating"
-        "move-node-to-workspace R"
-      ];
-    }
-  ];
 }

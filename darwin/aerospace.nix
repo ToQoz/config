@@ -1,5 +1,32 @@
-{ lib, ... }:
+{ config, lib, ... }:
+let
+  inherit (config.my) apps;
+in
 {
+  options.my.apps = lib.mkOption {
+    type = lib.types.attrsOf (
+      lib.types.submodule {
+        options.appId = lib.mkOption {
+          type = lib.types.str;
+          description = ''
+            macOS bundle identifier for the app. Apps set this under their
+            own `darwin/apps/<name>.nix` module so that workspace-oriented
+            consumers (aerospace window rules today; potentially other
+            automation tomorrow) can reference the identifier by semantic
+            name instead of duplicating the string.
+          '';
+        };
+      }
+    );
+    default = { };
+    description = ''
+      Registry of managed darwin-side apps. Each app module contributes
+      its own entry (today: bundle identifier). Intentionally free of
+      app-specific layout decisions — those live with aerospace.
+    '';
+  };
+
+  config = {
   services.aerospace = {
     enable = true;
     settings = {
@@ -132,9 +159,100 @@
         "T" = "secondary";
       };
 
-      # Individual per-app rules live in darwin/apps/<app>.nix and
-      # contribute via module merging.
-      on-window-detected = [ ];
+      # Workspace design: the full app-to-workspace mapping lives here,
+      # ordered by target workspace. Each entry references its app via
+      # `apps.<name>.appId` from darwin/apps/<name>.nix, so the identifier
+      # is defined once with the app it belongs to, and the layout
+      # decision stays centralized here where it can be reasoned about as
+      # a whole.
+      on-window-detected = [
+        # workspace 1: terminal
+        {
+          "if".app-id = apps.wezterm.appId;
+          run = [ "move-node-to-workspace 1" ];
+        }
+        # workspace 2: coding agents
+        {
+          "if".app-id = apps.codex.appId;
+          run = [ "move-node-to-workspace 2" ];
+        }
+        # workspace 3: browser
+        {
+          "if".app-id = apps.chrome.appId;
+          run = [ "move-node-to-workspace 3" ];
+        }
+        # workspace 4: containers
+        {
+          "if".app-id = apps.orbstack.appId;
+          run = [
+            "layout floating"
+            "move-node-to-workspace 4"
+          ];
+        }
+        # floating, no target workspace
+        {
+          "if".app-id = apps.aqua-voice.appId;
+          run = [ "layout floating" ];
+        }
+        # workspace Q: comms / reading
+        {
+          "if".app-id = apps.safari.appId;
+          run = [ "move-node-to-workspace Q" ];
+        }
+        {
+          "if".app-id = apps.slack.appId;
+          run = [ "move-node-to-workspace Q" ];
+        }
+        # workspace W: chat-style agents (accordion for stacking)
+        {
+          "if".app-id = apps.chatgpt.appId;
+          run = [
+            "move-node-to-workspace W"
+            "layout accordion"
+          ];
+        }
+        {
+          "if".app-id = apps.claude-desktop.appId;
+          run = [
+            "move-node-to-workspace W"
+            "layout accordion"
+          ];
+        }
+        # workspace E: design
+        {
+          "if".app-id = apps.figma.appId;
+          run = [ "move-node-to-workspace E" ];
+        }
+        # workspace R: floating utilities
+        {
+          "if".app-id = apps.system-preferences.appId;
+          run = [
+            "layout floating"
+            "move-node-to-workspace R"
+          ];
+        }
+        {
+          "if".app-id = apps.karabiner.appId;
+          run = [
+            "layout floating"
+            "move-node-to-workspace R"
+          ];
+        }
+        {
+          "if".app-id = apps.music.appId;
+          run = [
+            "layout floating"
+            "move-node-to-workspace R"
+          ];
+        }
+        {
+          "if".app-id = apps."1password".appId;
+          run = [
+            "layout floating"
+            "move-node-to-workspace R"
+          ];
+        }
+      ];
 
       mode.service.binding = {
         esc = [
@@ -180,4 +298,5 @@
   # To start manually after granting accessibility permission:
   # $ launchctl start org.nixos.aerospace
   launchd.user.agents.aerospace.serviceConfig.KeepAlive = lib.mkForce false;
+  };
 }

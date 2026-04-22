@@ -1,13 +1,7 @@
 { ... }:
 {
-  # WezTerm itself is installed via home-manager (programs.wezterm in
-  # home-manager/wezterm.nix). The aerospace workspace rule lives on the
-  # darwin side so this file exists for symmetry — the "darwin view" of
-  # WezTerm in one place.
-  services.aerospace.settings.on-window-detected = [
-    {
-      "if".app-id = "com.github.wez.wezterm";
-      run = [ "move-node-to-workspace 1" ];
-    }
-  ];
+  # WezTerm is installed and configured on the home-manager side
+  # (programs.wezterm in home-manager/wezterm.nix). This file exists
+  # so aerospace can reference the bundle ID by semantic name.
+  my.apps.wezterm.appId = "com.github.wez.wezterm";
 }

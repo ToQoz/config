@@ -1,13 +1,6 @@
 { ... }:
 {
-  homebrew.casks = [ "aqua-voice" ];
+  my.apps.aqua-voice.appId = "com.electron.aqua-voice";
 
-  services.aerospace.settings.on-window-detected = [
-    {
-      "if".app-id = "com.electron.aqua-voice";
-      run = [
-        "layout floating"
-      ];
-    }
-  ];
+  homebrew.casks = [ "aqua-voice" ];
 }

@@ -1,12 +1,6 @@
 { ... }:
 {
-  services.aerospace.settings.on-window-detected = [
-    {
-      "if".app-id = "com.apple.Music";
-      run = [
-        "layout floating"
-        "move-node-to-workspace R"
-      ];
-    }
-  ];
+  # macOS built-in. No install / no defaults customization; this file
+  # exists so aerospace can reference the bundle ID by semantic name.
+  my.apps.music.appId = "com.apple.Music";
 }
