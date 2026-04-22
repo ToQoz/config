@@ -78,19 +78,36 @@ Example: splitting a module reorders a `lib.mkMerge` list. Semantically equivale
 
 Example: moving `pkgs.tmux` from one module to another, where list order in `home.packages` is semantically irrelevant but the derivation list still reorders. Accept the `.drv` change but prove that the set of installed store paths is unchanged.
 
-Closure equivalence check:
+Closure equivalence check — prefer per-attribute evaluation over walking the full derivation tree. It is more direct, resilient to format changes in `nix derivation show`, and surfaces the exact option whose members you care about:
 
 ```
-extract_pkgs() {
-  nix derivation show --recursive "$1" 2>/dev/null \
-    | jq -r '[..|.pkgs? // empty] | .[] | fromjson | .[] | .paths[]' \
-    | sort -u
-}
+attr='.#darwinConfigurations.<host>.config.environment.systemPackages'
 
-comm -3 <(extract_pkgs /tmp/drv-before-str) <(extract_pkgs /tmp/drv-after-str)
+# current state
+nix eval --json "$attr" | jq -r '.[] | .outPath // .' | sort -u > /tmp/pkgs-after.txt
+
+# previous state (use git stash / checkout on the refactor to compare)
+git stash
+nix eval --json "$attr" | jq -r '.[] | .outPath // .' | sort -u > /tmp/pkgs-before.txt
+git stash pop
+
+diff /tmp/pkgs-before.txt /tmp/pkgs-after.txt
 ```
 
-Empty output → same store paths in both configurations, just in different positions in the list. Commit with a note in the message explaining which property was verified and why the `.drv` difference is acceptable.
+Run the same comparison for each list-typed option that matters for the change — `home.packages`, `environment.systemPackages`, and so on.
+
+Empty diff → same store paths in both configurations, just in different positions in the list. Commit with a note in the message explaining which property was verified and why the `.drv` difference is acceptable.
+
+### Closure equivalence vs. store path equivalence
+
+These are different claims and they come apart in practice.
+
+- **Closure equivalence**: the set of store paths reachable from the final output is the same. This means every binary, library, and config file you would end up with is unchanged.
+- **Store path equivalence**: a specific derivation has the same hash (and therefore points at the same store path) as before.
+
+A common case where closure is equivalent but store paths differ: `extraWrapperArgs` on a wrapped package like Neovim. Reordering the argument list changes the derivation hash (the list is an input), so the wrapper's store path changes. But the wrapper script that gets generated sets the same env vars, adds the same flags, and extends the same `PATH`. Behavior is identical; only the build artifact name differs. The cost is a trivial rebuild of the wrapper (not the wrapped binary).
+
+When the `.drv` diff points at an order-only change inside a wrapper derivation, closure equivalence is the right question. Confirm the actual wrapper parameters match (e.g. by comparing `structuredAttrs.wrapperArgs` as a sorted set), then accept the store path change.
 
 ## Common Pitfalls (Module Merge Order)
 
@@ -147,12 +164,24 @@ nix run nixpkgs#nix-diff -- $(cat /tmp/drv-before) $(cat /tmp/drv-after)
 # Package-level closure diff (what was added/removed/changed)
 nix run nixpkgs#nvd -- diff $(cat /tmp/drv-before) $(cat /tmp/drv-after)
 
-# Inspect a specific env var in the derivation
-nix derivation show --recursive '.#<attr>' \
-  | jq -r '[..|.wrapperArgs? // empty]'
+# Inspect a specific config option directly (more robust than parsing
+# the full derivation tree):
+nix eval --json '.#<attr>.config.programs.neovim.finalPackage.drvPath'
+nix eval --json '.#<attr>.config.environment.systemPackages' | jq
 ```
 
 `nix-diff` is usually the first stop — it highlights "The environments do not match" with a per-variable delta. If the delta is only in a list-typed env var and the set of items is the same, the change is order-only.
+
+### Note on `nix derivation show` output format
+
+Recent Nix versions wrap derivations under a `derivations` object and move most per-attribute values into `structuredAttrs` rather than `env`. To extract a specific attribute from a derivation, target the new shape:
+
+```
+nix derivation show /nix/store/....drv \
+  | jq -r '.derivations[].structuredAttrs.wrapperArgs'
+```
+
+If an old jq expression (`.env.<key>` or `[..|.pkgs? // empty]`) suddenly returns nothing, the format likely shifted. Prefer `nix eval` on the config attribute directly where possible — it sidesteps this entirely.
 
 ## After The Refactor: Review Each Workaround
 
