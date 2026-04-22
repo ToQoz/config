@@ -42,7 +42,7 @@
     enableCompletion = true; # For autocomplete
     shellAliases = {
       # Wrap interactive claude with sence in auto permission mode.
-      auto-claude = "sence --profile code:claude --interactive -- claude --permission-mode auto";
+      ai-claude = "sence --profile code:claude --interactive -- claude --permission-mode auto";
     };
     # .zshenv
     envExtra = ''
