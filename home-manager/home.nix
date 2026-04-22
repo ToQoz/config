@@ -52,6 +52,7 @@ let
 in
 {
   imports = [
+    ./chromium.nix
     ./direnv.nix
     ./fzf.nix
     ./gh.nix
@@ -590,16 +591,6 @@ in
       ];
     };
     targets.claude.enable = true;
-  };
-
-  programs.chromium = {
-    enable = true;
-    # Installed via homebrew cask; skip Nix installation
-    package = pkgs.emptyDirectory;
-    extensions = [
-      { id = "aeblfdkhhhdcdjpifhhbdiojplfjncoa"; } # 1Password
-      { id = "fmkadmapgofadopljbjfkapdkoienihi"; } # React Developer Tools
-    ];
   };
 
   # Android SDK + emulator via tadfisher/android-nixpkgs.
