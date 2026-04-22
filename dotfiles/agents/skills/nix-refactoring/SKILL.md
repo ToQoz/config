@@ -108,14 +108,30 @@ Fix: `lib.mkAfter` on the user's list to push it to priority 1500.
 home.packages = lib.mkAfter [ pkgs.foo pkgs.bar ];
 ```
 
-### Line/text concatenation — e.g. `programs.zsh.initContent`
+### Line/text concatenation — e.g. `programs.zsh.initContent`, `system.activationScripts.{pre,post}Activation.text`, `environment.etc.<path>.text`
 
-The target module may assign specific `mkOrder` values to named sections (e.g. HM's zsh module uses 510–1200 for internal chunks). The user's default-priority (1000) content may be placed differently from where it ended up when inlined.
+Any option typed as `lines` merges contributions from every module that sets it. The user's text ends up in a different place when the declaration moves to a new module because evaluation order changes.
 
-Fix: `lib.mkOrder <N>` with a value between the adjacent section priorities. Read the target module's source to find the right number.
+Common offenders on nix-darwin / Home Manager:
+
+- `programs.zsh.initContent` — HM's zsh module assigns `mkOrder 510–1200` to its own chunks (integrations, shell options, aliases, syntax-highlighting). The user's default-priority (1000) content may end up next to a different neighbor after the split.
+- `system.activationScripts.preActivation.text` / `postActivation.text` — nix-darwin injects its own cleanup/banner chunks. User scripts that ran before or after those chunks before the split may flip position.
+- `environment.etc.<path>.text` — not obvious, but HM and nix-darwin can both contribute small prefixes/suffixes to the same file.
+
+**Signal that this bit you**: the `.drv` diff shows the same text lines in a different order, or a blank line appears at the top (or disappears from the bottom) of a generated file. That is merge order, not a broken edit.
+
+Fix: force the priority back to where it was.
+
+- `lib.mkBefore` (priority 500) — pull the chunk to the top
+- `lib.mkAfter` (priority 1500) — push the chunk to the bottom
+- `lib.mkOrder <N>` — place the chunk at a specific position, useful when the target module uses custom priorities (like HM's zsh) and you need to slot in between two of them. Read the target module's source to find the right number.
 
 ```nix
-initContent = lib.mkOrder 1050 ''...'';
+# between HM's zsh integrations (~1000) and its aliases section (1100):
+programs.zsh.initContent = lib.mkOrder 1050 ''...'';
+
+# chunk that used to run first in the activation sequence:
+system.activationScripts.preActivation.text = lib.mkBefore ''...'';
 ```
 
 ### Attribute set merging
