@@ -79,6 +79,10 @@
       source ${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh
       # Preview for cd
       zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -1 $realpath'
+      # Show fzf on the first TAB even when matches share a common prefix.
+      # Upstream -ftb-complete mirrors zsh's default of inserting the
+      # unambiguous prefix first, requiring a second TAB to open fzf.
+      functions[-ftb-complete]="''${functions[-ftb-complete]/\(\( ! _ftb_continue_last \)\)/false}"
 
       autoload -U edit-command-line
       zle -N edit-command-line
