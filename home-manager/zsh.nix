@@ -120,6 +120,7 @@
       zle -N select-repository
 
       ai-commit() { claude -p "/commit $*"; }
+      ai-commit-all() { git add -A; claude -p "/commit $*"; }
       ai-commit-staged() { claude -p "/commit-staged $*"; }
 
       ghq() {
