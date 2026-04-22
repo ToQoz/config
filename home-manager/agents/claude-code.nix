@@ -1,5 +1,7 @@
 { pkgs, llm-agents, ... }:
 {
+  my.unfreePackages = [ "claude-code" ];
+
   home.file.".claude/CLAUDE.md".source = ../../dotfiles/agents/CLAUDE.md;
   home.file.".claude/skills/README.md".text = ''
     # Generated directory — do not edit here

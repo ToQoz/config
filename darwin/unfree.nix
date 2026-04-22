@@ -23,7 +23,6 @@
   # owning module. As modules take over their own entries this list
   # shrinks.
   config.my.unfreePackages = [
-    "claude-code"
     "slack"
   ];
 }
