@@ -8,12 +8,10 @@
       cleanup = "uninstall";
     };
 
-    # Single-concern casks without a dedicated app module. Apps that have
-    # any additional config (aerospace rules, defaults, etc.) live in
-    # darwin/apps/<app>.nix and contribute their own cask there.
+    # Concrete cask/masApp installs live with their owning module
+    # (darwin/apps/<app>.nix for apps, darwin/fonts.nix for fonts).
+    # This list stays empty; entries merge in from elsewhere.
     casks = [
-      "macskk"
-      "nani"
       "font-sketchybar-app-font"
     ];
 

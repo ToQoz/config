@@ -10,7 +10,9 @@
     ./apps/codex.nix
     ./apps/figma.nix
     ./apps/karabiner.nix
+    ./apps/macskk.nix
     ./apps/music.nix
+    ./apps/nani.nix
     ./apps/orbstack.nix
     ./apps/safari.nix
     ./apps/slack.nix
