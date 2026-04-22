@@ -19,6 +19,9 @@
       "*.env$"
       # Claude
       "settings.local.json"
+      # Agents tools
+      ".agents/*"
+      "!.agents/skills"
       # Misc
       ".todo.md"
     ];
