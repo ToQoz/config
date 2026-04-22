@@ -15,7 +15,7 @@
     ./packages.nix
     ./repo.nix
     ./scripts.nix
-    ./sketchybar.nix
+    ./sketchybar
     ./starship
     ./tmux
     ./unfree.nix
