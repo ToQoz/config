@@ -87,10 +87,10 @@ in
       code-cursor
       zed-editor
       slack
-      (callPackage ./portless.nix { })
-      (callPackage ./mo.nix { })
-      (callPackage ./vite-plus.nix { })
-      (callPackage ./pi-coding-agent.nix { })
+      (callPackage ../packages/portless.nix { })
+      (callPackage ../packages/mo.nix { })
+      (callPackage ../packages/vite-plus.nix { })
+      (callPackage ../packages/pi-coding-agent.nix { })
       sence.packages.${pkgs.stdenv.hostPlatform.system}.default
       llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     ]
