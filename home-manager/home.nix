@@ -14,6 +14,7 @@ let
 in
 {
   imports = [
+    ./agents/agent-skills.nix
     ./agents/mcp.nix
     ./android.nix
     ./asdf.nix
@@ -336,32 +337,6 @@ in
         ];
       };
     };
-  };
-
-  programs.agent-skills = {
-    enable = true;
-    sources = {
-      local = {
-        path = ../dotfiles/agents/skills;
-        filter.maxDepth = 1;
-      };
-      anthropic = {
-        path = anthropic-skills;
-        subdir = "skills";
-      };
-      vercel = {
-        path = vercel-agent-browser;
-        subdir = "skills";
-      };
-    };
-    skills = {
-      enableAll = [
-        "local"
-        "anthropic"
-        "vercel"
-      ];
-    };
-    targets.claude.enable = true;
   };
 
   # Let Home Manager install and manage itself.
