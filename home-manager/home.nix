@@ -1,7 +1,4 @@
 { config, ... }:
-let
-  root = "${config.home.homeDirectory}/src/github.com/ToQoz/config";
-in
 {
   imports = [
     ./agents/agent-skills.nix
@@ -17,6 +14,7 @@ in
     ./neovim.nix
     ./nix.nix
     ./packages.nix
+    ./scripts.nix
     ./sketchybar.nix
     ./starship.nix
     ./tmux.nix
@@ -45,12 +43,6 @@ in
     # EDITOR = "emacs";
     WGETHSTS = "${config.xdg.cacheHome}/wget/hsts";
   };
-  home.sessionPath = [
-    "${config.home.homeDirectory}/.scripts"
-  ];
-
-  # local scripts
-  home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
