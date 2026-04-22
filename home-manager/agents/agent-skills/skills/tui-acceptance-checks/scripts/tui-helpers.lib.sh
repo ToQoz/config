@@ -19,9 +19,22 @@
 #
 # Geometry is fixed at 120x40 by default so captures are deterministic across
 # machines. Override via TUI_COLS / TUI_ROWS before calling tui::new.
+#
+# Server isolation is automatic and non-opt-out: every helper targets a
+# workspace-local tmux server at $PWD/.agents/tmux/tui.sock. Keeping the
+# socket inside the workspace means agent sandboxes can write it, and running
+# all tests on a dedicated server prevents commands like `switch-client` or
+# `kill-server` from reaching the user's real sessions. Override TUI_SOCKET to
+# a different path if you truly need a separate server.
 
 : "${TUI_COLS:=120}"
 : "${TUI_ROWS:=40}"
+: "${TUI_SOCKET:=${PWD}/.agents/tmux/tui.sock}"
+
+# Internal: run tmux against the workspace-isolated server.
+_tui_tmux() {
+  command tmux -S "$TUI_SOCKET" "$@"
+}
 
 # Millisecond clock. GNU `date +%s%3N` works on Linux but not on BSD/macOS,
 # so fall back to python3 which is available on both.
@@ -35,10 +48,21 @@ _tui_now_ms() {
 }
 
 # tui::new <session>
-# Create a detached session with fixed geometry.
+# Create a detached session with fixed geometry on the isolated server.
+# The socket's parent dir is created on demand.
 tui::new() {
   local session="$1"
-  tmux new-session -d -s "$session" -x "$TUI_COLS" -y "$TUI_ROWS"
+  mkdir -p "$(dirname "$TUI_SOCKET")"
+  _tui_tmux new-session -d -s "$session" -x "$TUI_COLS" -y "$TUI_ROWS"
+}
+
+# tui::attach_hint <session>
+# Print the command the user runs to attach to this session from another
+# pane. Callers should emit this at the end of a successful run so the
+# isolated server stays discoverable.
+tui::attach_hint() {
+  local session="$1"
+  printf 'tmux -S %s attach -t %s\n' "$TUI_SOCKET" "$session"
 }
 
 # tui::kill <session>
@@ -48,7 +72,7 @@ tui::new() {
 # when the user explicitly asks for teardown.
 tui::kill() {
   local session="$1"
-  tmux kill-session -t "$session" 2>/dev/null || true
+  _tui_tmux kill-session -t "$session" 2>/dev/null || true
 }
 
 # tui::send <session> <args...>
@@ -57,7 +81,7 @@ tui::kill() {
 tui::send() {
   local session="$1"
   shift
-  tmux send-keys -t "$session" "$@"
+  _tui_tmux send-keys -t "$session" "$@"
 }
 
 # tui::sendl <session> <text>
@@ -66,7 +90,7 @@ tui::send() {
 tui::sendl() {
   local session="$1"
   local text="$2"
-  tmux send-keys -t "$session" -l "$text"
+  _tui_tmux send-keys -t "$session" -l "$text"
 }
 
 # tui::capture <session> [scrollback]
@@ -76,9 +100,9 @@ tui::capture() {
   local session="$1"
   local scrollback="${2:-}"
   if [ -n "$scrollback" ]; then
-    tmux capture-pane -t "$session" -p -J -S "-$scrollback"
+    _tui_tmux capture-pane -t "$session" -p -J -S "-$scrollback"
   else
-    tmux capture-pane -t "$session" -p -J
+    _tui_tmux capture-pane -t "$session" -p -J
   fi
 }
 
@@ -140,7 +164,7 @@ tui::run() {
   start_tok="TUI_START_${id}"
   end_tok="TUI_END_${id}"
 
-  tmux send-keys -t "$session" "echo ${start_tok}_\$\$; ${cmd}; echo ${end_tok}_\$\$" Enter
+  _tui_tmux send-keys -t "$session" "echo ${start_tok}_\$\$; ${cmd}; echo ${end_tok}_\$\$" Enter
   tui::wait "$session" "${end_tok}_[0-9]+" "$timeout_ms" >/dev/null || return 1
 
   local all

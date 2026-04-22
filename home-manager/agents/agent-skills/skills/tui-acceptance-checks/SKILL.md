@@ -58,6 +58,8 @@ tmux new-session -d -s "$SESSION" -x 120 -y 40
 
 Name the session uniquely per test run (include `$$` or a counter) so parallel runs do not collide.
 
+**Server isolation is automatic when you use the helpers.** `tui::new` and every helper run against a workspace-local tmux server whose socket lives under `./.agents/` — agents get a sandbox-writable location, and commands like `switch-client` or `kill-server` cannot reach the user's real sessions. Callers pass only the session name; the socket path and directory are managed for them. Emit `tui::attach_hint "$session"` at the end of a run so observability is preserved.
+
 **Leave the session alive when the run finishes.** The user may be attached via another pane to observe the TUI live, and killing the session disconnects them mid-inspection. At the end of a run, print the session name (and an `tmux attach -t <session>` hint) so the user can inspect it on their own schedule. Only call `tui::kill` / `tmux kill-session` when:
 
 - recovering from a stale session with a colliding name before a new run, or
