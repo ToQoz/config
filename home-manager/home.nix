@@ -5,7 +5,7 @@
     ./agents/claude-code.nix
     ./agents/mcp.nix
     ./android.nix
-    ./asdf.nix
+    ./asdf
     ./direnv.nix
     ./fzf.nix
     ./gh.nix

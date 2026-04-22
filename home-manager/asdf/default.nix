@@ -12,9 +12,9 @@ in
   };
 
   xdg.configFile."asdf/.asdfrc".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/dotfiles/asdf/.asdfrc";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home-manager/asdf/.asdfrc";
   home.file.".tool-versions".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/dotfiles/asdf/.tool-versions";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home-manager/asdf/.tool-versions";
 
   home.activation.installAsdfPlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${
