@@ -1,7 +1,7 @@
 { ... }:
 {
   imports = [
-    ./agents/agent-skills.nix
+    ./agents/agent-skills
     ./agents/claude-code
     ./agents/mcp.nix
     ./android.nix
