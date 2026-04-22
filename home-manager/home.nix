@@ -46,8 +46,6 @@ in
   home.sessionVariables = {
     XDG_DATA_HOME = config.xdg.dataHome; # for .tig_history
     # EDITOR = "emacs";
-    Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
-    Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
     LESSHISTFILE = "${config.xdg.dataHome}/less/history";
     WGETHSTS = "${config.xdg.cacheHome}/wget/hsts";
   };

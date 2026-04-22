@@ -1,5 +1,10 @@
 { config, pkgs, ... }:
 {
+  home.sessionVariables = {
+    Z_DATA_DIR = "${config.xdg.dataHome}/zsh";
+    Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
+  };
+
   programs.zsh = {
     enable = true;
     package = pkgs.emptyDirectory;
