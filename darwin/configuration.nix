@@ -32,6 +32,10 @@ let
   );
 in
 {
+  imports = [
+    ./keyboard.nix
+  ];
+
   # Nix is managed by the nix-installer; let it own /etc/nix/nix.conf and the
   # nix-daemon instead of nix-darwin.
   # See https://nix-darwin.github.io/nix-darwin/manual/#opt-nix.enable
@@ -51,8 +55,6 @@ in
 
   nixpkgs.hostPlatform = "aarch64-darwin";
   system.stateVersion = 6;
-  system.keyboard.enableKeyMapping = true;
-  system.keyboard.remapCapsLockToControl = true;
 
   nixpkgs.config.allowUnfreePredicate =
     pkg:
