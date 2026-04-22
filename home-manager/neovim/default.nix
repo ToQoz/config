@@ -30,6 +30,9 @@
     ];
   };
 
+  # `config/` holds the live nvim configuration (init.lua, lua/, and the
+  # lazy.nvim lockfile). Kept in a subdir so that default.nix above it
+  # does not land inside ~/.config/nvim.
   xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/dotfiles/nvim";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home-manager/neovim/config";
 }

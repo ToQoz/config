@@ -10,7 +10,7 @@
     ./fzf.nix
     ./gh.nix
     ./git.nix
-    ./neovim.nix
+    ./neovim
     ./nix.nix
     ./packages.nix
     ./repo.nix
