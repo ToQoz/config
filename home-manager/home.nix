@@ -53,6 +53,7 @@ in
 {
   imports = [
     ./direnv.nix
+    ./fzf.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -450,11 +451,6 @@ in
   };
 
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
-
-  programs.fzf = {
-    enable = true;
-    enableZshIntegration = true;
-  };
 
   xdg.configFile."sketchybar".source = lib.mkIf pkgs.stdenv.isDarwin (
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/sketchybar"
