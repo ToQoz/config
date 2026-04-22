@@ -35,6 +35,7 @@ in
   imports = [
     ./fonts.nix
     ./keyboard.nix
+    ./one-password.nix
   ];
 
   # Nix is managed by the nix-installer; let it own /etc/nix/nix.conf and the
@@ -447,11 +448,6 @@ in
   # To start manually after granting accessibility permission:
   # $ launchctl start org.nixos.aerospace
   launchd.user.agents.aerospace.serviceConfig.KeepAlive = lib.mkForce false;
-
-  # 1Password CLI
-  programs._1password = {
-    enable = true;
-  };
 
   homebrew = {
     enable = true;
