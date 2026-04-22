@@ -5,6 +5,8 @@ let
   asdfDataDir = "${config.xdg.dataHome}/asdf";
 in
 {
+  home.packages = [ pkgs.asdf-vm ];
+
   home.sessionVariables = {
     ASDF_CONFIG_FILE = "${asdfConfigDir}/.asdfrc";
     ASDF_DATA_DIR = "${asdfDataDir}";

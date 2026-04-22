@@ -1,5 +1,4 @@
 {
-  lib,
   pkgs,
   llm-agents,
   sence,
@@ -43,43 +42,27 @@ let
   );
 in
 {
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
-  #
-  # mkAfter: when this block lived in home.nix, user packages were appended
-  # after HM's internal contributions (program modules, session vars, etc.)
-  # in the final home-manager-path pkgs list. Splitting into a separate
-  # module reverses the merge order. mkAfter restores it so the resulting
-  # derivation stays bit-identical.
-  home.packages = lib.mkAfter (
-    with pkgs;
-    [
-      mkcert
-      wget
-      tmux
-      tig
-      ghq
-      lazygit
-      ripgrep
-      fd
-      bun
-      deno
-      # fence  # re-enable once nixpkgs ships >= 0.1.48; see `fence-0_1_48` override in `let` block above
-      fence-0_1_48
-      asdf-vm
-      vscode
-      code-cursor
-      zed-editor
-      slack
-      (callPackage ../packages/portless.nix { })
-      (callPackage ../packages/mo.nix { })
-      (callPackage ../packages/vite-plus.nix { })
-      (callPackage ../packages/pi-coding-agent.nix { })
-      sence.packages.${pkgs.stdenv.hostPlatform.system}.default
-      llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
-    ]
-    ++ lib.optionals pkgs.stdenv.isDarwin [
-      pkgs.sketchybar
-    ]
-  );
+  # General-purpose CLI tools and third-party packages without a dedicated
+  # module. Tool-specific installs live with their owning module (e.g.
+  # `pkgs.tmux` in `tmux.nix`) to keep each module self-contained.
+  home.packages = with pkgs; [
+    mkcert
+    wget
+    tig
+    ghq
+    lazygit
+    ripgrep
+    fd
+    bun
+    deno
+    # fence  # re-enable once nixpkgs ships >= 0.1.48; see `fence-0_1_48` override in `let` block above
+    fence-0_1_48
+    slack
+    (callPackage ../packages/portless.nix { })
+    (callPackage ../packages/mo.nix { })
+    (callPackage ../packages/vite-plus.nix { })
+    (callPackage ../packages/pi-coding-agent.nix { })
+    sence.packages.${pkgs.stdenv.hostPlatform.system}.default
+    llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
+  ];
 }
