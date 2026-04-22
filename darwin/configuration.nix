@@ -16,12 +16,10 @@
     ./apps/slack.nix
     ./apps/system-preferences.nix
     ./apps/wezterm.nix
-    ./defaults.nix
     ./fonts.nix
     ./homebrew.nix
-    ./keyboard.nix
     ./nix.nix
-    ./pam.nix
+    ./system.nix
     ./unfree.nix
   ];
 

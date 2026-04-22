@@ -1,5 +1,25 @@
-{ ... }:
+{ pkgs, ... }:
 {
+  # Keyboard remap — Caps Lock as Control. Done via system.keyboard so
+  # the change persists across boots without depending on Karabiner.
+  system.keyboard.enableKeyMapping = true;
+  system.keyboard.remapCapsLockToControl = true;
+
+  # TouchID for sudo, with pam-reattach so it still works inside tmux.
+  # The `security.pam.services.sudo_local.touchIdAuth` shortcut does not
+  # set up pam-reattach, so write the file directly.
+  environment.systemPackages = [
+    pkgs.pam-reattach
+  ];
+  environment.etc."pam.d/sudo_local".text = ''
+    # managed by nix-darwin
+    auth       optional       ${pkgs.pam-reattach}/lib/pam/pam_reattach.so
+    auth       sufficient     pam_tid.so
+  '';
+
+  # macOS `defaults` — the rest of this file is the long tail of UI/UX
+  # tweaks that aren't worth splitting further. Per-app defaults that
+  # belong with a specific app (Safari, ChatGPT) live in the app module.
   system.defaults = {
     NSGlobalDomain = {
       _HIHideMenuBar = true;
