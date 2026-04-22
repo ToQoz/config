@@ -23,8 +23,6 @@
   # owning module. As modules take over their own entries this list
   # shrinks.
   config.my.unfreePackages = [
-    "vscode"
-    "cursor"
     "claude-code"
     "slack"
   ];
