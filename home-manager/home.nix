@@ -13,7 +13,6 @@ in
     ./agents/mcp.nix
     ./android.nix
     ./asdf.nix
-    ./chromium.nix
     ./direnv.nix
     ./fzf.nix
     ./gh.nix
