@@ -1,5 +1,8 @@
 { ... }:
 {
+  # Homebrew enablement + global activation policy. Concrete installs
+  # (casks, masApps) live with their owning modules — darwin/apps/<app>.nix
+  # for apps, darwin/fonts.nix for fonts — and merge in from there.
   homebrew = {
     enable = true;
     onActivation = {
@@ -7,14 +10,5 @@
       upgrade = true;
       cleanup = "uninstall";
     };
-
-    # Concrete cask/masApp installs live with their owning module
-    # (darwin/apps/<app>.nix for apps, darwin/fonts.nix for fonts).
-    # This list stays empty; entries merge in from elsewhere.
-    casks = [
-      "font-sketchybar-app-font"
-    ];
-
-    masApps = { };
   };
 }
