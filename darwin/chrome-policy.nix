@@ -1,10 +1,5 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
-  forceInstallExtensions = [
-    "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
-    "fmkadmapgofadopljbjfkapdkoienihi" # React Developer Tools
-  ];
-
   chromePolicy = {
     BrowserSignin = 0;
     ExtensionSettings = {
@@ -19,7 +14,7 @@ let
           installation_mode = "force_installed";
           update_url = "https://clients2.google.com/service/update2/crx";
         };
-      }) forceInstallExtensions
+      }) config.my.chromeForceInstallExtensions
     );
   };
 
@@ -28,10 +23,29 @@ let
   );
 in
 {
-  system.activationScripts.postActivation.text = ''
-    # Install Chrome Managed Policy
-    install -d -m 0755 "/Library/Managed Preferences"
-    install -m 0644 "${chromePolicyPlist}" "/Library/Managed Preferences/com.google.Chrome.plist"
-    chown root:wheel "/Library/Managed Preferences/com.google.Chrome.plist"
-  '';
+  options.my.chromeForceInstallExtensions = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
+    description = ''
+      Chrome extension IDs to force-install via the managed-policy plist.
+      Each owning app module should append its extension ID here so the
+      install is declared alongside the app it belongs to.
+    '';
+  };
+
+  config = {
+    # Seeded with the current set; per-app modules will take over their
+    # entries in follow-up commits.
+    my.chromeForceInstallExtensions = [
+      "aeblfdkhhhdcdjpifhhbdiojplfjncoa" # 1Password
+      "fmkadmapgofadopljbjfkapdkoienihi" # React Developer Tools
+    ];
+
+    system.activationScripts.postActivation.text = ''
+      # Install Chrome Managed Policy
+      install -d -m 0755 "/Library/Managed Preferences"
+      install -m 0644 "${chromePolicyPlist}" "/Library/Managed Preferences/com.google.Chrome.plist"
+      chown root:wheel "/Library/Managed Preferences/com.google.Chrome.plist"
+    '';
+  };
 }
