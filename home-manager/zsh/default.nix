@@ -5,6 +5,12 @@
     Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
   };
 
+  # Autoloaded site-functions: one function per file under functions/.
+  # Real .zsh files avoid Nix heredoc escaping (''${...}) and play nicely
+  # with editors and shellcheck.
+  xdg.configFile."zsh/functions".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home-manager/zsh/functions";
+
   programs.zsh = {
     enable = true;
     package = pkgs.emptyDirectory;
@@ -41,35 +47,11 @@
     # .zshenv
     envExtra = ''
       source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
-      fpath=(${pkgs.asdf-vm}/share/zsh/site-functions $fpath)
+      fpath=(${pkgs.asdf-vm}/share/zsh/site-functions ${config.xdg.configHome}/zsh/functions $fpath)
 
-      # Why claude() is in .zshenv: it's used by git aliases
-      claude() {
-        local print=false
-        local args=()
-        while [[ $# -gt 0 ]]; do
-          case "$1" in
-            -p) print=true; shift ;;
-            *) args+=("$1"); shift ;;
-          esac
-        done
-
-        if $print; then
-          local hr="$(printf '%*s\n' "$(tput cols)" "" | tr ' ' '-')"
-          command claude --output-format stream-json --verbose "''${args[@]}" | jq -cr '
-            if .type == "assistant" then
-              (.message.content[] | .text // empty)
-            elif .type == "result" then
-              .result
-            elif (.type == "user" or .type == "system" or .type == "rate_limit_event") then
-              empty
-            else @json
-            end | ., "'"$hr"'"
-          '
-        else
-          command claude "''${args[@]}"
-        fi
-      }
+      # Autoload claude here (not in .zshrc) so git aliases and other
+      # non-interactive zsh subshells can resolve the wrapper.
+      autoload -Uz claude
     '';
     # .zprofile
     profileExtra = ''
@@ -105,48 +87,9 @@
       autoload -Uz bracketed-paste-magic
       zle -N bracketed-paste bracketed-paste-magic
 
-      select-repository() {
-        local root d
-        root=$(ghq root)
-        d=$(ghq list -p | sed "s|^$root/github.com/|github:|; s|^$root/||" | fzf --no-sort --exact)
-        if [ $? = 0 -a -n "$d" ]; then
-          d=''${d/#github:/$root/github.com/}
-          # If still relative (non-github host), prepend root
-          [[ "$d" != /* ]] && d="$root/$d"
-          cd "$d"
-          zle reset-prompt
-        fi
-      }
+      # Site-functions dir already added to fpath in .zshenv.
+      autoload -Uz select-repository ghq ai-commit ai-commit-all ai-commit-staged
       zle -N select-repository
-
-      ai-commit() { claude -p "/commit $*"; }
-      ai-commit-all() { git add -A; claude -p "/commit $*"; }
-      ai-commit-staged() { claude -p "/commit-staged $*"; }
-
-      ghq() {
-        if [[ "$1" == "get" ]]; then
-          local repo=""
-          for arg in "''${@:2}"; do
-            [[ "$arg" != -* ]] && repo="$arg" && break
-          done
-
-          if [[ -n "$repo" ]]; then
-            # Normalize just enough for `ghq list` substring match
-            local q="''${repo##*:}"; q="''${q#//}"; q="''${q%.git}"
-            # Default host to github.com when only user/project is given
-            [[ "$q" == */*/* ]] || q="github.com/$q"
-            mkdir -p "$(command ghq root)/''${q%/*}" || return
-            command ghq "$@"
-            local status=$?
-            local path
-            path="$(command ghq list --full-path "$q" 2>/dev/null)"
-            path="''${path%%$'\n'*}"
-            [[ -n "$path" ]] && cd "$path"
-            return $status
-          fi
-        fi
-        command ghq "$@"
-      }
 
       # C-Space: Start completion
       bindkey '^@' fzf-tab-complete

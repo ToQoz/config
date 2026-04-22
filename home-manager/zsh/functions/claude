@@ -1,0 +1,26 @@
+emulate -L zsh
+
+local print=false
+local args=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -p) print=true; shift ;;
+    *) args+=("$1"); shift ;;
+  esac
+done
+
+if $print; then
+  local hr="$(printf '%*s\n' "$(tput cols)" "" | tr ' ' '-')"
+  command claude --output-format stream-json --verbose "${args[@]}" | jq -cr '
+    if .type == "assistant" then
+      (.message.content[] | .text // empty)
+    elif .type == "result" then
+      .result
+    elif (.type == "user" or .type == "system" or .type == "rate_limit_event") then
+      empty
+    else @json
+    end | ., "'"$hr"'"
+  '
+else
+  command claude "${args[@]}"
+fi

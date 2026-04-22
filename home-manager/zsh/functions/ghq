@@ -1,0 +1,24 @@
+emulate -L zsh
+
+if [[ "$1" == "get" ]]; then
+  local repo=""
+  for arg in "${@:2}"; do
+    [[ "$arg" != -* ]] && repo="$arg" && break
+  done
+
+  if [[ -n "$repo" ]]; then
+    # Normalize just enough for `ghq list` substring match
+    local q="${repo##*:}"; q="${q#//}"; q="${q%.git}"
+    # Default host to github.com when only user/project is given
+    [[ "$q" == */*/* ]] || q="github.com/$q"
+    mkdir -p "$(command ghq root)/${q%/*}" || return
+    command ghq "$@"
+    local status=$?
+    local path
+    path="$(command ghq list --full-path "$q" 2>/dev/null)"
+    path="${path%%$'\n'*}"
+    [[ -n "$path" ]] && cd "$path"
+    return $status
+  fi
+fi
+command ghq "$@"

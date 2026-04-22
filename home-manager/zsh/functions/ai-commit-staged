@@ -1,0 +1,2 @@
+emulate -L zsh
+claude -p "/commit-staged $*"

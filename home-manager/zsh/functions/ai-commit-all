@@ -1,0 +1,3 @@
+emulate -L zsh
+git add -A
+claude -p "/commit $*"
