@@ -58,6 +58,7 @@ in
     ./fzf.nix
     ./gh.nix
     ./nix.nix
+    ./wezterm.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -186,11 +187,6 @@ in
       asdf plugin add deno https://github.com/asdf-community/asdf-deno.git
     fi
   '';
-
-  programs.wezterm = {
-    enable = true;
-  };
-  xdg.configFile."wezterm".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/wezterm";
 
   programs.starship = {
     enable = true;
