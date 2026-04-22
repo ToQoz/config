@@ -17,7 +17,7 @@
     ./scripts.nix
     ./sketchybar.nix
     ./starship.nix
-    ./tmux.nix
+    ./tmux
     ./unfree.nix
     ./vscode-family.nix
     ./wezterm
