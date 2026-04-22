@@ -13,6 +13,7 @@
     ./neovim.nix
     ./nix.nix
     ./packages.nix
+    ./repo.nix
     ./scripts.nix
     ./sketchybar.nix
     ./starship.nix

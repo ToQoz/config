@@ -1,7 +1,4 @@
 { config, pkgs, ... }:
-let
-  dotfiles = "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles";
-in
 {
   programs.neovim = {
     enable = true;
@@ -33,5 +30,6 @@ in
     ];
   };
 
-  xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
+  xdg.configFile."nvim".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/dotfiles/nvim";
 }

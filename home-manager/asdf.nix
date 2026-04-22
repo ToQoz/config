@@ -1,6 +1,5 @@
 { config, lib, pkgs, ... }:
 let
-  dotfiles = "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles";
   asdfConfigDir = "${config.xdg.configHome}/asdf";
   asdfDataDir = "${config.xdg.dataHome}/asdf";
 in
@@ -13,9 +12,9 @@ in
   };
 
   xdg.configFile."asdf/.asdfrc".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/dotfiles/asdf/.asdfrc";
   home.file.".tool-versions".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.tool-versions";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/dotfiles/asdf/.tool-versions";
 
   home.activation.installAsdfPlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     export PATH="${
