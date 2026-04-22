@@ -10,7 +10,12 @@
     ./apps/codex.nix
     ./apps/figma.nix
     ./apps/karabiner.nix
+    ./apps/music.nix
     ./apps/orbstack.nix
+    ./apps/safari.nix
+    ./apps/slack.nix
+    ./apps/system-preferences.nix
+    ./apps/wezterm.nix
     ./defaults.nix
     ./fonts.nix
     ./homebrew.nix

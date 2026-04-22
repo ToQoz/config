@@ -132,37 +132,9 @@
         "T" = "secondary";
       };
 
-      # Rules for apps that own their own darwin/apps/<app>.nix module
-      # contribute their own entries here via module merging. Only rules
-      # without a dedicated app module remain inline.
-      on-window-detected = [
-        {
-          "if".app-id = "com.github.wez.wezterm";
-          run = [ "move-node-to-workspace 1" ];
-        }
-        {
-          "if".app-id = "com.apple.Safari";
-          run = [ "move-node-to-workspace Q" ];
-        }
-        {
-          "if".app-id = "com.tinyspeck.slackmacgap";
-          run = [ "move-node-to-workspace Q" ];
-        }
-        {
-          "if".app-id = "com.apple.systempreferences";
-          run = [
-            "layout floating"
-            "move-node-to-workspace R"
-          ];
-        }
-        {
-          "if".app-id = "com.apple.Music";
-          run = [
-            "layout floating"
-            "move-node-to-workspace R"
-          ];
-        }
-      ];
+      # Individual per-app rules live in darwin/apps/<app>.nix and
+      # contribute via module merging.
+      on-window-detected = [ ];
 
       mode.service.binding = {
         esc = [
