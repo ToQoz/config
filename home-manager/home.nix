@@ -1,4 +1,4 @@
-{ config, ... }:
+{ ... }:
 {
   imports = [
     ./agents/agent-skills.nix
@@ -10,7 +10,6 @@
     ./fzf.nix
     ./gh.nix
     ./git.nix
-    ./less.nix
     ./neovim.nix
     ./nix.nix
     ./packages.nix
@@ -21,6 +20,7 @@
     ./unfree.nix
     ./vscode-family.nix
     ./wezterm.nix
+    ./xdg-misc.nix
     ./zsh.nix
   ];
 
@@ -37,12 +37,6 @@
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
   home.stateVersion = "25.11"; # Please read the comment before changing.
-
-  home.sessionVariables = {
-    XDG_DATA_HOME = config.xdg.dataHome; # for .tig_history
-    # EDITOR = "emacs";
-    WGETHSTS = "${config.xdg.cacheHome}/wget/hsts";
-  };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
