@@ -59,6 +59,7 @@ in
     ./gh.nix
     ./nix.nix
     ./starship.nix
+    ./tmux.nix
     ./wezterm.nix
   ];
 
@@ -145,8 +146,6 @@ in
 
   # local scripts
   home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
-  # tmux
-  xdg.configFile."tmux".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/tmux";
   # asdf
   xdg.configFile."asdf/.asdfrc".source =
     config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
