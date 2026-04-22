@@ -34,9 +34,21 @@ in
   };
 
   config = {
-    # Seeded with the extensions that have not yet been adopted by an
-    # owning app module. As modules take over their own entries this list
-    # shrinks.
+    # Chrome itself (installed via Homebrew so updates land through Chrome's
+    # own mechanism rather than Nix).
+    homebrew.casks = [ "google-chrome" ];
+
+    # Aerospace: Chrome lives on workspace 3.
+    services.aerospace.settings.on-window-detected = [
+      {
+        "if".app-id = "org.google.Chrome";
+        run = [ "move-node-to-workspace 3" ];
+      }
+    ];
+
+    # Force-install extensions that are not owned by a dedicated app module.
+    # Per-app extensions (e.g. 1Password) append their own IDs from their
+    # own modules.
     my.chromeForceInstallExtensions = [
       "fmkadmapgofadopljbjfkapdkoienihi" # React Developer Tools
     ];

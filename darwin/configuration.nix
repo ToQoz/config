@@ -3,7 +3,7 @@
   imports = [
     ./aerospace.nix
     ./apps/1password.nix
-    ./chrome-policy.nix
+    ./apps/chrome.nix
     ./defaults.nix
     ./fonts.nix
     ./homebrew.nix

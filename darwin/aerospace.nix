@@ -142,10 +142,6 @@
           run = [ "move-node-to-workspace 2" ];
         }
         {
-          "if".app-id = "org.google.Chrome";
-          run = [ "move-node-to-workspace 3" ];
-        }
-        {
           "if".app-id = "dev.kdrag0n.MacVirt"; # OrbStack
           run = [
             "layout floating"

@@ -9,7 +9,6 @@
     };
 
     casks = [
-      "google-chrome"
       "karabiner-elements"
       "macskk"
       "aqua-voice"
