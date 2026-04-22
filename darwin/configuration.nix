@@ -1,7 +1,4 @@
-{
-  lib,
-  ...
-}:
+{ ... }:
 {
   imports = [
     ./aerospace.nix
@@ -13,20 +10,11 @@
     ./nix.nix
     ./one-password.nix
     ./pam.nix
+    ./unfree.nix
   ];
 
   nixpkgs.hostPlatform = "aarch64-darwin";
   system.stateVersion = 6;
-
-  nixpkgs.config.allowUnfreePredicate =
-    pkg:
-    builtins.elem (lib.getName pkg) [
-      "vscode"
-      "cursor"
-      "claude-code"
-      "slack"
-      "1password-cli"
-    ];
 
   # For homebrew
   system.primaryUser = "toqoz";

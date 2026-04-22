@@ -23,6 +23,7 @@ in
     ./sketchybar.nix
     ./starship.nix
     ./tmux.nix
+    ./unfree.nix
     ./vscode-family.nix
     ./wezterm.nix
     ./zsh.nix
