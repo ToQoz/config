@@ -57,6 +57,7 @@ in
     ./direnv.nix
     ./fzf.nix
     ./gh.nix
+    ./nix.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -184,12 +185,6 @@ in
     if ! asdf plugin list | grep -qx deno; then
       asdf plugin add deno https://github.com/asdf-community/asdf-deno.git
     fi
-  '';
-
-  # In a flake + direnv workflow the working tree is always dirty during development,
-  # so the warning fires on every shell entry with zero informational value.
-  xdg.configFile."nix/nix.conf".text = ''
-    warn-dirty = false
   '';
 
   programs.wezterm = {
