@@ -11,8 +11,6 @@
 let
   root = "${config.home.homeDirectory}/src/github.com/ToQoz/config";
   dotfiles = "${root}/dotfiles";
-  asdfConfigDir = "${config.xdg.configHome}/asdf";
-  asdfDataDir = "${config.xdg.dataHome}/asdf";
 
   # Temporary version bump for `fence`.
   #
@@ -53,6 +51,7 @@ in
 {
   imports = [
     ./android.nix
+    ./asdf.nix
     ./chromium.nix
     ./direnv.nix
     ./fzf.nix
@@ -139,8 +138,6 @@ in
     Z_CACHE_DIR = "${config.xdg.cacheHome}/zsh";
     LESSHISTFILE = "${config.xdg.dataHome}/less/history";
     WGETHSTS = "${config.xdg.cacheHome}/wget/hsts";
-    ASDF_CONFIG_FILE = "${asdfConfigDir}/.asdfrc";
-    ASDF_DATA_DIR = "${asdfDataDir}";
   };
   home.sessionPath = [
     "${config.home.homeDirectory}/.scripts"
@@ -148,46 +145,9 @@ in
 
   # local scripts
   home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
-  # asdf
-  xdg.configFile."asdf/.asdfrc".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.asdfrc";
-  home.file.".tool-versions".source =
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/asdf/.tool-versions";
   home.activation.createXdgDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     # less requires the parent directory to exist before it can write LESSHISTFILE
     mkdir -p "${config.xdg.dataHome}/less"
-  '';
-
-  home.activation.installAsdfPlugins = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export PATH="${
-      lib.makeBinPath (
-        with pkgs;
-        [
-          asdf-vm
-          git
-          #curl
-          #gnugrep
-          #coreutils
-          #gnutar
-          #gzip
-          #unzip
-          #gawk
-          #findutils
-        ]
-      )
-    }:$PATH"
-    export ASDF_DATA_DIR="${asdfDataDir}"
-    export ASDF_CONFIG_FILE="${asdfConfigDir}/.asdfrc"
-    mkdir -p "$ASDF_DATA_DIR" "${asdfConfigDir}"
-    if ! asdf plugin list | grep -qx nodejs; then
-      asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-    fi
-    if ! asdf plugin list | grep -qx pnpm; then
-      asdf plugin add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
-    fi
-    if ! asdf plugin list | grep -qx deno; then
-      asdf plugin add deno https://github.com/asdf-community/asdf-deno.git
-    fi
   '';
 
   programs.zsh = {
