@@ -1,0 +1,5 @@
+*
+!.gitignore
+!AndroidManifest.xml
+!src/
+!src/**
