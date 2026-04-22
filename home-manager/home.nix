@@ -51,6 +51,10 @@ let
   );
 in
 {
+  imports = [
+    ./direnv.nix
+  ];
+
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "toqoz";
@@ -177,14 +181,6 @@ in
       asdf plugin add deno https://github.com/asdf-community/asdf-deno.git
     fi
   '';
-
-  programs.direnv = {
-    enable = true;
-    enableZshIntegration = true;
-    # Nix devShells export dozens of internal variables; the diff is noise, not signal.
-    # Variable changes are tied to flake.nix edits, so hiding the diff loses nothing useful.
-    config.global.hide_env_diff = true;
-  };
 
   # In a flake + direnv workflow the working tree is always dirty during development,
   # so the warning fires on every shell entry with zero informational value.
