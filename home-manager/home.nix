@@ -54,6 +54,7 @@ in
   imports = [
     ./direnv.nix
     ./fzf.nix
+    ./gh.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -413,11 +414,6 @@ in
       github.user = "ToQoz";
       ghq.root = "~/src";
     };
-  };
-
-  programs.gh = {
-    enable = true;
-    gitCredentialHelper.enable = true;
   };
 
   programs.neovim = {
