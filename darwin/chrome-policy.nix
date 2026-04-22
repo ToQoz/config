@@ -28,10 +28,7 @@ let
   );
 in
 {
-  # mkBefore: the inlined block ran before nix-darwin's other postActivation
-  # contributions (e.g. the home-manager activation banner). Splitting
-  # reverses that order; mkBefore restores it.
-  system.activationScripts.postActivation.text = lib.mkBefore ''
+  system.activationScripts.postActivation.text = ''
     # Install Chrome Managed Policy
     install -d -m 0755 "/Library/Managed Preferences"
     install -m 0644 "${chromePolicyPlist}" "/Library/Managed Preferences/com.google.Chrome.plist"

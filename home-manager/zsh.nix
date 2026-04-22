@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, pkgs, ... }:
 {
   programs.zsh = {
     enable = true;
@@ -80,15 +80,7 @@
       zstyle ':completion:*' menu no
     '';
     # .zshrc
-    #
-    # mkOrder 1050: HM's zsh module assigns mkOrder values to sections
-    # (shellAliases = 1100, etc.). HM program modules' zsh integrations
-    # (wezterm/starship/direnv) also inject at priority 1000. When this
-    # block was inlined in home.nix, the user's content merged AFTER
-    # those integrations but BEFORE aliases. In a separate module, the
-    # default priority of 1000 merges the user content before the
-    # integrations. 1050 restores the original position.
-    initContent = lib.mkOrder 1050 ''
+    initContent = ''
       setopt IGNORE_EOF
       # Remove superfluous blanks before saving a command.
       setopt HIST_REDUCE_BLANKS

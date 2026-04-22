@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, pkgs, ... }:
 let
   dotfiles = "${config.home.homeDirectory}/src/github.com/ToQoz/config/dotfiles";
 in
@@ -13,11 +13,7 @@ in
     withPython3 = false;
     sideloadInitLua = true;
 
-    # mkAfter: when this module was inlined in home.nix, HM's internal
-    # additions to extraWrapperArgs (for sideloadInitLua) preceded the
-    # user's. Splitting into a separate module reverses that order because
-    # list merging follows module evaluation order. mkAfter restores it.
-    extraWrapperArgs = lib.mkAfter [
+    extraWrapperArgs = [
       "--set"
       "TELESCOPE_FZY_NATIVE"
       "${pkgs.vimPlugins.telescope-fzy-native-nvim}"
