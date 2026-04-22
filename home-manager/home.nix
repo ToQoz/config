@@ -1,8 +1,4 @@
-{
-  lib,
-  config,
-  ...
-}:
+{ config, ... }:
 let
   root = "${config.home.homeDirectory}/src/github.com/ToQoz/config";
 in
@@ -17,6 +13,7 @@ in
     ./fzf.nix
     ./gh.nix
     ./git.nix
+    ./less.nix
     ./neovim.nix
     ./nix.nix
     ./packages.nix
@@ -46,7 +43,6 @@ in
   home.sessionVariables = {
     XDG_DATA_HOME = config.xdg.dataHome; # for .tig_history
     # EDITOR = "emacs";
-    LESSHISTFILE = "${config.xdg.dataHome}/less/history";
     WGETHSTS = "${config.xdg.cacheHome}/wget/hsts";
   };
   home.sessionPath = [
@@ -55,10 +51,6 @@ in
 
   # local scripts
   home.file.".scripts".source = config.lib.file.mkOutOfStoreSymlink "${root}/scripts";
-  home.activation.createXdgDirs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # less requires the parent directory to exist before it can write LESSHISTFILE
-    mkdir -p "${config.xdg.dataHome}/less"
-  '';
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
