@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   ...
 }:
 {
@@ -33,5 +32,4 @@
   system.primaryUser = "toqoz";
 
   system.startup.chime = false;
-
 }
