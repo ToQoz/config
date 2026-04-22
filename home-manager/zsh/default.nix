@@ -40,10 +40,6 @@
       ];
     };
     enableCompletion = true; # For autocomplete
-    shellAliases = {
-      # Wrap interactive claude with sence in auto permission mode.
-      ai-claude = "sence --profile code:claude --interactive -- claude --permission-mode auto";
-    };
     # .zshenv
     envExtra = ''
       source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
