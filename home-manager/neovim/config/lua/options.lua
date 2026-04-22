@@ -3,6 +3,9 @@ vim.g.maplocalleader = " "
 
 vim.opt.autoread = true
 
+-- Clipboard
+vim.opt.clipboard = "unnamedplus"
+
 -- Window
 vim.opt.splitbelow = true
 vim.opt.splitright = true
