@@ -3,6 +3,7 @@
   imports = [
     ./aerospace.nix
     ./apps/1password.nix
+    ./apps/chatgpt.nix
     ./apps/chrome.nix
     ./defaults.nix
     ./fonts.nix

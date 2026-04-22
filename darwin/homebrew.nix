@@ -17,7 +17,6 @@
       "figma"
       "font-sketchybar-app-font"
       "claude"
-      "chatgpt"
       "codex"
       "codex-app"
     ];

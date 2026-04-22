@@ -159,13 +159,6 @@
           run = [ "move-node-to-workspace Q" ];
         }
         {
-          "if".app-id = "com.openai.chat";
-          run = [
-            "move-node-to-workspace W"
-            "layout accordion"
-          ];
-        }
-        {
           "if".app-id = "com.anthropic.claudefordesktop";
           run = [
             "move-node-to-workspace W"
