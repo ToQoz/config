@@ -62,6 +62,7 @@ in
     ./sketchybar.nix
     ./starship.nix
     ./tmux.nix
+    ./vscode-family.nix
     ./wezterm.nix
   ];
 
@@ -305,11 +306,6 @@ in
       bindkey "^[r" redo # Cmd-r
     '';
   };
-
-  home.file."Library/Application Support/Cursor/User/settings.json".source =
-    lib.mkIf pkgs.stdenv.isDarwin (
-      config.lib.file.mkOutOfStoreSymlink "${dotfiles}/vscode-family/cursor-settings.jsonc"
-    );
 
   home.file.".claude/CLAUDE.md".source = ../dotfiles/agents/CLAUDE.md;
   home.file.".claude/skills/README.md".text = ''
