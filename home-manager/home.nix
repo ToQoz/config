@@ -58,6 +58,7 @@ in
     ./fzf.nix
     ./gh.nix
     ./nix.nix
+    ./sketchybar.nix
     ./starship.nix
     ./tmux.nix
     ./wezterm.nix
@@ -433,10 +434,6 @@ in
   };
 
   xdg.configFile."nvim".source = config.lib.file.mkOutOfStoreSymlink "${dotfiles}/nvim";
-
-  xdg.configFile."sketchybar".source = lib.mkIf pkgs.stdenv.isDarwin (
-    config.lib.file.mkOutOfStoreSymlink "${dotfiles}/sketchybar"
-  );
 
   home.file."Library/Application Support/Cursor/User/settings.json".source =
     lib.mkIf pkgs.stdenv.isDarwin (
