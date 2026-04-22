@@ -132,56 +132,24 @@
         "T" = "secondary";
       };
 
+      # Rules for apps that own their own darwin/apps/<app>.nix module
+      # contribute their own entries here via module merging. Only rules
+      # without a dedicated app module remain inline.
       on-window-detected = [
         {
           "if".app-id = "com.github.wez.wezterm";
           run = [ "move-node-to-workspace 1" ];
         }
         {
-          "if".app-id = "com.openai.codex";
-          run = [ "move-node-to-workspace 2" ];
-        }
-        {
-          "if".app-id = "dev.kdrag0n.MacVirt"; # OrbStack
-          run = [
-            "layout floating"
-            "move-node-to-workspace 4"
-          ];
-        }
-        {
-          "if".app-id = "com.electron.aqua-voice";
-          run = [
-            "layout floating"
-          ];
-        }
-        {
           "if".app-id = "com.apple.Safari";
           run = [ "move-node-to-workspace Q" ];
-        }
-        {
-          "if".app-id = "com.anthropic.claudefordesktop";
-          run = [
-            "move-node-to-workspace W"
-            "layout accordion"
-          ];
         }
         {
           "if".app-id = "com.tinyspeck.slackmacgap";
           run = [ "move-node-to-workspace Q" ];
         }
         {
-          "if".app-id = "com.figma.Desktop";
-          run = [ "move-node-to-workspace E" ];
-        }
-        {
           "if".app-id = "com.apple.systempreferences";
-          run = [
-            "layout floating"
-            "move-node-to-workspace R"
-          ];
-        }
-        {
-          "if".app-id = "org.pqrs.Karabiner-EventViewer";
           run = [
             "layout floating"
             "move-node-to-workspace R"

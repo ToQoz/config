@@ -8,17 +8,13 @@
       cleanup = "uninstall";
     };
 
+    # Single-concern casks without a dedicated app module. Apps that have
+    # any additional config (aerospace rules, defaults, etc.) live in
+    # darwin/apps/<app>.nix and contribute their own cask there.
     casks = [
-      "karabiner-elements"
       "macskk"
-      "aqua-voice"
       "nani"
-      "orbstack"
-      "figma"
       "font-sketchybar-app-font"
-      "claude"
-      "codex"
-      "codex-app"
     ];
 
     masApps = { };

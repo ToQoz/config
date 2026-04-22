@@ -3,8 +3,14 @@
   imports = [
     ./aerospace.nix
     ./apps/1password.nix
+    ./apps/aqua-voice.nix
     ./apps/chatgpt.nix
     ./apps/chrome.nix
+    ./apps/claude-desktop.nix
+    ./apps/codex.nix
+    ./apps/figma.nix
+    ./apps/karabiner.nix
+    ./apps/orbstack.nix
     ./defaults.nix
     ./fonts.nix
     ./homebrew.nix
