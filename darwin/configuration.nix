@@ -7,6 +7,7 @@
   imports = [
     ./chrome-policy.nix
     ./fonts.nix
+    ./homebrew.nix
     ./keyboard.nix
     ./nix.nix
     ./one-password.nix
@@ -396,34 +397,5 @@
   # To start manually after granting accessibility permission:
   # $ launchctl start org.nixos.aerospace
   launchd.user.agents.aerospace.serviceConfig.KeepAlive = lib.mkForce false;
-
-  homebrew = {
-    enable = true;
-    onActivation = {
-      autoUpdate = true;
-      upgrade = true;
-      cleanup = "uninstall";
-    };
-
-    casks = [
-      "google-chrome"
-      "1password"
-      "karabiner-elements"
-      "macskk"
-      "aqua-voice"
-      "nani"
-      "orbstack"
-      "figma"
-      "font-sketchybar-app-font"
-      "claude"
-      "chatgpt"
-      "codex"
-      "codex-app"
-    ];
-
-    masApps = {
-      "1Password for Safari" = 1569813296;
-    };
-  };
 
 }
