@@ -92,7 +92,7 @@
       zle -N bracketed-paste bracketed-paste-magic
 
       # Site-functions dir already added to fpath in .zshenv.
-      autoload -Uz select-repository ghq ai-commit ai-commit-all ai-commit-staged
+      autoload -Uz select-repository tmux ghq ai-commit ai-commit-all ai-commit-staged
       zle -N select-repository
 
       # C-Space: Start completion
