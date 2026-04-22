@@ -154,6 +154,39 @@ nix derivation show --recursive '.#<attr>' \
 
 `nix-diff` is usually the first stop — it highlights "The environments do not match" with a per-variable delta. If the delta is only in a list-typed env var and the set of items is the same, the change is order-only.
 
+## After The Refactor: Review Each Workaround
+
+`lib.mkAfter` / `lib.mkBefore` / `lib.mkOrder` added during the loop exist for one reason: to hold the `.drv` identical so each step was statically verifiable. Once the refactor has landed, that safety net has served its purpose. Each workaround is now a standing claim that a specific order is load-bearing, and some of those claims are true while others are just residue from the `.drv`-preservation scaffolding.
+
+Do a cleanup pass: for each workaround, decide whether to keep it (the order matters) or drop it (the reordering is cosmetic), and document the decision.
+
+### Procedure per workaround
+
+1. Remove the `lib.mkAfter` / `lib.mkBefore` / `lib.mkOrder` wrapper.
+2. Re-evaluate and capture: `nix path-info --derivation '.#<attr>' > /tmp/drv-unpinned`.
+3. Show the user the specific delta that changed (usually the text or list the wrapper was pinning):
+
+   ```
+   nix run nixpkgs#nix-diff -- /tmp/drv-pinned /tmp/drv-unpinned
+   ```
+
+4. Ask the user whether that ordering matters. Concrete questions:
+   - Is this a sequence of commands whose later steps depend on earlier ones (activation scripts, PAM rules, shell init with ordering-sensitive sourcing)?
+   - Is this a wrapper-args list where later entries can override earlier ones (e.g. multiple `--set` of the same variable)?
+   - Or is this a set that happens to be represented as a list, where any order produces the same observable behavior (installed packages, attrset-of-conditional entries)?
+
+5. If the user says cosmetic, drop the wrapper in a follow-up commit. If load-bearing, keep it and replace the "preserving pre-split order" comment with a one-line reason for the actual semantic constraint.
+
+### Rough priors (ask, don't assume)
+
+- `home.packages`, `environment.systemPackages` — usually cosmetic. Installed set is what matters, not list position.
+- `programs.zsh.initContent` — usually load-bearing. Plugins, aliases, keybindings often depend on prior setup.
+- `system.activationScripts.{pre,post}Activation.text` — usually load-bearing. Shell scripts run top-to-bottom.
+- `environment.etc.<path>.text` — depends on the file. `/etc/pam.d/*` is strictly sequential; `/etc/nix/nix.custom.conf` is key-value and order-free.
+- `programs.neovim.extraWrapperArgs` — likely load-bearing if it contains `--set VAR` that could collide with HM's own `--set`.
+
+These are starting points for the conversation, not rules. The user knows their setup best.
+
 ## Anti-Patterns
 
 - Making a multi-module refactor in one commit, then trying to diff — noise overwhelms signal. Always one small change per commit.
