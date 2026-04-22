@@ -20,7 +20,7 @@
     ./tmux.nix
     ./unfree.nix
     ./vscode-family.nix
-    ./wezterm.nix
+    ./wezterm
     ./xdg-misc.nix
     ./zsh.nix
   ];
