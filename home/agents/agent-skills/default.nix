@@ -23,6 +23,7 @@
         "vercel"
       ];
     };
+    targets.agents.enable = true;
     targets.claude.enable = true;
   };
 }

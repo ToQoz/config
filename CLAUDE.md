@@ -21,5 +21,6 @@ Non-obvious locations:
 | Neovim packages, LSPs, extra tools | `home/home.nix` → `programs.neovim.*` |
 | Installed CLI tools / apps | `home/home.nix` → `home.packages` |
 | Claude Code settings, permissions, MCP | `home/home.nix` → `programs.claude-code.*` |
+| Codex settings, AGENTS.md, rules | `home/home.nix` → `programs.codex.*` |
 | Claude global instructions / memory | `dotfiles/agents/CLAUDE.md` |
 | Claude Code skills | `home/agents/skills/<skill-name>/SKILL.md` |

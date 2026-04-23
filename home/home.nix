@@ -3,6 +3,7 @@
   imports = [
     ./agents/agent-skills
     ./agents/claude-code
+    ./agents/codex
     ./agents/mcp.nix
     ./android.nix
     ./asdf
