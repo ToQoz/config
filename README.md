@@ -1,24 +1,10 @@
-## Arch
+# config
 
-- Setup SSH Keys
-- `$ git clone git@github.com:ToQoz/config.git ~/config`
-- `$ git clone <private repository> ~/private`
-- `$ setup/arch.sh`
-- `$ aws configure --profile <>`
+- `darwin/`: `nix-darwin` modules
+- `home/`: `home-manager` modules
+- `packages/`: custom packages
 
+## Nix Apps
 
-## Ubuntu
-
-- `$ setup/ubuntu.sh`
-
-## Windows
-
-- See `setup/windows.md`
-
-## WSL
-
-- See `setup/wsl.md`
-
-## VSCode
-
-- See `setup/vscode.md`
+- `nix run .#switch` - build and apply
+- `nix run .#build` - build (dry-run)
