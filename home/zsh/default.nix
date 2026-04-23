@@ -57,9 +57,9 @@
       source "${pkgs.asdf-vm}/etc/profile.d/asdf-prepare.sh"
       fpath=(${pkgs.asdf-vm}/share/zsh/site-functions ${config.xdg.configHome}/zsh/functions $fpath)
 
-      # Autoload claude here (not in .zshrc) so git aliases and other
-      # non-interactive zsh subshells can resolve the wrapper.
-      autoload -Uz claude
+      # Autoload agent wrappers here (not in .zshrc) so git aliases and
+      # other non-interactive zsh subshells can resolve them.
+      autoload -Uz claude codex
     '';
     # .zprofile
     profileExtra = ''
