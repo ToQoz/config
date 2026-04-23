@@ -2,10 +2,9 @@
 {
   my.apps.codex.appId = "com.openai.codex";
 
-  # "codex" is the terminal CLI cask; "codex-app" is the GUI desktop app.
-  # They ship as separate casks but share the same app-id for aerospace.
+  # The GUI desktop app still comes from Homebrew.
+  # The terminal CLI is installed via `llm-agents` in Home Manager.
   homebrew.casks = [
-    "codex"
     "codex-app"
   ];
 }
