@@ -1,6 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   tomlFormat = pkgs.formats.toml { };
+  agentPolicy = import ../policy { inherit lib; };
 
   managedSettings =
     {
@@ -36,7 +37,7 @@ in
     context = ../claude-code/CLAUDE.md;
 
     rules = {
-      default = ./rules/default.rules;
+      default = agentPolicy.codexRulesText;
     };
   };
 

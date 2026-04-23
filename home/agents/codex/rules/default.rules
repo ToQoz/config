@@ -1,2 +1,0 @@
-prefix_rule(pattern=["sort"], decision="allow")
-prefix_rule(pattern=["env", "XDG_CACHE_HOME=/tmp/nix-cache", "NIX_CONFIG=experimental-features = nix-command flakes", "nix", "flake", "lock", "--print-build-logs", "--update-input", "llm-agents", "--override-input", "llm-agents", "github:numtide/llm-agents.nix?rev=6fd26c9cb50d9549f3791b3d35e4f72f97677103"], decision="allow")

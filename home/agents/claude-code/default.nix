@@ -1,4 +1,7 @@
-{ pkgs, llm-agents, ... }:
+{ lib, pkgs, llm-agents, ... }:
+let
+  agentPolicy = import ../policy { inherit lib; };
+in
 {
   my.unfreePackages = [ "claude-code" ];
 
@@ -31,72 +34,7 @@
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       };
 
-      permissions = {
-        deny = [
-          "Bash(sudo *)"
-          "Read(.env)"
-          "Edit(.env)"
-          "Read(*.env)"
-          "Edit(*.env)"
-          "Read(*.vars)"
-          "Edit(*.vars)"
-        ];
-        allow = [
-          "Read(~/agents/**)"
-          "Write(~/agents/**)"
-          "Edit(~/agents/**)"
-          "Bash(codex exec --sandbox read-only --ephemeral *)"
-          "Bash(gh repo view --json defaultBranchRef --jq *)"
-          "Bash(echo *)"
-          "Bash(find *)"
-          "Bash(grep *)"
-          "Bash(head *)"
-          "Bash(ls *)"
-          "Bash(mkdir *)"
-          "Bash(tail *)"
-          "Bash(git add *)"
-          "Bash(git apply *)"
-          "Bash(git blame *)"
-          "Bash(git checkout *)"
-          "Bash(git cherry-pick *)"
-          "Bash(git commit *)"
-          "Bash(git diff *)"
-          "Bash(git fetch *)"
-          "Bash(git log *)"
-          "Bash(git merge *)"
-          "Bash(git mv *)"
-          "Bash(git pull *)"
-          "Bash(git rm *)"
-          "Bash(git show *)"
-          "Bash(git stash *)"
-          "Bash(git status *)"
-          "Bash(gh pr checks *)"
-          "Bash(gh pr diff *)"
-          "Bash(gh pr list *)"
-          "Bash(gh pr status *)"
-          "Bash(gh pr view *)"
-          "Bash(gh run list *)"
-          "Bash(gh run status *)"
-          "Bash(gh run view *)"
-          "Bash(gh run watch *)"
-          "Bash(gh search *)"
-          "Bash(nix build *)"
-          "Bash(nix fmt *)"
-          "Bash(nix log *)"
-          "Bash(cargo tree *)"
-          "Bash(npm list *)"
-          "Bash(pnpm list *)"
-          "Bash(agent-browser *)"
-          "Bash(docker compose ps *)"
-          "mcp__plugin_claude-code-home_Figma__get_code"
-          "mcp__plugin_claude-code-home_Figma__get_code_connect_map"
-          "mcp__plugin_claude-code-home_Figma__get_design_context"
-          "mcp__plugin_claude-code-home_Figma__get_image"
-          "mcp__plugin_claude-code-home_Figma__get_metadata"
-          "mcp__plugin_claude-code-home_Figma__get_screenshot"
-          "mcp__plugin_claude-code-home_Figma__get_variable_defs"
-        ];
-      };
+      permissions = agentPolicy.claudePermissions;
     };
   };
 }
