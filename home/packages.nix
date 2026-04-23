@@ -63,11 +63,11 @@ in
     (callPackage ../packages/portless.nix { })
     (callPackage ../packages/mo.nix { })
     (callPackage ../packages/vite-plus.nix { })
-    (callPackage ../packages/pi-coding-agent.nix { })
     sence.packages.${pkgs.stdenv.hostPlatform.system}.default
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.amp
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.gemini-cli
+    llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi
   ];
 }
