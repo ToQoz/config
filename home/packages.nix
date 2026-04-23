@@ -67,5 +67,6 @@ in
     sence.packages.${pkgs.stdenv.hostPlatform.system}.default
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.agent-browser
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
+    llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.gemini-cli
   ];
 }
