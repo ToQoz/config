@@ -1,6 +1,15 @@
 ---
 name: step-through-code
-description: Step through changed code line-by-line in a real debugger, confirming each variable and branch behaves as expected — before bugs appear. Use after implementing high-risk code paths with branching, side effects, async behavior, or browser-visible consequences. Supports CLI tools (node inspect), server-side code (node inspect / CDP), and browser JavaScript (CDP). Uses `agent-browser` for trigger actions, `webapp-acceptance-checks` for browser verification. Supported languages: JavaScript/TypeScript (when source maps are trustworthy). Not for type-only changes, config edits, or trivial pure functions.
+description: >-
+  Step through changed code line-by-line in a real debugger, confirming each
+  variable and branch behaves as expected — before bugs appear. Use after
+  implementing high-risk code paths with branching, side effects, async
+  behavior, or browser-visible consequences. Supports CLI tools (node inspect),
+  server-side code (node inspect / CDP), and browser JavaScript (CDP). Uses
+  `agent-browser` for trigger actions, `webapp-acceptance-checks` for browser
+  verification. Supported languages: JavaScript/TypeScript (when source maps
+  are trustworthy). Not for type-only changes, config edits, or trivial pure
+  functions.
 ---
 
 # step-through-code
