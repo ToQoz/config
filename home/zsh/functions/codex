@@ -24,9 +24,9 @@ local -a cmd
 if $no_sandbox; then
   cmd=(command codex --full-auto)
 elif [[ "$1" == "exec" || "$1" == "e" || "$1" == "review" ]]; then
-  cmd=(sence --profile code:codex -- codex --full-auto)
+  cmd=(sence --profile code:codex -- codex --dangerously-bypass-approvals-and-sandbox)
 else
-  cmd=(sence --profile code:codex --interactive -- codex --full-auto)
+  cmd=(sence --profile code:codex --interactive -- codex --dangerously-bypass-approvals-and-sandbox)
 fi
 
 "${cmd[@]}" "$@"
