@@ -74,6 +74,14 @@ When you change any TUI or interactive CLI code — prompts, key bindings, redra
 
 This applies unconditionally regardless of change size. A one-line keybinding tweak requires the same verification as a feature addition.
 
+## Figma Handling
+
+When a task depends on Figma and the agent cannot access the intended design reliably, stop immediately instead of improvising.
+
+- If Figma MCP is disconnected, the node cannot be opened, the provided URL is inaccessible, or the active Figma tab is not the correct design file, do not continue with screenshots, reconstructions, or generated substitutes.
+- Show the user the exact Figma URL you need and ask them to open it in Figma Desktop, then wait until they confirm it is open before resuming.
+- Treat this as a hard stop for implementation work that depends on the design artifact.
+
 ## Repository Rules
 
 ### Git Branching
