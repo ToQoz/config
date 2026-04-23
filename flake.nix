@@ -40,6 +40,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       home-manager,
       nix-darwin,
@@ -51,7 +52,48 @@
       android-nixpkgs,
       ...
     }:
+    let
+      system = "aarch64-darwin";
+      pkgs = import nixpkgs { inherit system; };
+      mkDarwinCommand =
+        {
+          command,
+          useSudo ? false,
+        }:
+        pkgs.writeShellApplication {
+          name = "darwin-${command}";
+          runtimeInputs = [
+            pkgs.git
+            nix-darwin.packages.${system}.default
+          ];
+          text = ''
+            set -euo pipefail
+
+            repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+            ${if useSudo then "exec sudo darwin-rebuild ${command} --flake \"$repo_root#remilis\" \"$@\"" else "exec darwin-rebuild ${command} --flake \"$repo_root#remilis\" \"$@\""}
+          '';
+        };
+    in
     {
+      packages.${system} = {
+        build = mkDarwinCommand { command = "build"; };
+        switch = mkDarwinCommand {
+          command = "switch";
+          useSudo = true;
+        };
+      };
+
+      apps.${system} = {
+        build = {
+          type = "app";
+          program = "${self.packages.${system}.build}/bin/darwin-build";
+        };
+        switch = {
+          type = "app";
+          program = "${self.packages.${system}.switch}/bin/darwin-switch";
+        };
+      };
+
       darwinConfigurations."remilis" = nix-darwin.lib.darwinSystem {
         modules = [
           ./darwin/configuration.nix
