@@ -9,7 +9,7 @@
   # Real .zsh files avoid Nix heredoc escaping (''${...}) and play nicely
   # with editors and shellcheck.
   xdg.configFile."zsh/functions".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home-manager/zsh/functions";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home/zsh/functions";
 
   programs.zsh = {
     enable = true;

@@ -13,7 +13,7 @@ Refactor Nix configurations in small, reversible steps, each one verified to pro
 
 - Splitting a large `home.nix` / `configuration.nix` / `flake.nix` into multiple files
 - Moving declarations (`programs.*`, `home.packages`, activation scripts) between modules
-- Renaming files or reorganizing the directory layout under `home-manager/`, `modules/`, `nixos/`, `darwin/`
+- Renaming files or reorganizing the directory layout under `home/`, `modules/`, `nixos/`, `darwin/`
 - Promoting a let-binding, overlay, or derivation to a separate file
 - Any refactor with a "preserve behavior" constraint where a build is expensive or unsafe to repeat
 
@@ -60,7 +60,7 @@ Different → proceed to diagnosis (section below).
 
 ### 5. Commit
 
-One commit per verified small step. Keep the commit message descriptive of the refactor's intent, not a summary of diff. A good tag: `refactor(home-manager): extract foo.nix`.
+One commit per verified small step. Keep the commit message descriptive of the refactor's intent, not a summary of diff. A good tag: `refactor(home): extract foo.nix`.
 
 ### 6. Repeat
 

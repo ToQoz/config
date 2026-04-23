@@ -34,5 +34,5 @@
   # lazy.nvim lockfile). Kept in a subdir so that default.nix above it
   # does not land inside ~/.config/nvim.
   xdg.configFile."nvim".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home-manager/neovim/config";
+    config.lib.file.mkOutOfStoreSymlink "${config.my.repoPath}/home/neovim/config";
 }

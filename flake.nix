@@ -74,7 +74,7 @@
               inherit vercel-agent-browser;
               inherit sence;
             };
-            home-manager.users."toqoz" = ./home-manager/home.nix;
+            home-manager.users."toqoz" = ./home/home.nix;
           }
         ];
       };
