@@ -19,12 +19,12 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO: string = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SKILLS: string = `${REPO}/dotfiles/agents/skills`;
+const SKILLS: string = `${REPO}/home/agents/skills`;
 
 type SharedFileGroup = {
   /** Filename inside each skill's `scripts/` directory. */
   file: string;
-  /** Skill subpaths under `dotfiles/agents/skills/` that must hold a
+  /** Skill subpaths under `home/agents/skills/` that must hold a
    *  byte-identical copy. The first entry is treated as the reference. */
   paths: [string, ...string[]];
 };

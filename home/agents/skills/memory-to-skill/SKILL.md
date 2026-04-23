@@ -66,7 +66,7 @@ If the screening produces zero candidates, report that plainly and stop. Do not 
 
 ### 3a. Check whether an existing skill already owns the rule
 
-For each surviving candidate, list the existing skills under `dotfiles/agents/skills/` and scan for coverage. A memory entry's procedure may have already been absorbed into a skill in a prior session; the memory just lingers as historical context.
+For each surviving candidate, list the existing skills under `home/agents/skills/` and scan for coverage. A memory entry's procedure may have already been absorbed into a skill in a prior session; the memory just lingers as historical context.
 
 If an existing skill already owns the rule:
 
@@ -80,7 +80,7 @@ Do not re-propose the rule as a new skill just because it is in memory — dupli
 
 For each surviving candidate, produce:
 
-- **Proposed skill name** — hyphenated, action-oriented, matching the style of existing skills under `dotfiles/agents/skills/`
+- **Proposed skill name** — hyphenated, action-oriented, matching the style of existing skills under `home/agents/skills/`
 - **Proposed description** — frontmatter `description`, covering what it does and when to trigger (per `skill-creator` guidance, include concrete trigger phrases)
 - **Proposed body sketch** — 3–7 bullets on the procedure, enough for Codex to assess
 - **Source memory file** — which file this comes from, and which lines are procedural vs context
@@ -120,7 +120,7 @@ If Codex and you both say "skip," say so and move on — do not force the user t
 
 When the user approves a candidate, follow the `computer-configuration` skill's rules:
 
-- Write the new skill to `~/src/github.com/ToQoz/config/dotfiles/agents/skills/<skill-name>/SKILL.md`
+- Write the new skill to `~/src/github.com/ToQoz/config/home/agents/skills/<skill-name>/SKILL.md`
 - Frontmatter must include `name` and `description`
 - Match the tone and structure of neighboring skills (`remind`, `retro-agent-instructions`, etc.)
 - Keep the body focused; prefer explaining *why* over rigid `MUST` / `NEVER` directives

@@ -12,7 +12,7 @@ All environment configuration is managed via Nix/Home Manager in `~/src/github.c
 
 - **Never edit files directly** under `~/.config/nvim`, `~/.claude`, or other symlinked home directories. Those paths are Nix store outputs or symlinks — direct edits will be lost on the next build.
 - **Only edit files in `~/src/github.com/ToQoz/config`.**
-- **For Claude skills**, read and edit the canonical source under `dotfiles/agents/skills/` — treat `~/.claude/skills/` as a generated projection.
+- **For Claude skills**, read and edit the canonical source under `home/agents/skills/` — treat `~/.claude/skills/` as a generated projection.
 - **Don't build directly.** When a rebuild is needed:
   1. Find your own tmux pane by walking up the process tree and matching against `pane_pid`. `$TMUX_PANE` is unreliable in the Bash tool's environment (often empty), and a bare `tmux split-window` without an explicit `-t` targets the tmux server's last-active pane — which is usually an unrelated window the user is working in. Use this snippet:
      ```bash

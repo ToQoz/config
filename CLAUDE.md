@@ -22,4 +22,4 @@ Non-obvious locations:
 | Installed CLI tools / apps | `home/home.nix` → `home.packages` |
 | Claude Code settings, permissions, MCP | `home/home.nix` → `programs.claude-code.*` |
 | Claude global instructions / memory | `dotfiles/agents/CLAUDE.md` |
-| Claude Code skills | `dotfiles/agents/skills/<skill-name>/SKILL.md` |
+| Claude Code skills | `home/agents/skills/<skill-name>/SKILL.md` |

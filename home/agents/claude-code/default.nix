@@ -10,7 +10,7 @@
     Edits made here will be lost on the next `darwin-rebuild switch`.
 
     Canonical source for skills:
-      ~/src/github.com/ToQoz/config/home/agents/agent-skills/skills/
+      ~/src/github.com/ToQoz/config/home/agents/skills/
   '';
 
   programs.claude-code = {
