@@ -16,7 +16,6 @@
     };
     skills.enableAll = [
       "local"
-      "anthropic"
       "vercel"
     ];
     targets.agents.enable = true;

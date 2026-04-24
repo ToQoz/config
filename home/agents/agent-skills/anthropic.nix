@@ -199,6 +199,8 @@ let
   ];
 in
 {
+  programs.agent-skills.skills.enableAll = [ "anthropic" ];
+
   programs.agent-skills.sources = {
     anthropic = {
       path = anthropic-skills;
