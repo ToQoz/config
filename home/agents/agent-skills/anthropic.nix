@@ -186,16 +186,11 @@ let
   #
   # Upstream additions need to be named here explicitly.
   anthropicPassthroughSkills = [
-    "algorithmic-art"
-    "brand-guidelines"
-    "canvas-design"
     "claude-api"
     "doc-coauthoring"
     "frontend-design"
     "internal-comms"
     "skill-creator"
-    "theme-factory"
-    "webapp-testing"
   ];
 in
 {
