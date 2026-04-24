@@ -35,8 +35,11 @@ Pick the attribute that represents the whole system or home configuration. Examp
 
 ### 2. Capture the baseline
 
+Intermediate artifacts (drv paths, package lists) go under `./.agents/cache/nix-refactoring/` in the workspace — reproducible, scoped to the task, and survives agent context resets. Create it once up front:
+
 ```
-nix path-info --derivation '.#<attr>' > /tmp/drv-before
+mkdir -p ./.agents/cache/nix-refactoring
+nix path-info --derivation '.#<attr>' > ./.agents/cache/nix-refactoring/drv-before
 ```
 
 This is the single source of truth for "what the system looks like now". Do not rebuild; the derivation path alone is enough.
@@ -50,8 +53,8 @@ For flakes, **always** `git add` new files before re-evaluating — flakes only 
 ### 4. Re-evaluate and compare
 
 ```
-nix path-info --derivation '.#<attr>' > /tmp/drv-after
-diff /tmp/drv-before /tmp/drv-after && echo "OK: identical"
+nix path-info --derivation '.#<attr>' > ./.agents/cache/nix-refactoring/drv-after
+diff ./.agents/cache/nix-refactoring/drv-before ./.agents/cache/nix-refactoring/drv-after && echo "OK: identical"
 ```
 
 Identical → the refactor preserves behavior. Commit.
@@ -84,14 +87,14 @@ Closure equivalence check — prefer per-attribute evaluation over walking the f
 attr='.#darwinConfigurations.<host>.config.environment.systemPackages'
 
 # current state
-nix eval --json "$attr" | jq -r '.[] | .outPath // .' | sort -u > /tmp/pkgs-after.txt
+nix eval --json "$attr" | jq -r '.[] | .outPath // .' | sort -u > ./.agents/cache/nix-refactoring/pkgs-after.txt
 
 # previous state (use git stash / checkout on the refactor to compare)
 git stash
-nix eval --json "$attr" | jq -r '.[] | .outPath // .' | sort -u > /tmp/pkgs-before.txt
+nix eval --json "$attr" | jq -r '.[] | .outPath // .' | sort -u > ./.agents/cache/nix-refactoring/pkgs-before.txt
 git stash pop
 
-diff /tmp/pkgs-before.txt /tmp/pkgs-after.txt
+diff ./.agents/cache/nix-refactoring/pkgs-before.txt ./.agents/cache/nix-refactoring/pkgs-after.txt
 ```
 
 Run the same comparison for each list-typed option that matters for the change — `home.packages`, `environment.systemPackages`, and so on.
@@ -159,10 +162,10 @@ Usually harmless — attrsets merge as unions. But the same `mkOrder` logic appl
 
 ```
 # Structured derivation diff (shows exactly which inputs/envs differ)
-nix run nixpkgs#nix-diff -- $(cat /tmp/drv-before) $(cat /tmp/drv-after)
+nix run nixpkgs#nix-diff -- $(cat ./.agents/cache/nix-refactoring/drv-before) $(cat ./.agents/cache/nix-refactoring/drv-after)
 
 # Package-level closure diff (what was added/removed/changed)
-nix run nixpkgs#nvd -- diff $(cat /tmp/drv-before) $(cat /tmp/drv-after)
+nix run nixpkgs#nvd -- diff $(cat ./.agents/cache/nix-refactoring/drv-before) $(cat ./.agents/cache/nix-refactoring/drv-after)
 
 # Inspect a specific config option directly (more robust than parsing
 # the full derivation tree):
@@ -192,11 +195,11 @@ Do a cleanup pass: for each workaround, decide whether to keep it (the order mat
 ### Procedure per workaround
 
 1. Remove the `lib.mkAfter` / `lib.mkBefore` / `lib.mkOrder` wrapper.
-2. Re-evaluate and capture: `nix path-info --derivation '.#<attr>' > /tmp/drv-unpinned`.
+2. Re-evaluate and capture: `nix path-info --derivation '.#<attr>' > ./.agents/cache/nix-refactoring/drv-unpinned`.
 3. Show the user the specific delta that changed (usually the text or list the wrapper was pinning):
 
    ```
-   nix run nixpkgs#nix-diff -- /tmp/drv-pinned /tmp/drv-unpinned
+   nix run nixpkgs#nix-diff -- ./.agents/cache/nix-refactoring/drv-pinned ./.agents/cache/nix-refactoring/drv-unpinned
    ```
 
 4. Ask the user whether that ordering matters. Concrete questions:
@@ -228,16 +231,16 @@ These are starting points for the conversation, not rules. The user knows their 
 
 ```
 # Baseline
-nix path-info --derivation '.#darwinConfigurations.<host>.system' > /tmp/drv-before
+nix path-info --derivation '.#darwinConfigurations.<host>.system' > ./.agents/cache/nix-refactoring/drv-before
 
 # After each change
 git add <new-files>  # flakes require tracked files
-nix path-info --derivation '.#darwinConfigurations.<host>.system' > /tmp/drv-after
-diff /tmp/drv-before /tmp/drv-after && echo "OK: identical"
+nix path-info --derivation '.#darwinConfigurations.<host>.system' > ./.agents/cache/nix-refactoring/drv-after
+diff ./.agents/cache/nix-refactoring/drv-before ./.agents/cache/nix-refactoring/drv-after && echo "OK: identical"
 
 # Diagnose a diff
-nix run nixpkgs#nix-diff -- $(cat /tmp/drv-before) $(cat /tmp/drv-after)
+nix run nixpkgs#nix-diff -- $(cat ./.agents/cache/nix-refactoring/drv-before) $(cat ./.agents/cache/nix-refactoring/drv-after)
 
 # Promote to next baseline
-cp /tmp/drv-after /tmp/drv-before
+cp ./.agents/cache/nix-refactoring/drv-after ./.agents/cache/nix-refactoring/drv-before
 ```
