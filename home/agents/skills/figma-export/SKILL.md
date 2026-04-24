@@ -29,6 +29,7 @@ The CLI stores one Figma token per project in macOS Keychain.
 
 - Project scope is the current git root when inside a git repository.
 - Otherwise project scope is the current working directory.
+- For this skill, recommend the minimum Personal Access Token scope: `file_content:read`.
 
 If no token exists for the current project, do not try to authenticate inside `export`.
 Instead, tell the user to run the auth command themselves from the target project directory:
@@ -39,6 +40,36 @@ cd /path/to/project
 ```
 
 The auth command reads the token from stdin without echoing it.
+
+## When auth is missing
+
+If `auth status` shows no token, or `export` fails because no token is configured:
+
+1. Do not just say that the token is missing.
+2. Tell the user to run the auth command themselves from the project root, because auth is scoped per project.
+3. Prefer giving a copy-pastable command that includes `cd`.
+4. If they need to create a new Figma Personal Access Token for this skill, recommend granting only `file_content:read`.
+5. Tell the user the token prompt requires a TTY, so the agent cannot complete that step on the user's behalf.
+
+Example user-facing instruction:
+
+```bash
+cd /path/to/project
+/absolute/path/to/home/agents/skills/figma-export/scripts/figma-export-cli auth
+```
+
+Then tell the user:
+
+- If they need to create a new token for this skill, grant only `file_content:read`.
+- Paste the token into the TTY prompt.
+- Tell the agent when auth is complete so export can resume.
+
+Do not:
+
+- omit the project-root `cd`
+- give only the auth command without explaining project-scoped auth
+- imply the agent can complete token setup without user interaction when a TTY prompt is required
+- ask the user to grant broader scopes unless the task actually requires them
 
 ## Commands
 
@@ -78,7 +109,7 @@ Other auth commands:
 ## Execution rules
 
 1. Prefer `export` with an explicit `--output` path so the destination is obvious.
-2. If auth is required, stop and ask the user to run `cd <project>; <skill dir>/scripts/figma-export-cli auth`.
+2. If auth is required, stop and use the `When auth is missing` template with the exact project path and auth command.
 3. If the API returns an auth, permission, render, or missing-node error, stop and show the exact error to the user.
 4. Do not silently fall back to `get_screenshot`.
 5. Do not invent file keys or node ids.

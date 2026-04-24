@@ -17,6 +17,7 @@ import urllib.request
 
 KEYCHAIN_SERVICE = "figma-export-skill"
 FIGMA_TOKEN_URL = "https://www.figma.com/developers/api#access-tokens"
+FIGMA_MINIMUM_SCOPE = "file_content:read"
 FIGMA_API_BASE = "https://api.figma.com/v1"
 VALID_FORMATS = {"png", "jpg", "svg", "pdf"}
 
@@ -62,7 +63,7 @@ def skill_script_path() -> pathlib.Path:
 
 def auth_command_hint(scope_path: str) -> str:
     return (
-        f"cd {shlex.quote(scope_path)}; "
+        f"cd {shlex.quote(scope_path)} && "
         f"{shlex.quote(str(skill_script_path()))} auth"
     )
 
@@ -214,8 +215,11 @@ def ensure_token(scope_path: str, provided_token: str | None) -> str:
         return token
 
     raise CliError(
-        "No Figma token configured for this project. Ask the user to run:\n"
-        f"{auth_command_hint(scope_path)}\n"
+        "No Figma token configured for this project.\n"
+        "Run the following in the project root in a TTY:\n"
+        f"  {auth_command_hint(scope_path)}\n"
+        "If you need to create a new Figma Personal Access Token for this skill, grant only:\n"
+        f"  {FIGMA_MINIMUM_SCOPE}\n"
         f"Token creation page: {FIGMA_TOKEN_URL}"
     )
 
@@ -276,9 +280,10 @@ def auth_set_command(args: argparse.Namespace) -> int:
     if not token:
         if not is_tty_stdin():
             raise CliError(
-                "No token provided. Re-run in a TTY or pass `--token`."
+                "No token provided. Re-run this command in a TTY from the project root, or pass `--token`."
             )
         eprint(f"Create a personal access token at: {FIGMA_TOKEN_URL}")
+        eprint(f"For this skill, grant only: {FIGMA_MINIMUM_SCOPE}")
         token = getpass.getpass("Paste Figma access token: ").strip()
     if not token:
         raise CliError("No token entered.")
