@@ -68,7 +68,7 @@ except ImportError:
     sys.exit(2)
 
 
-DEFAULT_WORKSPACE_ROOT = pathlib.Path(".agents/tally")
+DEFAULT_WORKSPACE_ROOT = pathlib.Path(".agents/share/tally")
 
 
 def iso_timestamp() -> str:

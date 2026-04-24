@@ -28,7 +28,7 @@ The failure mode to stay alert to: *two fictions back-to-back* — plausible-loo
 The workflow persists its state on disk so that clauses, observations, and oracles are inspectable files rather than chat prose — and so "completed observation" becomes a file-existence check instead of a prose claim.
 
 ```
-./.agents/tally/<slug>/
+./.agents/share/tally/<slug>/
 ├── meta.md              # workspace identity: slug, feature title, created_at, current step, status
 ├── requirement.md       # Step 1: finalized user intent, one item per line with stable Requirement IDs (R-001, R-002, …)
 ├── oracle-map.md        # Step 1 closing: acceptance-oracle map — one row per Requirement ID
@@ -46,7 +46,7 @@ Short kebab-case, human-meaningful (e.g., `user-export-csv`). Propose one from t
 
 ### Resuming
 
-If `./.agents/tally/<slug>/` already exists at Step 1 start, read it and continue from the state it describes. Do not overwrite prior work.
+If `./.agents/share/tally/<slug>/` already exists at Step 1 start, read it and continue from the state it describes. Do not overwrite prior work.
 
 ### Invariants (the rules that make the workspace load-bearing)
 
@@ -146,7 +146,7 @@ Internal code-quality properties (maintainability, extensibility, readability, t
 **Closing action — write the workspace.** Before leaving Step 1:
 
 1. Propose a slug from the requirement and confirm with the user.
-2. Create `./.agents/tally/<slug>/` (preserve and read any existing files if the directory already exists — resume, don't overwrite).
+2. Create `./.agents/share/tally/<slug>/` (preserve and read any existing files if the directory already exists — resume, don't overwrite).
 3. Write `meta.md` with slug, feature title, created_at, current step (`step-1-complete`), and status.
 4. Write `requirement.md` — finalized user intent, one item per line, each with a stable `R-###` identifier.
 5. Write `oracle-map.md` — one row per Requirement ID, with structured columns (see Workspace § Invariants for the enum vocabulary):
@@ -163,7 +163,7 @@ Internal code-quality properties (maintainability, extensibility, readability, t
 
 Starting points for each file live in `templates/` (`requirement.md.tmpl`, `oracle-map.md.tmpl`, `contract.yaml.tmpl`). Copy them into the workspace and fill in the placeholders — the structure is then consistent across tasks and across agents working on the same project.
 
-8. Tell the user that the workspace lives at `./.agents/tally/<slug>/` and that committing vs. gitignoring it is their call.
+8. Tell the user that the workspace lives at `./.agents/share/tally/<slug>/` and that committing vs. gitignoring it is their call.
 
 `requirement.md` and `oracle-map.md` are **not** a contract; they are only the requirement-side acceptance criteria. They say what *would* need to be observed. They say nothing about *how* the implementation will behave internally, and they contain no clauses.
 
@@ -199,7 +199,7 @@ Repeat until every requirement item carries a signed clause.
    For a legitimate, user-authorized substitution: the clause must carry `substituted_check: true` with `substitution_reason: <text>`, and `oracle-map.md` must have a dated `## Reopened` note recording the authorization. Any other mismatch between `produced_by` and `allowed_producers` auto-fails the clause at Step 3.
 
    For each observation:
-   1. Actually run it through `scripts/tally-record`, which wraps the real subprocess and writes `./.agents/tally/<slug>/observations/<record-id>.md` with full frontmatter (`produced_by: tally-record`, timestamp, cwd, env, outcome, exit_code) and the captured stdout/stderr in the body:
+   1. Actually run it through `scripts/tally-record`, which wraps the real subprocess and writes `./.agents/share/tally/<slug>/observations/<record-id>.md` with full frontmatter (`produced_by: tally-record`, timestamp, cwd, env, outcome, exit_code) and the captured stdout/stderr in the body:
 
       ```
       scripts/tally-record \

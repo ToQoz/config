@@ -7,7 +7,7 @@ Usage:
     tally-verify <workspace-dir>
 
     Example:
-    tally-verify ./.agents/tally/user-export-csv
+    tally-verify ./.agents/share/tally/user-export-csv
 
 Exit codes:
     0  all signed clauses verify; per-requirement coverage OK
