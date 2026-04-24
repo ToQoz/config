@@ -20,8 +20,9 @@
       # Claude
       "settings.local.json"
       # Agents tools
-      ".agents/*"
-      "!.agents/skills"
+      ".agents/cache"
+      ".agents/share"
+      ".agents/share"
       # Misc
       ".todo.md"
     ];
