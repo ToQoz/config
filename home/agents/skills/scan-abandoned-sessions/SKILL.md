@@ -19,7 +19,7 @@ Unless the user specifies a range, scan:
 [ max(cursor, today - 7d),  today ]
 ```
 
-Cursor file: `<agent-sandbox-directory>/scan-abandoned-sessions/cursor.txt` — contains an ISO-8601 date (`YYYY-MM-DD`) of the most recent completed scan.
+Cursor file: `~/.agents/state/scan-abandoned-sessions/cursor.txt` — contains an ISO-8601 date (`YYYY-MM-DD`) of the most recent completed scan.
 
 - If the cursor file does not exist or is unparseable, scan the last 7 days.
 - The 7-day cap exists so that a long gap since the last scan does not produce an overwhelming report. If the user wants earlier sessions, they will ask.

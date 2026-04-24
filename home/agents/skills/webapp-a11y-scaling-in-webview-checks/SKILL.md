@@ -380,7 +380,7 @@ the Chrome skill's density + font_scale compound scales the image too.
 ## Artifacts
 
 Save screenshots and a step log under
-`<agent-sandbox-directory>/testing/<cwd-slug>/YYYYMMDD-<short-title>/`,
+`./.agents/cache/testing/YYYYMMDD-<short-title>/`,
 consistent with the sibling skills. Record which preset was used (and
 the density multiplier + textZoom values) so the conditions are
 reproducible.

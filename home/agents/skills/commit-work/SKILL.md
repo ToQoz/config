@@ -163,22 +163,22 @@ unrelated hunks.
 **Capture all unstaged changes:**
 
 ```bash
-mkdir -p <agent-sandbox-directory>/patches/<cwd-slug>
-git diff --binary --full-index --find-renames > "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<short-title>.patch"
+mkdir -p ./.agents/cache/patches
+git diff --binary --full-index --find-renames > "./.agents/cache/patches/<YYYYMMMDD>-<short-title>.patch"
 ```
 
 **For untracked files that belong to this work:**
 
 ```bash
-git diff --no-index /dev/null path/to/new-file > "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<short-title>-new-files.patch"
+git diff --no-index /dev/null path/to/new-file > "./.agents/cache/patches/<YYYYMMMDD>-<short-title>-new-files.patch"
 ```
 
 **Write a sub-patch** containing only the hunks for this work, dry-run,
 then apply:
 
 ```bash
-git apply --cached --check --recount "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<commit-title>.patch"
-git apply --cached --recount "<agent-sandbox-directory>/patches/<cwd-slug>/<YYYYMMMDD>-<commit-title>.patch"
+git apply --cached --check --recount "./.agents/cache/patches/<YYYYMMMDD>-<commit-title>.patch"
+git apply --cached --recount "./.agents/cache/patches/<YYYYMMMDD>-<commit-title>.patch"
 ```
 
 For binary files, renames, deletes, and mode changes that belong wholly to

@@ -176,7 +176,7 @@ This is a strict sequence. Do not skip or reorder steps.
 
 5. **Initialize artifacts**: create the session directory:
    ```bash
-   mkdir -p <agent-sandbox-directory>/verification/<cwd-slug>/YYYYMMDD-<short-title>/screenshots
+   mkdir -p ./.agents/cache/verification/YYYYMMDD-<short-title>/screenshots
    ```
    Create `session.md` with target, scenario, envelope, and breakpoint table.
 

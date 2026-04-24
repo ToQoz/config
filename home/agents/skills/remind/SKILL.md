@@ -1,13 +1,13 @@
 ---
 name: remind
-description: Record a deferred action to ~/agents/REMIND.md. Use when something is identified as worth doing later but is out of scope for the current task.
+description: Record a deferred action to ./.agents/share/REMIND.md. Use when something is identified as worth doing later but is out of scope for the current task.
 ---
 
 # remind
 
 ## Intent
 
-Capture deferred actions so they are not forgotten. Write them to `<agent-sandbox-directory>/REMIND.md`.
+Capture deferred actions so they are not forgotten. Write them to `./.agents/share/REMIND.md`.
 
 ## When To Use
 
@@ -19,7 +19,7 @@ Do not use this as a substitute for doing the work. If the action is small and i
 
 ## Format
 
-Each entry is an H2 section appended to `<agent-sandbox-directory>/REMIND.md`. Create the file if it does not exist.
+Each entry is an H2 section appended to `./.agents/share/REMIND.md`. Create the file if it does not exist.
 
 ```markdown
 ## <concise title>

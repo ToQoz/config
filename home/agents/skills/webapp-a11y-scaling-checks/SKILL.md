@@ -141,7 +141,7 @@ levels.
 ## Test records
 
 Save artifacts and a step log under
-`<agent-sandbox-directory>/testing/<cwd-slug>/YYYYMMDD-<short-title>/`,
+`./.agents/cache/testing/YYYYMMDD-<short-title>/`,
 following the same convention as `webapp-acceptance-checks`. Include the
 `font_scale` and density values used in the log so the conditions are
 reproducible.

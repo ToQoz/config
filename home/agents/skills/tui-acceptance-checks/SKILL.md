@@ -126,9 +126,9 @@ Then slice the captured pane between the two marker matches. The literal `$$` in
 
 ## Test Records
 
-Save all artifacts under `<agent-sandbox-directory>/testing/<cwd-slug>/YYYYMMDD-<short-title>/`.
+Save all artifacts under `./.agents/cache/testing/YYYYMMDD-<short-title>/`.
 
-- **Create the directory** at the start of the session (e.g. `~/agents/testing/github-toqoz-sence/20260420-esc-interrupt/`).
+- **Create the directory** at the start of the session (e.g. `./.agents/cache/testing/20260420-esc-interrupt/`).
 - **Pane snapshots** go under `panes/` with zero-padded sequential prefixes: `01-before-esc.txt`, `02-after-esc.txt`. Capture with `tmux capture-pane -p -J -S -` (full scrollback) at each decision point.
 - **Action log (`log.md`)**: record each step as it happens — action, expected pane state, observed pane snapshot filename, pass/fail. Example:
 

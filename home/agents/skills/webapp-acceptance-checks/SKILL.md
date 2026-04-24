@@ -67,9 +67,9 @@ python scripts/with_server.py \
 
 ## Test Records
 
-Save all test artifacts and a detailed action log under `<agent-sandbox-directory>/testing/<cwd-slug>/YYYYMMDD-<short-title>/`.
+Save all test artifacts and a detailed action log under `./.agents/cache/testing/YYYYMMDD-<short-title>/`.
 
-- **Create the directory** at the start of a testing session (e.g., `~/agents/testing/github-acme-app/20260415-line-login-flow/`)
+- **Create the directory** at the start of a testing session (e.g., `./.agents/cache/testing/20260415-line-login-flow/`)
 - **Screenshots**: save every screenshot there instead of `/tmp` (e.g., `01-init-page.png`, `02-tos-checked.png`, …). Use zero-padded sequential prefixes to preserve order.
 - **Action log (`log.md`)**: record each step as it happens — action performed, observed result, and pass/fail. Include the screenshot filename on each step so the log and images cross-reference. Example:
 

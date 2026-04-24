@@ -1,15 +1,14 @@
 # My Terms
 
-## Variables
+## Agent Storage
 
-These variables are defined here for reuse across agent-facing markdown files (e.g. `CLAUDE.md`, `AGENTS.md`, `SKILL.md`). When one of these placeholders appears in such a file, resolve it as defined below.
+Use workspace-local `.agents/` storage with XDG-style intent:
 
-- `<agent-sandbox-directory>` = `~/agents`
-  - The sandbox directory used by agents for thinking and processing tasks.
-  - You may freely read from and write to this directory at any time without asking the user for permission.
-- `<cwd-slug>` = Bash(`pwd | sed -e "s,^$HOME/src/,," -e 's/github.com/github/' -e 's,/,-,g'`)
-  - The identifier for the current working directory.
-  - Typically, it follows the format `github-<org>-<repo>`
+- `./.agents/share/` for durable, user-meaningful artifacts worth keeping or reading later
+- `./.agents/state/` for durable operational state that helps a workflow resume
+- `./.agents/cache/` for disposable or reproducible working files, patches, screenshots, and test artifacts
+
+Prefer these directories over ad-hoc paths like `tmp/` when a skill needs local workspace storage.
 
 ## Language
 

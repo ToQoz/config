@@ -59,7 +59,7 @@ Use this for free-form questions: architecture advice, plan validation, naming d
 Always write the prompt using the Write tool — never use heredocs in Bash. This avoids shell parsing issues in Claude Code.
 
 ```
-Write tool → <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md
+Write tool → ./.agents/cache/ask-codex/<YYYYMMDD>-<short-title>.md
 ```
 
 The prompt must be **self-contained**. Codex has no access to your conversation history, so include all necessary context: what the code does, what you're trying to decide, and what kind of feedback you want.
@@ -69,20 +69,20 @@ The prompt must be **self-contained**. Codex has no access to your conversation 
 Pass the prompt file via stdin redirection with `-` to indicate stdin input:
 
 ```bash
-codex exec -m MODEL --sandbox read-only --ephemeral - < <agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md
+codex exec -m MODEL --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/<YYYYMMDD>-<short-title>.md
 ```
 
 **Examples:**
 
 ```bash
 # Fast code — codex-spark for a quick naming check
-codex exec -m gpt-5.1-codex-spark --sandbox read-only --ephemeral - < ~/agents/ask-codex/github-org-repo/20260417-naming-check.md
+codex exec -m gpt-5.1-codex-spark --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-naming-check.md
 
 # Deep code — full codex model for architecture review
-codex exec -m gpt-5.1-codex --sandbox read-only --ephemeral - < ~/agents/ask-codex/github-org-repo/20260417-arch-review.md
+codex exec -m gpt-5.1-codex --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-arch-review.md
 
 # General — non-code planning question
-codex exec -m gpt-5.4 --sandbox read-only --ephemeral - < ~/agents/ask-codex/github-org-repo/20260417-product-tradeoff.md
+codex exec -m gpt-5.4 --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-product-tradeoff.md
 ```
 
 ## Code Review Mode
@@ -119,7 +119,7 @@ codex exec review --commit abc1234 --ephemeral
 ## Workflow
 
 1. **Formulate** — For consultation: write a clear, self-contained prompt with all necessary context. For review: determine the scope.
-2. **Write** — Consultation only: save the prompt to `<agent-sandbox-directory>/ask-codex/<cwd-slug>/<YYYYMMDD>-<short-title>.md` using the Write tool.
+2. **Write** — Consultation only: save the prompt to `./.agents/cache/ask-codex/<YYYYMMDD>-<short-title>.md` using the Write tool.
 3. **Select model** — Follow the family → depth → resolve steps above. Default to fast code unless the task calls for more.
 4. **Execute** — Consultation: `codex exec ... - < path/to/prompt.md`. Review: `codex exec review` with the appropriate scope flag.
 5. **Retrieve (if persisted)** — If the tool result says the output was saved to a file, read only the last ~6KB with `tail -c 6000 <path>`. Codex structures reviews/consultations so the verdict and findings sit at the end; the leading bytes are prompt echo and reasoning trace.

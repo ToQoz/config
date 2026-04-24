@@ -63,9 +63,9 @@ Apply the priority order. Ask: "Would this rule help in other projects?" If yes,
 
 Write a concrete, atomic proposal. Include the exact text to add or modify, with enough surrounding context to locate it.
 
-### 5. Write to RETROSPECTIVE.md
+### 5. Write to RETRO.md
 
-Append the proposal to `<agent-sandbox-directory>/RETROSPECTIVE.md`. Create the file if it does not exist.
+Append the proposal to `./.agents/share/RETRO.md`. Create the file if it does not exist.
 
 ### 6. Inform the user
 
@@ -73,7 +73,7 @@ After writing, briefly tell the user what was proposed and where to find it. Do 
 
 ## Entry Format
 
-Each entry is an H2 section appended to `<agent-sandbox-directory>/RETROSPECTIVE.md`.
+Each entry is an H2 section appended to `./.agents/share/RETRO.md`.
 
 ```markdown
 ## <concise title>
