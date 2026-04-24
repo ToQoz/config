@@ -176,16 +176,16 @@ let
   pdfCmds = [ "python" "pdftotext" "pdftoppm" "pdfimages" "qpdf" "tesseract" ];
   pdfPatched = mkPatchedSkill { name = "pdf"; cmds = pdfCmds; };
 
-  # Anthropic skills that ship unmodified.
+  # Anthropic skills enabled unmodified.
   #
-  # Omitted from this list:
-  #   - xlsx, pptx, docx, pdf — reintroduced via `skills.explicit.*` below
-  #     with nix-pinned Python + external binaries.
+  # Omitted:
+  #   - xlsx, pptx, docx, pdf — handled by `skills.explicit.*` below with
+  #     nix-pinned Python + external binaries.
   #   - slack-gif-creator, web-artifacts-builder, mcp-builder — disabled
   #     (heavy runtime deps / not useful without a per-project setup).
   #
-  # New upstream skills need to be added here explicitly.
-  anthropicAllowlist = [
+  # Upstream additions need to be named here explicitly.
+  anthropicPassthroughSkills = [
     "algorithmic-art"
     "brand-guidelines"
     "canvas-design"
@@ -199,19 +199,21 @@ let
   ];
 in
 {
-  programs.agent-skills.skills.enableAll = [ "anthropic" ];
+  programs.agent-skills.skills.enable = anthropicPassthroughSkills;
 
   programs.agent-skills.sources = {
     anthropic = {
       path = anthropic-skills;
       subdir = "skills";
-      filter.nameRegex = "^(${lib.concatStringsSep "|" anthropicAllowlist})$";
     };
-    # Auxiliary source for skills whose non-SKILL.md files also needed
-    # rewrites. Not in `enableAll` — skills from here are pulled in via
-    # `skills.explicit.*` below.
+    # Auxiliary source for skills whose non-SKILL.md files also need
+    # rewriting. `idPrefix` keeps the patched skill's catalog id
+    # (`patched/pdf`) from colliding with anthropic's own `pdf` entry
+    # during discovery; the bundle still surfaces it as plain `pdf` via
+    # `skills.explicit.pdf` below.
     anthropic-patched = {
       path = pdfPatched;
+      idPrefix = "patched";
     };
   };
 
