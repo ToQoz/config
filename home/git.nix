@@ -60,6 +60,12 @@
 
       github.user = "ToQoz";
       ghq.root = "~/src";
+
+      # k1LoW/git-wt: place worktrees under <repo>/.git/wt/<branch> so they
+      # are inside the workspace (agent reachable), automatically untracked
+      # (no .gitignore upkeep), and invisible to greps over the working tree
+      # (agents won't accidentally pull worktree contents into context).
+      wt.basedir = "{gitroot}/.git/wt";
     };
   };
 }

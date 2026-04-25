@@ -57,6 +57,11 @@ in
     fd
     bun
     deno
+    # nixpkgs ships an older git-wt (0.17.0). The 0.27.0 release added --json
+    # output and a deletehook config, both of which the `git-worktrees` skill
+    # benefits from. Once nixpkgs catches up to >= 0.27.0, delete this
+    # callPackage line and restore plain `git-wt`.
+    (callPackage ../packages/git-wt.nix { })
     # fence  # re-enable once nixpkgs ships >= 0.1.48; see `fence-0_1_48` override in `let` block above
     fence-0_1_48
     slack
