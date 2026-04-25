@@ -89,6 +89,30 @@ Save all test artifacts and a detailed action log under `./.agents/cache/testing
 - **Network logs**: when API failures are relevant, paste the filtered `agent-browser network requests` output into the action log step. **Mask sensitive values** (tokens, passwords, session IDs, cookies, API keys) — replace them with `***` or `<REDACTED>` before writing to the log.
 - **Visibility for reviewers**: after testing, leave a record of what was tested and the results in the PR description or commit message so reviewers can confirm what was verified.
 
+## Screenshots for PRs and reviewers
+
+Screenshots that look broken to a reviewer waste their time even when the
+underlying app is fine. A few rules to avoid that:
+
+- **Default to viewport-fit screenshots** (`agent-browser screenshot path.png`).
+  This matches what a reviewer sees if they open the page themselves.
+- **Avoid `--full` unless you specifically need the full scroll height in one
+  image.** On responsive layouts where a fixed sidebar, header, or root
+  container stretches to the viewport, `--full` can produce an oversized
+  canvas with the actual UI rendered in a small corner. The screenshot
+  *looks* like a layout bug even when the live page renders correctly.
+- **Always read back the saved image before linking it from a PR.** Use the
+  Read tool to view PNGs; re-take without `--full` if the image shows large
+  blank regions, a tiny clamped UI, or other render artifacts. This
+  verification step is non-optional — broken-looking screenshots in a PR
+  body will be flagged by the reviewer.
+- **Long lists / tables** that legitimately need full scroll capture are the
+  one case `--full` is appropriate; even then, sanity-check the result.
+- **Set the viewport explicitly** (`agent-browser open ...` after closing
+  any prior session) when you suspect the daemon is using a non-standard
+  size; e.g. a previously-opened headed session can leave the viewport
+  oversized.
+
 ## Network Monitoring
 
 Use `agent-browser network` subcommands to monitor and debug API calls during testing. This is essential for verifying that the correct requests are made and responses are received.
