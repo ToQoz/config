@@ -88,6 +88,11 @@ When a task depends on Figma and the agent cannot access the intended design rel
 - When creating a topic branch, always branch off from the repository's default branch unless the user explicitly specifies a different base.
 - Determine the default branch with:
   `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
+- Topic branch names follow `<type>/<kebab-slug>` where `<type>` is one
+  of the Conventional Commits types (`feat`, `fix`, `docs`, `chore`,
+  `refactor`, `test`, `perf`, `style`, `ci`, `revert`, `build`). Pick the
+  type that matches the commit you anticipate making first on this
+  branch. Project-specific `CLAUDE.md` may override this convention.
 
 ### Git Committing
 
