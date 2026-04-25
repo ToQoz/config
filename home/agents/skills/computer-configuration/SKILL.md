@@ -36,3 +36,19 @@ All environment configuration is managed via Nix/Home Manager in `~/src/github.c
   4. If the output stops changing for 1 minute, stop monitoring and ask the user to check the status.
   5. When the build finishes, check the captured output for errors or warnings. If any are found, proceed to fix them.
 - **If the target config is not tracked in this repository**, ask the user what to do rather than editing in-place.
+
+## Untracked New Files and Flake Builds
+
+Nix flake reads only files tracked by git. A new file (e.g. under `packages/`, `home/`, `scripts/`) that is still untracked causes the build to fail with:
+
+```
+error: Path '<file>' in the repository "..." is not tracked by Git
+```
+
+Before retrying the build, register the file with `git add -N` (intent-to-add) — **not** bare `git add`:
+
+```bash
+git -C <repo> add -N <new-file>
+```
+
+This makes the file visible to flake without staging its content. `git diff --staged` stays clean, so concurrent `commit-work` / `commit` flows continue to ignore the file and won't accidentally bundle it into an unrelated commit. When the file is ready, commit it explicitly via the appropriate skill; if you abandon it, run `git restore --staged <new-file>` to drop the intent-to-add entry.
