@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+
+# Sweep merged worktrees from `git wt`'s view.
+#
+# USAGE
+#   git-wt-prune [--yes] [--base <branch>]
+#
+# Default is dry-run: lists candidates and exits 0 without removing.
+# Pass --yes to remove. Dirty worktrees are always skipped.
+#
+# EXIT CODES
+#   0   success (dry-run, or --yes completed; skipped worktrees do not fail)
+#   2   environment / git error
+#   64  invalid arguments
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: git-wt-prune [--yes] [--base <branch>]
+
+Sweep worktrees whose branch is merged into the base branch.
+
+Options:
+  --yes              Remove candidates. Default is dry-run.
+  --base <branch>    Compare merged-status against <branch> (default: repo's
+                     default branch via `gh` / `git symbolic-ref` / `main` /
+                     `master`).
+  -h, --help         Show this help.
+
+Exit codes:
+  0   success (dry-run, or --yes completed; some worktrees may be skipped)
+  2   environment / git error
+  64  invalid arguments
+EOF
+}
+
+apply=0
+base=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --yes) apply=1; shift ;;
+    --base)
+      [ $# -ge 2 ] || { echo "error: --base requires an argument" >&2; exit 64; }
+      base="$2"; shift 2
+      ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "error: unknown argument: $1" >&2; usage >&2; exit 64 ;;
+  esac
+done
+
+# Environment checks
+command -v git-wt >/dev/null 2>&1 || { echo "error: git-wt not found on PATH" >&2; exit 2; }
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+  || { echo "error: not inside a git working tree" >&2; exit 2; }
+
+# Determine base branch
+if [ -z "$base" ]; then
+  base=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || true)
+fi
+if [ -z "$base" ]; then
+  base=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)
+fi
+if [ -z "$base" ]; then
+  if git show-ref --verify --quiet refs/heads/main; then
+    base=main
+  elif git show-ref --verify --quiet refs/heads/master; then
+    base=master
+  fi
+fi
+if [ -z "$base" ]; then
+  echo "error: could not determine base branch (use --base)" >&2
+  exit 2
+fi
+
+# Refresh the base so merged-detection reflects current upstream
+if git fetch --quiet origin "$base" 2>/dev/null; then
+  merged_ref="refs/remotes/origin/$base"
+else
+  echo "warning: git fetch origin $base failed; using local refs/heads/$base" >&2
+  merged_ref="refs/heads/$base"
+fi
+
+# Branches merged into the base (excluding base itself)
+merged_branches=$(git branch --merged "$merged_ref" --format '%(refname:short)' \
+                  | grep -vxF "$base" || true)
+
+main_path=$(git rev-parse --show-toplevel)
+
+# Enumerate worktrees via porcelain (universal across git-wt versions).
+worktrees_tsv=$(mktemp)
+candidates_file=$(mktemp)
+trap 'rm -f "$worktrees_tsv" "$candidates_file"' EXIT
+
+git worktree list --porcelain \
+  | awk '
+      /^worktree / { p=$2 }
+      /^branch /   { print $2 "\t" p; p="" }
+      /^detached/  { p="" }
+    ' > "$worktrees_tsv"
+
+skipped_dirty=0
+skipped_unmerged=0
+
+while IFS=$'\t' read -r branch path; do
+  [ -z "$branch" ] && continue
+  [ -z "$path" ] && continue
+  branch="${branch#refs/heads/}"
+
+  # Never touch the main worktree
+  [ "$path" = "$main_path" ] && continue
+
+  if ! printf '%s\n' "$merged_branches" | grep -qxF "$branch"; then
+    skipped_unmerged=$((skipped_unmerged + 1))
+    continue
+  fi
+
+  if [ -n "$(git -C "$path" status --porcelain 2>/dev/null)" ]; then
+    echo "skip (dirty): $branch  $path" >&2
+    skipped_dirty=$((skipped_dirty + 1))
+    continue
+  fi
+
+  printf '%s\t%s\n' "$branch" "$path" >> "$candidates_file"
+done < "$worktrees_tsv"
+
+if [ ! -s "$candidates_file" ]; then
+  echo "No merged worktrees to remove (base: $base)."
+  [ "$skipped_dirty" -gt 0 ] && echo "($skipped_dirty dirty worktree(s) skipped)"
+  exit 0
+fi
+
+echo "Merged worktrees (base: $base):"
+while IFS=$'\t' read -r branch path; do
+  echo "  $branch  $path"
+done < "$candidates_file"
+
+if [ "$apply" -eq 0 ]; then
+  echo
+  echo "Dry-run. Re-run with --yes to remove."
+  [ "$skipped_dirty" -gt 0 ] && echo "($skipped_dirty dirty worktree(s) would be skipped)"
+  exit 0
+fi
+
+echo
+echo "Removing..."
+removed=0
+failed=0
+while IFS=$'\t' read -r branch path; do
+  if git wt -d "$branch" >/dev/null 2>&1; then
+    echo "  removed: $branch  $path"
+    removed=$((removed + 1))
+  else
+    echo "  failed:  $branch  $path" >&2
+    failed=$((failed + 1))
+  fi
+done < "$candidates_file"
+
+echo
+echo "Done. removed=$removed skipped_dirty=$skipped_dirty failed=$failed"
+exit 0
