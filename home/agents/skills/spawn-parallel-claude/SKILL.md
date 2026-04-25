@@ -1,240 +1,211 @@
 ---
-name: git-worktrees
-description: Use when starting work that should not disturb the current workspace — typical situations include the current tree being dirty when an unrelated task arrives, being on the default branch and about to commit, wanting to run a long build or test in parallel, or isolating a risky experiment. Wraps `git-wt` (k1LoW/git-wt) with policy: `.git/wt/<branch>` placement, base-branch detection, fetch-before-branch, JS project setup, baseline verification, and merged-worktree sweep via `git-wt-prune`. Trigger phrases include "create a worktree", "branch off into a separate workspace", "try on a separate branch", "scratch copy", "parallel workspace", "spin up a sandbox branch", "list worktrees", "clean up merged worktrees".
+name: spawn-parallel-claude
+description: Spawn a fresh `claude` session into a new git worktree so another agent can take on a side task while the current agent continues its main work. The new session runs in a tmux split pane with the launch command pre-filled so the user confirms before it starts. Use when the user asks for a parallel or isolated session, or when the current agent identifies a clearly separable side task that should not interrupt the main thread. Trigger phrases include "spawn another claude", "parallel claude session", "fork off X to another agent", "have another claude do Y while I continue", "branch off and let a fresh claude tackle that", "sandbox session for X".
 ---
 
-# Git Worktrees
+# Spawn Parallel Claude
 
-This skill orchestrates `git-wt` (k1LoW/git-wt) plus a custom `git-wt-prune` sweep tool. `git-wt` is the underlying primitive; this skill adds the policy layer (when to worktree, branch/base selection, fetch, JS setup, baseline verification, safe cleanup).
+Spin up a parallel `claude` session in a new git worktree so it can work on a side task without disturbing the current conversation.
 
-## Prerequisites
+## Why this exists
 
-- `git-wt` is installed (Home Manager `home.packages`).
-- `git config wt.basedir` is set globally to `{gitroot}/.git/wt` so all worktrees land inside `.git/`.
-- `git-wt-prune` is on `PATH` (installed via this repo's `scripts/`).
+Claude Code's Bash tool resets cwd between calls — the current agent cannot meaningfully "work in" a worktree it just created. The genuine value of a worktree is to host a *different* execution context. For agent-driven flows that means **another** `claude` process running in the worktree's own shell, where cwd is naturally stable.
 
-If `wt.basedir` is unset in this repo, set it before proceeding:
-
-```bash
-git config --global wt.basedir '{gitroot}/.git/wt'
-```
+The current agent (parent) does the things that need parent context: branch naming, base detection, worktree creation, drafting the child's prompt. The new agent (child) does the things that need worktree-cwd: install, build, baseline checks, and the actual task work.
 
 ## Why `.git/wt/`
 
-- **Inside the workspace.** Agents whose cwd is fixed to the project can reach it.
-- **Inside `.git/`.** Automatically untracked (no `.gitignore` upkeep) and **invisible to greps over the working tree** — agents won't accidentally pull worktree contents into context.
-- **`wt/`.** Avoids collision with git's own `.git/worktrees/` metadata directory.
+Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured globally to `{gitroot}/.git/wt`. Reasons: inside the workspace (reachable from agent cwd), inside `.git/` (auto-untracked, no `.gitignore` upkeep), invisible to greps over the working tree (the parent agent will not pull worktree contents into its context).
 
-> ⚠️ **Risk:** anything that wipes `.git/` also wipes the worktrees. Be wary of `rm -rf .git`, onboarding scripts that re-`git init`, and tools that "reset the repository" by deleting `.git/`. Treat `.git/wt/` as durable working state, not as cache.
+> ⚠️ **Risk:** anything that wipes `.git/` also wipes the worktrees. Beware `rm -rf .git`, scripts that re-`git init`, or tools that "reset the repository" by deleting `.git/`.
 
 ## When to Use
 
-- Current tree is dirty and an unrelated task arrives that should not touch it.
-- On the default branch and about to commit (the `commit` Branch Guard refuses this).
-- A long-running build, test, or migration should run in parallel with foreground work.
-- A risky experiment (mass refactor, dependency upgrade trial, schema migration) should be isolated.
+- The user asks for a parallel claude session, or for "another agent" to handle something.
+- The current agent detects a separable side task: long-running, exploratory, or unrelated enough that interleaving would harm the main thread.
+- The user is on the default branch and about to commit (the `commit` Branch Guard refuses this; spinning a child in a topic-branch worktree resolves the guard).
 
 ## When NOT to Use
 
-- Already on the right topic branch with a clean tree — just work in place.
-- The Agent tool was invoked with `isolation: "worktree"` — it manages its own ephemeral worktree.
-- A single trivial edit where setup cost dominates.
+- The current agent is already on the right topic branch and the task is the main thread — just keep working.
+- **The Agent tool's `isolation: "worktree"` already covers it.** Use that built-in for *machine-internal parallel*: a subagent the parent will await and integrate. Use *this* skill for *human-coordinated parallel*: a separate visible session, possibly running for hours, where the parent does not await.
+- A trivial single-edit task where setup cost dominates.
+- Tmux is not available — see the fallback below.
 
-## Create — Workflow
+## Parent Workflow
 
-All git inspection commands use `git -C <worktree-path>` so they remain correct even when the Bash tool's cwd does not persist between calls.
+All git inspection from the parent uses `git -C <worktree-path>` so it stays correct even though the parent's Bash cwd does not persist between calls.
 
-### 1. Determine branch name
+### 1. Draft the child prompt
 
-Use the user-provided branch name. Otherwise derive a short kebab-case name from the task (e.g. `fix-token-validation`, `try-otel-upgrade`). Do not invent a name silently when the user expressed a specific intent — ask.
+Decide what the child agent should accomplish. Write a one-paragraph task description, list the files it must read first, and define a concrete success criterion. The PROMPT template below is the canonical shape.
 
-### 2. Determine base branch
+### 2. Determine branch name
+
+Per the user-scope CLAUDE.md `### Git Branching` rule, the form is `<type>/<kebab-slug>` using a Conventional Commits type (`feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `style`, `ci`, `revert`, `build`). Pick the type that matches the commit the child will likely make first.
+
+### 3. Determine base branch
 
 Try in order:
 
 ```bash
-# 1. GitHub remote (most authoritative)
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null
-
-# 2. Git's own symbolic ref for origin/HEAD
 git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@'
-
-# 3. Heuristic — try main, then master
 git show-ref --verify --quiet refs/heads/main && echo main \
   || (git show-ref --verify --quiet refs/heads/master && echo master)
 ```
 
 Override only when the user specifies a different base.
 
-### 3. Refresh the base
+### 4. Refresh the base
 
 ```bash
 git fetch origin "$base_branch"
 ```
 
-If the fetch fails (offline, auth prompt, missing remote), warn the user and fall back to the local `refs/heads/<base>`. Do not retry blindly.
-
-When fetch succeeds, branch off `origin/<base>` rather than the local ref to avoid stale-base accidents:
+If the fetch fails (offline, missing remote, auth prompt), warn the user and fall back to the local ref. Do not retry blindly.
 
 ```bash
 base_ref="origin/$base_branch"   # if fetch succeeded
 base_ref="$base_branch"          # fallback after a failed fetch
 ```
 
-### 4. Pre-flight: existing worktree for the same branch
+### 5. Pre-flight: existing worktree for the same branch
 
 ```bash
-git wt --json | jq -r --arg b "$branch_name" '.[] | select(.branch == "refs/heads/"+$b) | .path'
+git wt --json | jq -r --arg b "$branch_name" \
+  '.[] | select(.branch == "refs/heads/"+$b) | .path'
 ```
 
 If the branch already has a worktree at `<existing_path>`:
 
-- Run `git -C <existing_path> status --porcelain`. If empty, **reuse**: report the path and skip steps 5–7. Verify `git -C <existing_path> rev-parse --abbrev-ref @{u} 2>/dev/null` matches the expected upstream if you need base alignment.
-- If non-empty, **stop** and report. Ask the user whether to reuse anyway, remove and recreate, or pick a different branch name.
+- `git -C <existing_path> status --porcelain` empty → reuse: skip step 6, jump to step 7 with `worktree_path=<existing_path>`.
+- non-empty → stop and ask the user.
 
 Never silently create a second worktree for the same branch.
 
-### 5. Create the worktree
+### 6. Create the worktree
 
 ```bash
-# --nocd makes git-wt non-interactive: it prints the resulting path and
-# does not attempt to change directory (which has no effect outside a
-# wrapped shell anyway).
 worktree_path=$(git wt --nocd "$branch_name" "$base_ref")
 ```
 
-`wt.basedir = {gitroot}/.git/wt` ensures the worktree lands at `<repo>/.git/wt/<branch>`. If the branch already exists locally but is unused (rare; usually caught at step 4), the same command will check it out instead of creating it.
+`wt.basedir = {gitroot}/.git/wt` puts it at `<repo>/.git/wt/<branch>`. `--nocd` makes git-wt non-interactive and just print the path.
 
-### 6. Initialize submodules (if any)
+### 7. Find the parent's tmux pane
 
-```bash
-if [ -f "$worktree_path/.gitmodules" ]; then
-  git -C "$worktree_path" submodule update --init --recursive
-fi
-```
-
-### 7. Run project setup
-
-**JavaScript only for now.** Other ecosystems will be added when there is a concrete need.
-
-#### JavaScript / TypeScript (Node.js)
-
-If `package.json` exists at the worktree root:
-
-1. Invoke the `nodejs-package-manager` skill to determine the package manager. Treat its return value as the **single source of truth** — do not fall back to `npm` by guess.
-2. Install dependencies using that package manager.
-3. Check `package.json` `scripts` for a `test` entry. If present, run it using that package manager. If absent, skip the test step and note it.
-
-The install + test idiom is common knowledge per package manager (pnpm, yarn, npm, bun) — do not hard-code the command shape here.
-
-#### Other ecosystems
-
-No language-specific setup is performed for non-JS projects in v1. Report explicitly:
-
-> No language-specific setup performed (this skill only handles JavaScript projects). If your project needs install/test before work begins, run them manually.
-
-Do not silently skip.
-
-### 8. Verify clean baseline
+`$TMUX_PANE` is unreliable in the Bash tool's environment (often empty), and a bare `tmux split-window` without `-t` targets the server's last-active pane — which is usually an unrelated window the user is working in. Walk up the process tree and match against `pane_pid`:
 
 ```bash
-git -C "$worktree_path" status --short
+my_pane=""
+pid=$$
+while [ -n "$pid" ] && [ "$pid" != "1" ]; do
+  my_pane=$(tmux list-panes -a -F '#{pane_id} #{pane_pid}' 2>/dev/null \
+    | awk -v p="$pid" '$2==p {print $1; exit}')
+  [ -n "$my_pane" ] && break
+  pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+done
 ```
 
-The output should be empty. Anything present indicates submodule trouble or unexpected generated files — investigate before proceeding.
+If `my_pane` is empty, jump to the **Tmux Unavailable** fallback below.
 
-If JS tests were run and failed, surface the failures and ask whether to investigate or proceed. Failing tests on a fresh worktree usually mean the base itself is broken, not the new work.
-
-### 9. Report
-
-```
-Worktree ready
-  Branch: feature/auth-refresh
-  Path:   /Users/me/proj/.git/wt/feature/auth-refresh
-  Base:   origin/main (fetched)
-  Setup:  pnpm install (157 packages), pnpm test (47 passed)
-```
-
-The user (or downstream skills) will use the path with `cd` or `git -C`.
-
-## List / Inspect
-
-`git-wt` handles this directly:
+### 8. Split and pre-fill (do NOT press Enter)
 
 ```bash
-git wt              # human-readable list
-git wt --json       # machine-readable, suitable for scripts
+new_pane=$(tmux split-window -v -l 20 -t "$my_pane" -P -F '#{pane_id}')
+tmux send-keys -t "$new_pane" \
+  "cd $(printf %q "$worktree_path") && claude $(printf %q "$prompt_text")"
 ```
 
-The skill itself does not wrap these — call `git wt` directly when discovery is needed.
+The command lands in the new pane's prompt **without Enter**. The user reads it, edits if needed, and presses Enter to launch. This is the safety valve — never bypass it by appending `Enter` to `send-keys`.
 
-## Remove (Single)
+### 9. Report and return
 
-```bash
-# 1. Confirm clean.
-git -C "$worktree_path" status --porcelain
-# Output must be empty. If non-empty, stop and ask.
+Report to the user:
 
-# 2. Remove via git-wt (default-branch protection is built-in).
-git wt -d "$branch_name"
-
-# 3. Optionally delete the local branch.
-git branch -d "$branch_name"   # -D only with explicit user consent
+```
+Spawned in tmux pane <new_pane>
+  Branch: <branch>
+  Path:   <worktree_path>
+  Base:   <base_ref> (fetched | local-fallback)
+Press Enter in that pane to launch the child claude.
 ```
 
-Use `git wt -D` (force) only when the user explicitly approves discarding uncommitted changes.
+Then return to the main task in the parent conversation. Do not wait for the child.
 
-## Sweep Merged Worktrees
+## Child PROMPT Template
 
-Use `git-wt-prune`:
+```
+You are a parallel Claude session spun off from another agent.
 
-```bash
-git-wt-prune                 # dry-run (default): list candidates, do not remove
-git-wt-prune --yes           # remove candidates; dirty worktrees are always skipped
-git-wt-prune --base develop  # use a non-default base for merged-detection
+Worktree: <worktree_path>
+Branch:   <branch>
+Base:     <base_ref>
+
+Task:
+<one-paragraph description of what to do and why>
+
+Context files to read first:
+- <abs path 1>
+- <abs path 2>
+
+Before starting work:
+1. If .gitmodules exists, run `git submodule update --init --recursive`.
+2. If package.json exists, invoke the nodejs-package-manager skill and install dependencies.
+3. Run `git status --short` and confirm it is empty (the worktree should start clean).
+
+Done when:
+<concrete, observable success criterion>
+
+When done:
+<push the branch, open a PR, or leave on the branch — be specific>
 ```
 
-Workflow:
+The parent constructs this from the in-flight task. Keep it short — the child will read its own files anyway. The pre-fill-without-Enter lets the human edit the prompt before launch; do not validate it server-side.
 
-1. Run `git-wt-prune` (dry-run) and show the user the candidate list.
-2. After explicit user consent, run `git-wt-prune --yes`.
-3. Report what was removed and what was skipped (and why — "dirty" or other).
+## Tmux Unavailable
 
-Dirty worktrees are never removed automatically, even with `--yes`. The user must clean them up or remove them manually.
+If pane detection returns empty, the parent is not running inside a tmux pane. Do **not** invoke `tmux split-window` (it would hijack a random pane), and do **not** try `osascript` / terminal-app fallbacks (environment-fragile, side effects unclear).
 
-## Hooks and File Copy (Not Used)
+Print a copy-pasteable command and stop:
 
-`git-wt` supports `wt.hook`, `wt.deletehook`, and `wt.copy*` for human-driven workflows. **This skill does not configure them.** Reasons:
+```
+Cannot spawn — Claude is not inside a tmux pane.
+Run this in any terminal to launch the child manually:
 
-- Hooks run unconditionally on every `git wt` invocation, polluting agent flows.
-- `wt.copy*` (e.g. copying `.env`) is project-specific and creates implicit side effects.
-- The skill needs to invoke other skills (e.g. `nodejs-package-manager`), which shell hooks cannot do.
+  cd <worktree_path> && claude "<PROMPT>"
+```
 
-If you set these manually for human-driven `git wt` usage, expect the skill to ignore or work around them.
+Then return to the parent's main task.
+
+## Hooks and File Copy (Not Configured)
+
+`git-wt` supports `wt.hook`, `wt.deletehook`, and `wt.copy*` for human-driven workflows. This skill does not configure them — hooks would run on every `git wt` invocation, hooks cannot invoke other Claude skills (e.g. `nodejs-package-manager`), and `wt.copy*` is project-specific with implicit side effects. If the human sets these manually for their own use, expect this skill to ignore or work around them.
+
+## Related
+
+- Manual worktree creation by the human → `git wt <branch>` directly.
+- Sweep merged worktrees → `git-wt-prune` (separate script, dry-run by default).
+- Synchronous subagent in an isolated worktree → use the Agent tool's `isolation: "worktree"` flag instead.
 
 ## Red Flags
 
-- Creating a worktree when the user wanted to switch branches in place.
-- Creating a second worktree for a branch that already has one (skip step 4).
-- Forcing removal without confirming `git status --porcelain` is empty.
-- Hard-coding `npm install` after `nodejs-package-manager` returned a different tool.
-- Silently skipping setup for non-JS projects instead of reporting it.
+- Spawning when the task is the main thread, not a side task.
+- Pressing Enter after pre-fill (or appending `Enter` to `tmux send-keys`) — bypasses the human-confirm step.
+- Hijacking an arbitrary tmux pane because pane detection failed — always use the fallback path instead.
+- Creating a second worktree for a branch that already has one (skip step 5).
 - Branching off the local base after a `git fetch` failure without warning the user.
-- Running `git-wt-prune --yes` without first showing the dry-run output to the user.
 
 ## Quick Reference
 
-| Situation                              | Action                                                                 |
-|----------------------------------------|------------------------------------------------------------------------|
-| Branch name unspecified                | Derive a short kebab-case name; ask if intent is unclear               |
-| Base branch unspecified                | Try `gh repo view` → `git symbolic-ref` → `main`/`master`              |
-| Fetch failed                           | Warn, fall back to local base ref                                      |
-| Same branch already has a worktree     | Reuse if clean & base matches; otherwise stop and ask                  |
-| Creating                               | `git wt --nocd <name> <base_ref>` (path comes from `wt.basedir`)       |
-| `.gitmodules` present                  | `git -C <path> submodule update --init --recursive`                    |
-| `package.json` present                 | `nodejs-package-manager` → install → run `test` script (if defined)    |
-| Non-JS project                         | Report "No language-specific setup performed"                          |
-| Tests fail on baseline                 | Surface failures, ask before proceeding                                |
-| List worktrees                         | `git wt` (or `git wt --json` for scripting)                            |
-| Remove single                          | Verify clean → `git wt -d <branch>`                                    |
-| Sweep merged                           | `git-wt-prune` (dry-run) → user consent → `git-wt-prune --yes`         |
+| Situation                                | Action                                                         |
+|------------------------------------------|----------------------------------------------------------------|
+| User asks for parallel claude session    | Run this skill                                                 |
+| Branch name unspecified                  | Derive `<type>/<kebab-slug>`; ask if intent unclear            |
+| Base branch unspecified                  | Try `gh` → `git symbolic-ref` → `main`/`master`                |
+| Fetch failed                             | Warn, fall back to local base                                  |
+| Same branch already has a worktree       | Reuse if clean; stop if dirty                                  |
+| Tmux pane detection empty                | Print copy-paste command, do NOT split a random pane           |
+| Want only the worktree, no spawn         | Run `git wt <branch>` directly — this skill is spawn-focused   |
+| Synchronous subagent needed              | Use Agent tool `isolation: "worktree"` instead                 |
+| Sweep merged worktrees                   | Run `git-wt-prune` (separate CLI)                              |

@@ -49,6 +49,7 @@ In unfamiliar code:
 - `webapp-acceptance-checks` — use for manual verification (logic, visual etc) of web application changes when E2E coverage is missing
 - `tui-acceptance-checks` — use for manual verification of TUI / interactive CLI changes when automated coverage is missing
 - `computer-configuration` — use before reading or editing configuration in `~/src/github.com/ToQoz/config`
+- `spawn-parallel-claude` — use to fork a separable side task into a fresh `claude` session running in a new git worktree (parent continues its main task)
 - `retro-agent-instructions` — use after completing a task when friction signals were observed (see below)
 
 ## Retrospective
