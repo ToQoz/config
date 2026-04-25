@@ -7,6 +7,7 @@
     ./agents/mcp.nix
     ./android.nix
     ./asdf
+    ./borders
     ./direnv.nix
     ./fzf.nix
     ./gh.nix

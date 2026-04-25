@@ -41,6 +41,15 @@ in
 
       after-startup-command = [
         "exec-and-forget sketchybar"
+        "exec-and-forget borders"
+      ];
+
+      # JankyBorders misses focus changes inside an accordion (macOS doesn't
+      # fire an AX focus event when only the stack z-order changes). Re-running
+      # bordersrc here re-applies options to the live instance, which forces
+      # it to re-query the focused window.
+      on-focus-changed = [
+        "exec-and-forget ~/.config/borders/bordersrc"
       ];
 
       # (managed by home-manager)
