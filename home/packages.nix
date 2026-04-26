@@ -62,6 +62,7 @@ in
     # benefits from. Once nixpkgs catches up to >= 0.27.0, delete this
     # callPackage line and restore plain `git-wt`.
     (callPackage ../packages/git-wt.nix { })
+    (callPackage ../packages/tcmux.nix { })
     # fence  # re-enable once nixpkgs ships >= 0.1.48; see `fence-0_1_48` override in `let` block above
     fence-0_1_48
     slack
