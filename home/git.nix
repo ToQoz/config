@@ -22,7 +22,7 @@
       # Agents tools
       ".agents/cache"
       ".agents/share"
-      ".agents/share"
+      ".agents/state"
       # Misc
       ".todo.md"
     ];
