@@ -105,6 +105,15 @@
       bindkey -r '^t'
       # Cmd-r: Redo
       bindkey "^[r" redo # Cmd-r
+
+      # Auto-launch tmux for shells spawned directly by wezterm.
+      # Unset first so tmux panes' shells (and any coding agent subshells)
+      # don't re-trigger. Only exit on tmux's normal termination (detach);
+      # fzf cancel or abnormal exits drop into the prompt.
+      if [[ -n "$WEZTERM_AUTORUN" ]]; then
+        unset WEZTERM_AUTORUN
+        tmux && exit
+      fi
     '';
   };
 }

@@ -6,6 +6,12 @@ local config = wezterm.config_builder()
 config.automatically_reload_config = true
 config.check_for_updates = false
 
+-- Marker consumed by .zshrc to auto-launch tmux only for shells spawned
+-- directly by wezterm. The rc unsets it so children don't re-trigger.
+config.set_environment_variables = {
+	WEZTERM_AUTORUN = "1",
+}
+
 config.font = wezterm.font_with_fallback({
 	"JetBrains Mono",
 	"Noto Color Emoji",
