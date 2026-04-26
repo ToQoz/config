@@ -27,7 +27,6 @@ in
       includeCoAuthoredBy = false;
       enableAllProjectMcpServers = true;
       skipAutoPermissionPrompt = true;
-      defaultMode = "plan";
       language = "japanese";
       plansDirectory = "./.agents/share/plans";
 
@@ -36,7 +35,9 @@ in
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
       };
 
-      permissions = agentPolicy.claudePermissions;
+      permissions = agentPolicy.claudePermissions // {
+        defaultMode = "plan";
+      };
     };
   };
 }
