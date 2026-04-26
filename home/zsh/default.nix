@@ -40,6 +40,9 @@
       ];
     };
     enableCompletion = true; # For autocomplete
+    shellAliases = {
+      fence = "fence-wt";
+    };
     setOptions = [
       "IGNORE_EOF"
       # Remove superfluous blanks before saving a command.
