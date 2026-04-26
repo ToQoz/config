@@ -1,17 +1,17 @@
 ---
-name: spawn-parallel-claude
-description: Spawn a fresh `claude` session into a new git worktree so another agent can take on a side task while the current agent continues its main work. The new session runs in a tmux split pane with the launch command pre-filled so the user confirms before it starts. Use when the user asks for a parallel or isolated session, or when the current agent identifies a clearly separable side task that should not interrupt the main thread. Trigger phrases include "spawn another claude", "parallel claude session", "fork off X to another agent", "have another claude do Y while I continue", "branch off and let a fresh claude tackle that", "sandbox session for X".
+name: fork-session
+description: Fork a fresh `claude` session into a new git worktree to handle a side task that branches off the main thread — the parent agent does not await the result, the new session runs independently in a tmux split pane with its launch command pre-filled (user confirms before it starts). Use when a side concern arises during the main task and should be handled separately rather than interrupting the current flow, or when the user explicitly asks for a separate claude session. Distinct from the Agent tool's `isolation: "worktree"` (which spawns a synchronous subagent the parent integrates) — this skill is for asynchronous, human-coordinated detours. Trigger phrases include "fork off X to a separate session", "have another claude do Y while I continue", "branch off into a separate claude", "let me park this and start a new session for X", "sidetrack into a fresh claude for Y", "sandbox session for X".
 ---
 
-# Spawn Parallel Claude
+# Fork Session
 
-Spin up a parallel `claude` session in a new git worktree so it can work on a side task without disturbing the current conversation.
+Fork a fresh `claude` session into a new git worktree so it can handle a side detour without disturbing the current conversation. The parent agent does not await the result.
 
 ## Why this exists
 
 Claude Code's Bash tool resets cwd between calls — the current agent cannot meaningfully "work in" a worktree it just created. The genuine value of a worktree is to host a *different* execution context. For agent-driven flows that means **another** `claude` process running in the worktree's own shell, where cwd is naturally stable.
 
-The current agent (parent) does the things that need parent context: branch naming, base detection, worktree creation, drafting the child's prompt. The new agent (child) does the things that need worktree-cwd: install, build, baseline checks, and the actual task work.
+The current agent (parent) does the things that need parent context: branch naming, base detection, worktree creation, drafting the child's prompt. The forked agent (child) does the things that need worktree-cwd: install, build, baseline checks, and the actual task work.
 
 ## Why `.git/wt/`
 
@@ -21,14 +21,14 @@ Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured g
 
 ## When to Use
 
-- The user asks for a parallel claude session, or for "another agent" to handle something.
-- The current agent detects a separable side task: long-running, exploratory, or unrelated enough that interleaving would harm the main thread.
-- The user is on the default branch and about to commit (the `commit` Branch Guard refuses this; spinning a child in a topic-branch worktree resolves the guard).
+- A side concern arises during the main task and is separable enough that interleaving would harm the main thread.
+- The user explicitly asks for a separate claude session ("fork off X", "have another claude do Y").
+- The user is on the default branch and about to commit (the `commit` Branch Guard refuses this; forking into a topic-branch worktree resolves the guard cleanly).
 
 ## When NOT to Use
 
 - The current agent is already on the right topic branch and the task is the main thread — just keep working.
-- **The Agent tool's `isolation: "worktree"` already covers it.** Use that built-in for *machine-internal parallel*: a subagent the parent will await and integrate. Use *this* skill for *human-coordinated parallel*: a separate visible session, possibly running for hours, where the parent does not await.
+- **The Agent tool's `isolation: "worktree"` already covers it.** Use that built-in for *synchronous subagents*: a subordinate the parent will await and integrate. Use *this* skill for *asynchronous detours*: a separate visible session, possibly running for hours, where the parent does not await and the child reports independently.
 - A trivial single-edit task where setup cost dominates.
 - Tmux is not available — see the fallback below.
 
@@ -38,7 +38,7 @@ All git inspection from the parent uses `git -C <worktree-path>` so it stays cor
 
 ### 1. Draft the child prompt
 
-Decide what the child agent should accomplish. Write a one-paragraph task description, list the files it must read first, and define a concrete success criterion. The PROMPT template below is the canonical shape.
+Decide what the forked agent should accomplish. Write a one-paragraph task description, list the files it must read first, and define a concrete success criterion. The PROMPT template below is the canonical shape.
 
 ### 2. Determine branch name
 
@@ -124,7 +124,7 @@ The command lands in the new pane's prompt **without Enter**. The user reads it,
 Report to the user:
 
 ```
-Spawned in tmux pane <new_pane>
+Forked into tmux pane <new_pane>
   Branch: <branch>
   Path:   <worktree_path>
   Base:   <base_ref> (fetched | local-fallback)
@@ -136,7 +136,7 @@ Then return to the main task in the parent conversation. Do not wait for the chi
 ## Child PROMPT Template
 
 ```
-You are a parallel Claude session spun off from another agent.
+You are a forked Claude session, branched off another agent's main task.
 
 Worktree: <worktree_path>
 Branch:   <branch>
@@ -170,8 +170,8 @@ If pane detection returns empty, the parent is not running inside a tmux pane. D
 Print a copy-pasteable command and stop:
 
 ```
-Cannot spawn — Claude is not inside a tmux pane.
-Run this in any terminal to launch the child manually:
+Cannot fork — Claude is not inside a tmux pane.
+Run this in any terminal to launch the forked session manually:
 
   cd <worktree_path> && claude "<PROMPT>"
 ```
@@ -190,7 +190,7 @@ Then return to the parent's main task.
 
 ## Red Flags
 
-- Spawning when the task is the main thread, not a side task.
+- Forking when the task is the main thread, not a side detour.
 - Pressing Enter after pre-fill (or appending `Enter` to `tmux send-keys`) — bypasses the human-confirm step.
 - Hijacking an arbitrary tmux pane because pane detection failed — always use the fallback path instead.
 - Creating a second worktree for a branch that already has one (skip step 5).
@@ -200,12 +200,13 @@ Then return to the parent's main task.
 
 | Situation                                | Action                                                         |
 |------------------------------------------|----------------------------------------------------------------|
-| User asks for parallel claude session    | Run this skill                                                 |
+| Side concern arises during main task     | Run this skill                                                 |
+| User asks for a separate claude session  | Run this skill                                                 |
 | Branch name unspecified                  | Derive `<type>/<kebab-slug>`; ask if intent unclear            |
 | Base branch unspecified                  | Try `gh` → `git symbolic-ref` → `main`/`master`                |
 | Fetch failed                             | Warn, fall back to local base                                  |
 | Same branch already has a worktree       | Reuse if clean; stop if dirty                                  |
 | Tmux pane detection empty                | Print copy-paste command, do NOT split a random pane           |
-| Want only the worktree, no spawn         | Run `git wt <branch>` directly — this skill is spawn-focused   |
+| Want only the worktree, no fork          | Run `git wt <branch>` directly — this skill always forks       |
 | Synchronous subagent needed              | Use Agent tool `isolation: "worktree"` instead                 |
 | Sweep merged worktrees                   | Run `git-wt-prune` (separate CLI)                              |
