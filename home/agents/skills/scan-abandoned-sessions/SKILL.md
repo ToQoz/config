@@ -1,6 +1,6 @@
 ---
 name: scan-abandoned-sessions
-description: Scan `~/.claude/projects/*/*.jsonl` Claude Code session logs to surface truly abandoned sessions — user prompts or assistant work left mid-way and not recoverable from workspace state. Use this whenever the user asks about "abandoned sessions", "forgotten sessions", "half-finished sessions", "放置セッション", "途中のセッション", "今日忘れてるやつ", or otherwise asks to audit recent Claude Code activity for unfinished threads.
+description: Scan `~/.claude/projects/*/*.jsonl` Claude Code session logs to surface truly abandoned sessions — user prompts or assistant work left mid-way and not recoverable from workspace state. Use this whenever the user asks about "abandoned sessions", "forgotten sessions", "half-finished sessions", or otherwise asks to audit recent Claude Code activity for unfinished threads.
 ---
 
 # scan-abandoned-sessions
