@@ -52,5 +52,28 @@ if $print; then
     end | ., "'"$hr"'"
   '
 else
-  "${cmd[@]}" "${args[@]}"
+  # Replace tmux's auto-rename of `.claude-wrapped` (the Nix wrapper's
+  # underlying binary) with `claude/<branch>` for the duration of the
+  # session.
+  local prev_window_name="" prev_auto_rename="" label=""
+  if [[ -n "$TMUX" ]]; then
+    prev_window_name=$(tmux display-message -p '#W' 2>/dev/null)
+    prev_auto_rename=$(tmux show-window-options -v automatic-rename 2>/dev/null)
+    label=$(git symbolic-ref --short HEAD 2>/dev/null) \
+      || label=$(git rev-parse --short HEAD 2>/dev/null) \
+      || label=${PWD:t}
+    tmux rename-window "claude/${label}" 2>/dev/null
+  fi
+
+  {
+    "${cmd[@]}" "${args[@]}"
+  } always {
+    if [[ -n "$TMUX" ]]; then
+      if [[ "$prev_auto_rename" == "off" && -n "$prev_window_name" ]]; then
+        tmux rename-window "$prev_window_name" 2>/dev/null
+      else
+        tmux set-window-option -u automatic-rename 2>/dev/null
+      fi
+    fi
+  }
 fi
