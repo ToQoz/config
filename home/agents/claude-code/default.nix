@@ -28,6 +28,8 @@ in
       enableAllProjectMcpServers = true;
       skipAutoPermissionPrompt = true;
       defaultMode = "plan";
+      language = "japanese";
+      plansDirectory = "./.agents/share/plans";
 
       env = {
         CLAUDE_CODE_NO_FLICKER = "1";
