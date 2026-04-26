@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Wrap `fence` so the sandboxed command can write to the parent .git of a
+# git worktree. In a worktree, --git-dir and --git-common-dir point outside
+# the worktree's CWD; templates like `code` scope writes to the workspace
+# tree and therefore can't reach those paths, so ordinary git operations
+# (commit, branch, fetch) fail under fence.
+#
+# Resolves both paths at invocation time and layers them onto the requested
+# template. Works in plain checkouts too (the two paths collapse to .git).
+#
+# Usage: fence-wt [-t TEMPLATE] [-s EXTRA_SETTINGS] [-w PATH ...] -- <cmd>...
+set -euo pipefail
+
+die() { echo "fence-wt: $*" >&2; exit 2; }
+need() { (($# >= 2)) || die "missing value for $1"; }
+
+template="code"
+extra_settings=""
+extra_writes=()
+
+while (( $# )); do
+  case "$1" in
+    -t|--template)    need "$@"; template=$2; shift 2 ;;
+    -s|--settings)    need "$@"; extra_settings="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"; shift 2 ;;
+    -w|--allow-write) need "$@"; extra_writes+=("$2"); shift 2 ;;
+    --)               shift; break ;;
+    *)                break ;;
+  esac
+done
+
+git rev-parse --git-dir >/dev/null 2>&1 || die "not inside a git work tree"
+git_dir=$(cd "$(git rev-parse --git-dir)" && pwd)
+common_dir=$(cd "$(git rev-parse --git-common-dir)" && pwd)
+
+writes_json=$(printf '%s\n' "." "$git_dir" "$common_dir" "${extra_writes[@]}" \
+  | jq -R . | jq -s 'unique')
+
+if [[ -n $extra_settings ]]; then
+  extends_json=$(jq -nc --arg t "$template" --arg s "$extra_settings" '[$t, $s]')
+else
+  extends_json=$(jq -nc --arg t "$template" '$t')
+fi
+
+config=$(jq -nc \
+  --argjson extends "$extends_json" \
+  --argjson writes "$writes_json" \
+  '{extends: $extends, filesystem: {allowWrite: $writes}}')
+
+tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
+printf '%s\n' "$config" > "$tmp"
+
+"${FENCE_BIN:-fence}" --settings "$tmp" -- "$@"
