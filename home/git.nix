@@ -65,7 +65,9 @@
       # are inside the workspace (agent reachable), automatically untracked
       # (no .gitignore upkeep), and invisible to greps over the working tree
       # (agents won't accidentally pull worktree contents into context).
-      wt.basedir = "{gitroot}/.git/wt";
+      # Relative paths in wt.basedir are resolved from the repo root.
+      # ({gitroot} expands to the root *name*, not its path — do not prefix.)
+      wt.basedir = ".git/wt";
     };
   };
 }

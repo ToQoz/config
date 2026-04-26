@@ -15,7 +15,7 @@ The current agent (parent) does the things that need parent context: branch nami
 
 ## Why `.git/wt/`
 
-Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured globally to `{gitroot}/.git/wt`. Reasons: inside the workspace (reachable from agent cwd), inside `.git/` (auto-untracked, no `.gitignore` upkeep), invisible to greps over the working tree (the parent agent will not pull worktree contents into its context).
+Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured globally to `.git/wt` (relative to repo root). Reasons: inside the workspace (reachable from agent cwd), inside `.git/` (auto-untracked, no `.gitignore` upkeep), invisible to greps over the working tree (the parent agent will not pull worktree contents into its context).
 
 > ⚠️ **Risk:** anything that wipes `.git/` also wipes the worktrees. Beware `rm -rf .git`, scripts that re-`git init`, or tools that "reset the repository" by deleting `.git/`.
 
@@ -90,7 +90,7 @@ Never silently create a second worktree for the same branch.
 worktree_path=$(git wt --nocd "$branch_name" "$base_ref")
 ```
 
-`wt.basedir = {gitroot}/.git/wt` puts it at `<repo>/.git/wt/<branch>`. `--nocd` makes git-wt non-interactive and just print the path.
+`wt.basedir = .git/wt` (relative to repo root) puts it at `<repo>/.git/wt/<branch>`. `--nocd` makes git-wt non-interactive and just print the path.
 
 ### 7. Find the parent's tmux pane
 
