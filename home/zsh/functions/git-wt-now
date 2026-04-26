@@ -1,0 +1,106 @@
+emulate -L zsh
+
+# USAGE: git-wt-now [<claude args>...]
+#
+# Create a placeholder worktree (branch: wt-now/<UTC timestamp>) off the
+# repository's default branch, then launch claude inside it. The session
+# starts with a system-prompt note instructing claude to call
+# `git-wt-now-rename <new-branch-name>` once the work has a clear name.
+# When claude exits, this function reads the request and renames the
+# branch + moves the worktree directory accordingly. If no rename was
+# requested, the placeholder is left in place for later cleanup
+# (e.g. via `git-wt-prune`).
+
+local original_pwd="$PWD"
+
+local repo_root
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "git-wt-now: not inside a git working tree" >&2
+  return 2
+}
+
+# Base branch detection (mirrors scripts/git-wt-prune)
+local base=""
+base=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null) || base=""
+if [[ -z "$base" ]]; then
+  base=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@') || base=""
+fi
+if [[ -z "$base" ]]; then
+  if git show-ref --verify --quiet refs/heads/main; then
+    base=main
+  elif git show-ref --verify --quiet refs/heads/master; then
+    base=master
+  fi
+fi
+if [[ -z "$base" ]]; then
+  echo "git-wt-now: could not determine base branch" >&2
+  return 2
+fi
+
+local base_ref="refs/heads/$base"
+if git fetch --quiet origin "$base" 2>/dev/null; then
+  base_ref="origin/$base"
+fi
+
+local placeholder="wt-now/$(date -u +%Y%m%d-%H%M%S)"
+
+local worktree_path
+worktree_path=$(git wt --nocd "$placeholder" "$base_ref") || {
+  echo "git-wt-now: failed to create worktree for $placeholder" >&2
+  return 2
+}
+
+local state_dir="$worktree_path/.agents/state/git-wt-now"
+local state_file="$state_dir/session.json"
+mkdir -p "$state_dir"
+local started_at
+started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+cat > "$state_file" <<JSON
+{
+  "placeholder_branch": "$placeholder",
+  "worktree_path": "$worktree_path",
+  "base_ref": "$base_ref",
+  "started_at": "$started_at"
+}
+JSON
+
+local prompt="This session is running in a git-wt-now placeholder worktree.
+Current branch: $placeholder
+
+When you have decided on the appropriate final branch name (following the
+<type>/<kebab-slug> convention, e.g. feat/add-foo, fix/handle-empty), run
+the following from any Bash tool call:
+
+    git-wt-now-rename <new-branch-name>
+
+The wrapper will rename the branch and move the worktree directory to the
+matching path after this session exits. If you do not call it, the
+placeholder branch is left in place for later cleanup."
+
+cd "$worktree_path"
+{
+  claude --append-system-prompt "$prompt" "$@"
+} always {
+  if [[ -d "$worktree_path" && -f "$state_file" ]]; then
+    local desired
+    desired=$(jq -r '.desired_branch // ""' "$state_file" 2>/dev/null) || desired=""
+    if [[ -n "$desired" && "$desired" != "null" ]]; then
+      local new_path="$repo_root/.git/wt/$desired"
+      mkdir -p "${new_path:h}"
+      if git -C "$repo_root" branch -m "$placeholder" "$desired" 2>&1; then
+        if git -C "$repo_root" worktree move "$worktree_path" "$new_path" 2>&1; then
+          rm -f "$new_path/.agents/state/git-wt-now/session.json"
+          echo "git-wt-now: renamed $placeholder → $desired"
+          echo "git-wt-now: moved worktree to $new_path"
+        else
+          echo "git-wt-now: branch renamed to $desired but worktree move failed; path is still $worktree_path" >&2
+        fi
+      else
+        echo "git-wt-now: branch rename failed; placeholder $placeholder left in place" >&2
+      fi
+    else
+      echo "git-wt-now: no rename requested; placeholder $placeholder left at $worktree_path" >&2
+    fi
+  fi
+  cd "$original_pwd"
+}
