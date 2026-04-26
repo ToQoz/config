@@ -1,62 +1,11 @@
 emulate -L zsh
 
-# tmux wrapper: with no args, open an fzf session picker/creator.
-# With any args or options, forward verbatim to the real tmux.
-# - Inside tmux: switch-client (current session is filtered out).
-# - Outside tmux: attach-session, creating it if needed (new-session -A).
-# - Enter with no match: chain to select-repository with the typed query
-#   as its fzf filter; the chosen repo's path becomes the session's
-#   starting directory and its basename becomes the session name.
+# tmux wrapper: with no args, hand off to enter-workspace (repo picker →
+# attach/switch tmux session). With any args, forward verbatim to real tmux.
 
 if (( $# > 0 )); then
   command tmux "$@"
   return
 fi
 
-local current header selection query pick rc target repo
-local -a list lines new_session_args
-
-list=(${(f)"$(command tmux list-sessions -F '#{session_name}' 2>/dev/null)"})
-
-if [[ -n "$TMUX" ]]; then
-  current=$(command tmux display-message -p '#{session_name}')
-  list=(${list:#$current})
-  header='enter: switch (or pick a repo if no match)'
-else
-  header='enter: attach (or pick a repo if no match)'
-fi
-
-selection=$(print -rl -- $list | fzf \
-  --print-query \
-  --no-sort \
-  --prompt='tmux> ' \
-  --header="$header")
-rc=$?
-
-# 0 = selected, 1 = no match on enter. Anything else (ESC, C-c) aborts.
-(( rc != 0 && rc != 1 )) && return 0
-
-lines=("${(f)selection}")
-query=${lines[1]}
-pick=${lines[2]}
-
-if [[ -n "$pick" ]]; then
-  target=$pick
-elif [[ -n "$query" ]]; then
-  # No match: let the user pick a repo, seeded with what they typed.
-  repo=$(select-repository "$query") || return 0
-  [[ -z "$repo" ]] && return 0
-  # tmux target syntax treats '.' and ':' specially; substitute to be safe.
-  target=${${repo:t}//[.:]/-}
-  new_session_args=(-c "$repo")
-else
-  return 0
-fi
-
-if [[ -n "$TMUX" ]]; then
-  command tmux has-session -t "=$target" 2>/dev/null \
-    || command tmux new-session -d -s "$target" "${new_session_args[@]}"
-  command tmux switch-client -t "=$target"
-else
-  command tmux new-session -A -s "$target" "${new_session_args[@]}"
-fi
+enter-workspace

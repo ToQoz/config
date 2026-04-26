@@ -92,15 +92,15 @@
       zle -N bracketed-paste bracketed-paste-magic
 
       # Site-functions dir already added to fpath in .zshenv.
-      autoload -Uz select-repository tmux ghq ai-commit ai-commit-all ai-commit-staged
-      zle -N select-repository
+      autoload -Uz enter-workspace tmux ghq ai-commit ai-commit-all ai-commit-staged
+      zle -N enter-workspace
 
       # C-Space: Start completion
       bindkey '^@' fzf-tab-complete
       # C-g: Use editor to edit command line
       bindkey "^g" edit-command-line
-      # C-x g
-      bindkey "^xg" select-repository
+      # C-x g: pick a repo and switch to its tmux session
+      bindkey "^xg" enter-workspace
       # Unbind C-t (fzf file widget) so tmux prefix passes through
       bindkey -r '^t'
       # Cmd-r: Redo
