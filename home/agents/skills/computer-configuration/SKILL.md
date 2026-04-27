@@ -14,15 +14,25 @@ All environment configuration is managed via Nix/Home Manager in `~/src/github.c
 - **Only edit files in `~/src/github.com/ToQoz/config`.**
 - **For Claude skills**, read and edit the canonical source under `home/agents/skills/` — treat `~/.claude/skills/` as a generated projection.
 - **Don't build directly.** When a rebuild is needed:
-  1. Find your own tmux pane by walking up the process tree and matching against `pane_pid`. `$TMUX_PANE` is unreliable in the Bash tool's environment (often empty), and a bare `tmux split-window` without an explicit `-t` targets the tmux server's last-active pane — which is usually an unrelated window the user is working in. Use this snippet:
+  1. Find your own tmux pane by walking up the process tree from `$$` (using `lsof -p ... -F R` to read each process's parent PID) and matching against `pane_pid`. `$TMUX_PANE` is unreliable in the Bash tool's environment (often empty), and a bare `tmux split-window` without an explicit `-t` targets the tmux server's last-active pane — which is usually an unrelated window the user is working in.
+
+     `lsof` is the parent-lookup mechanism here for a reason. The Bash tool's sandbox blocks `ps` outright ("operation not permitted") and silently hides the parent-child relationships along the path leading up to `$$` from `pgrep -P`, so a `pgrep -P pane_pid`-based descendant walk never sees its own ancestors. `lsof -p $$` works because the process owns its own info, so reading PPID via the `R` field is allowed even under the sandbox.
+
+     Use this snippet:
      ```bash
      my_pane=""
-     pid=$$
-     while [ -n "$pid" ] && [ "$pid" != "1" ]; do
-       my_pane=$(tmux list-panes -a -F '#{pane_id} #{pane_pid}' 2>/dev/null \
-         | awk -v p="$pid" '$2==p {print $1; exit}')
-       [ -n "$my_pane" ] && break
-       pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+     my_pid=$$
+     panes=$(tmux list-panes -a -F '#{pane_id} #{pane_pid}' 2>/dev/null)
+     panes_pids=$(printf '%s\n' "$panes" | awk '{print $2}')
+     cur=$my_pid
+     for _ in 1 2 3 4 5 6 7 8 9 10; do
+       if printf '%s\n' "$panes_pids" | grep -qx "$cur"; then
+         my_pane=$(printf '%s\n' "$panes" | awk -v p="$cur" '$2==p {print $1; exit}')
+         break
+       fi
+       parent=$(lsof -p "$cur" -F R 2>/dev/null | awk '/^R/{sub(/^R/,""); print; exit}')
+       [ -z "$parent" ] || [ "$parent" = "1" ] && break
+       cur=$parent
      done
      ```
      If `my_pane` is empty, Claude is not running inside a tmux pane. Skip the split and ask the user to run the command manually — do not split a random pane.
