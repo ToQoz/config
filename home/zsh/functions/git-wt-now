@@ -3,13 +3,13 @@ emulate -L zsh
 # USAGE: git-wt-now [<claude args>...]
 #
 # Create a placeholder worktree (branch: wt-now/<UTC timestamp>) off the
-# repository's default branch, then launch claude inside it. The session
-# starts with a system-prompt note instructing claude to call
-# `git-wt-now-rename <new-branch-name>` once the work has a clear name.
-# When claude exits, this function reads the request and renames the
-# branch + moves the worktree directory accordingly. If no rename was
-# requested, the placeholder is left in place for later cleanup
-# (e.g. via `git-wt-prune`).
+# repository's default branch, then launch claude inside it. When claude
+# exits, derive a final branch name (<type>/<kebab-slug>) from the
+# worktree's commits and uncommitted changes via `codex exec`; if the
+# returned name is valid, rename the branch and move the worktree
+# directory accordingly. If there is no work to name, codex fails, or the
+# returned name is invalid, the placeholder is left in place for later
+# cleanup (e.g. via `git-wt-prune`).
 
 local original_pwd="$PWD"
 
@@ -50,57 +50,81 @@ worktree_path=$(git wt --nocd "$placeholder" "$base_ref") || {
   return 2
 }
 
-local state_dir="$worktree_path/.agents/state/git-wt-now"
-local state_file="$state_dir/session.json"
-mkdir -p "$state_dir"
-local started_at
-started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-cat > "$state_file" <<JSON
-{
-  "placeholder_branch": "$placeholder",
-  "worktree_path": "$worktree_path",
-  "base_ref": "$base_ref",
-  "started_at": "$started_at"
-}
-JSON
-
-local prompt="This session is running in a git-wt-now placeholder worktree.
-Current branch: $placeholder
-
-When you have decided on the appropriate final branch name (following the
-<type>/<kebab-slug> convention, e.g. feat/add-foo, fix/handle-empty), run
-the following from any Bash tool call:
-
-    git-wt-now-rename <new-branch-name>
-
-The wrapper will rename the branch and move the worktree directory to the
-matching path after this session exits. If you do not call it, the
-placeholder branch is left in place for later cleanup."
-
 cd "$worktree_path"
 {
-  claude --append-system-prompt "$prompt" "$@"
+  claude "$@"
 } always {
-  if [[ -d "$worktree_path" && -f "$state_file" ]]; then
-    local desired
-    desired=$(jq -r '.desired_branch // ""' "$state_file" 2>/dev/null) || desired=""
-    if [[ -n "$desired" && "$desired" != "null" ]]; then
-      local new_path="$repo_root/.git/wt/$desired"
-      mkdir -p "${new_path:h}"
-      if git -C "$repo_root" branch -m "$placeholder" "$desired" 2>&1; then
-        if git -C "$repo_root" worktree move "$worktree_path" "$new_path" 2>&1; then
-          rm -f "$new_path/.agents/state/git-wt-now/session.json"
-          echo "git-wt-now: renamed $placeholder → $desired"
-          echo "git-wt-now: moved worktree to $new_path"
-        else
-          echo "git-wt-now: branch renamed to $desired but worktree move failed; path is still $worktree_path" >&2
-        fi
-      else
-        echo "git-wt-now: branch rename failed; placeholder $placeholder left in place" >&2
-      fi
-    else
-      echo "git-wt-now: no rename requested; placeholder $placeholder left at $worktree_path" >&2
-    fi
-  fi
   cd "$original_pwd"
+
+  if [[ ! -d "$worktree_path" ]]; then
+    return
+  fi
+
+  local commit_log committed_stat uncommitted_stat uncommitted_diff
+  commit_log=$(git -C "$worktree_path" log --format='%s' "$base_ref"..HEAD 2>/dev/null)
+  committed_stat=$(git -C "$worktree_path" diff "$base_ref"...HEAD --stat 2>/dev/null)
+  uncommitted_stat=$(git -C "$worktree_path" diff HEAD --stat 2>/dev/null)
+  uncommitted_diff=$(git -C "$worktree_path" diff HEAD 2>/dev/null | head -200)
+
+  if [[ -z "$commit_log" && -z "$committed_stat" && -z "$uncommitted_stat" ]]; then
+    echo "git-wt-now: no work to name; placeholder $placeholder left at $worktree_path" >&2
+    return
+  fi
+
+  if ! command -v codex >/dev/null 2>&1; then
+    echo "git-wt-now: codex CLI not found; placeholder $placeholder left at $worktree_path" >&2
+    return
+  fi
+
+  echo "git-wt-now: deriving branch name via codex exec…" >&2
+
+  local prompt="Decide a single git branch name for the work below.
+
+Format: <type>/<kebab-slug>
+- type ∈ {feat, fix, docs, chore, refactor, test, perf, style, ci, revert, build}
+- slug: lowercase letters and digits, hyphen-separated, 2–5 words, concise.
+
+Output exactly the branch name on a single line. No prose, no quotes, no code fence, no markdown.
+
+Commit subjects on this branch:
+$commit_log
+
+Committed diff stat:
+$committed_stat
+
+Uncommitted diff stat:
+$uncommitted_stat
+
+Uncommitted diff (truncated):
+$uncommitted_diff"
+
+  local tmpf
+  tmpf=$(mktemp -t git-wt-now-codex)
+  if ! print -r -- "$prompt" | codex exec --skip-git-repo-check --sandbox read-only -o "$tmpf" >/dev/null 2>&1; then
+    echo "git-wt-now: codex exec failed; placeholder $placeholder left at $worktree_path" >&2
+    rm -f "$tmpf"
+    return
+  fi
+
+  local desired
+  desired=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/[`'"'"'"]//g' "$tmpf")
+  rm -f "$tmpf"
+
+  if ! [[ "$desired" =~ ^(feat|fix|docs|chore|refactor|test|perf|style|ci|revert|build)/[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+    echo "git-wt-now: codex returned invalid name '$desired'; placeholder $placeholder left at $worktree_path" >&2
+    return
+  fi
+
+  local new_path="$repo_root/.git/wt/$desired"
+  mkdir -p "${new_path:h}"
+  if ! git -C "$repo_root" branch -m "$placeholder" "$desired" 2>&1; then
+    echo "git-wt-now: branch rename failed; placeholder $placeholder left in place" >&2
+    return
+  fi
+  if ! git -C "$repo_root" worktree move "$worktree_path" "$new_path" 2>&1; then
+    echo "git-wt-now: branch renamed to $desired but worktree move failed; path is still $worktree_path" >&2
+    return
+  fi
+  echo "git-wt-now: renamed $placeholder → $desired"
+  echo "git-wt-now: moved worktree to $new_path"
 }
