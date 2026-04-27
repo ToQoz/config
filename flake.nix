@@ -94,6 +94,28 @@
         };
       };
 
+      # Auto-discover per-module tests at `home/<mod>/tests.nix`. Each such
+      # file is a function `{ pkgs }: { <test-name> = drv; ... }` whose keys
+      # are then prefixed with `<mod>-` to land at
+      # `checks.<system>.<mod>-<test-name>`. Adding tests for a new module
+      # is a matter of dropping a `tests.nix` next to it; no edit here.
+      checks.${system} =
+        let
+          inherit (nixpkgs) lib;
+          modules = builtins.readDir ./home;
+          candidates = lib.mapAttrsToList
+            (name: _: { mod = name; path = ./home + "/${name}/tests.nix"; })
+            modules;
+          present = builtins.filter ({ path, ... }: builtins.pathExists path) candidates;
+        in
+        builtins.listToAttrs (lib.concatMap
+          ({ mod, path }:
+            lib.mapAttrsToList
+              (testName: drv: { name = "${mod}-${testName}"; value = drv; })
+              (import path { inherit pkgs; })
+          )
+          present);
+
       darwinConfigurations."remilis" = nix-darwin.lib.darwinSystem {
         modules = [
           ./darwin/configuration.nix
