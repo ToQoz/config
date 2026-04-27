@@ -11,11 +11,21 @@ Fork a fresh `claude` session into a new git worktree so it can handle a side de
 
 Claude Code's Bash tool resets cwd between calls — the current agent cannot meaningfully "work in" a worktree it just created. The genuine value of a worktree is to host a *different* execution context. For agent-driven flows that means **another** `claude` process running in the worktree's own shell, where cwd is naturally stable.
 
-The current agent (parent) does the things that need parent context: branch naming, base detection, worktree creation, drafting the child's prompt. The forked agent (child) does the things that need worktree-cwd: install, build, baseline checks, and the actual task work.
+The parent does the things that need parent context: drafting the child's prompt and finding the user's tmux pane. The forked agent does the things that need worktree-cwd: install, build, baseline checks, and the actual task work.
+
+## Why defer naming
+
+The right `<type>/<kebab-slug>` often becomes clear only once the child has shaped the work — early naming tends to drift. This skill therefore launches into a `wt-now/<UTC-timestamp>` placeholder via `git-wt-now`, which:
+
+- Branches off the repository's default branch (with `git fetch` if reachable, local fallback otherwise).
+- Creates the worktree at `<repo>/.git/wt/wt-now/<UTC>`.
+- Tells the child claude to call `git-wt-now-rename <type>/<kebab-slug>` once the work has a clear name. The rename is applied (branch + worktree path) when the child session exits.
+
+The parent therefore does not pick a branch name, base, or fetch state — `git-wt-now` owns that.
 
 ## Why `.git/wt/`
 
-Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured globally to `.git/wt` (relative to repo root). Reasons: inside the workspace (reachable from agent cwd), inside `.git/` (auto-untracked, no `.gitignore` upkeep), invisible to greps over the working tree (the parent agent will not pull worktree contents into its context).
+Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured globally to `.git/wt`. Reasons: inside the workspace (reachable from agent cwd), inside `.git/` (auto-untracked, no `.gitignore` upkeep), invisible to greps over the working tree.
 
 > ⚠️ **Risk:** anything that wipes `.git/` also wipes the worktrees. Beware `rm -rf .git`, scripts that re-`git init`, or tools that "reset the repository" by deleting `.git/`.
 
@@ -34,65 +44,24 @@ Worktrees land at `<repo>/.git/wt/<branch>` because `wt.basedir` is configured g
 
 ## Parent Workflow
 
-All git inspection from the parent uses `git -C <worktree-path>` so it stays correct even though the parent's Bash cwd does not persist between calls.
-
 ### 1. Draft the child prompt
 
-Decide what the forked agent should accomplish. Write a one-paragraph task description, list the files it must read first, and define a concrete success criterion. The PROMPT template below is the canonical shape.
+Forked tasks are usually small. Write the smallest prompt that lets the child act — task description, the few files it must read first, and a concrete success criterion. Skip context the child can derive from its own environment (branch, worktree path, base) since `git-wt-now` injects that as a system-prompt note. The PROMPT template below is the canonical shape.
 
-### 2. Determine branch name
+### 2. Write the prompt to a file
 
-Per the user-scope CLAUDE.md `### Git Branching` rule, the form is `<type>/<kebab-slug>` using a Conventional Commits type (`feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `style`, `ci`, `revert`, `build`). Pick the type that matches the commit the child will likely make first.
-
-### 3. Determine base branch
-
-Try in order:
+Resolve the parent's worktree root and write the prompt under `.agents/cache/fork-session/`:
 
 ```bash
-gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null
-git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@'
-git show-ref --verify --quiet refs/heads/main && echo main \
-  || (git show-ref --verify --quiet refs/heads/master && echo master)
+parent_root=$(git rev-parse --show-toplevel)
+prompt_file="$parent_root/.agents/cache/fork-session/$(date -u +%Y%m%dT%H%M%SZ).md"
+mkdir -p "${prompt_file%/*}"
+# write $prompt_text to $prompt_file via the Write tool
 ```
 
-Override only when the user specifies a different base.
+The file lives in the parent's worktree and is gitignored (`.agents/cache/` is covered by the user's global ignore). The child reads it via `@<absolute-path>` after `git-wt-now` launches claude — both worktrees share the filesystem so the absolute path works.
 
-### 4. Refresh the base
-
-```bash
-git fetch origin "$base_branch"
-```
-
-If the fetch fails (offline, missing remote, auth prompt), warn the user and fall back to the local ref. Do not retry blindly.
-
-```bash
-base_ref="origin/$base_branch"   # if fetch succeeded
-base_ref="$base_branch"          # fallback after a failed fetch
-```
-
-### 5. Pre-flight: existing worktree for the same branch
-
-```bash
-git wt --json | jq -r --arg b "$branch_name" \
-  '.[] | select(.branch == "refs/heads/"+$b) | .path'
-```
-
-If the branch already has a worktree at `<existing_path>`:
-
-- `git -C <existing_path> status --porcelain` empty → reuse: skip step 6, jump to step 7 with `worktree_path=<existing_path>`.
-- non-empty → stop and ask the user.
-
-Never silently create a second worktree for the same branch.
-
-### 6. Create the worktree
-
-```bash
-worktree_path=$(git wt --nocd "$branch_name" "$base_ref")
-```
-
-`wt.basedir = .git/wt` (relative to repo root) puts it at `<repo>/.git/wt/<branch>`. `--nocd` makes git-wt non-interactive and just print the path.
-
-### 7. Find the parent's tmux pane
+### 3. Find the parent's tmux pane
 
 `$TMUX_PANE` is unreliable in the Bash tool's environment (often empty), and a bare `tmux split-window` without `-t` targets the server's last-active pane — which is usually an unrelated window the user is working in. Walk up the process tree and match against `pane_pid`:
 
@@ -109,38 +78,39 @@ done
 
 If `my_pane` is empty, jump to the **Tmux Unavailable** fallback below.
 
-### 8. Split and pre-fill (do NOT press Enter)
+### 4. Split and pre-fill (do NOT press Enter)
 
 ```bash
 new_pane=$(tmux split-window -v -l 20 -t "$my_pane" -P -F '#{pane_id}')
 tmux send-keys -t "$new_pane" \
-  "cd $(printf %q "$worktree_path") && claude $(printf %q "$prompt_text")"
+  "git-wt-now $(printf %q "Execute: @${prompt_file}")"
 ```
 
 The command lands in the new pane's prompt **without Enter**. The user reads it, edits if needed, and presses Enter to launch. This is the safety valve — never bypass it by appending `Enter` to `send-keys`.
 
-### 9. Report and return
+`git-wt-now` creates the placeholder worktree, `cd`s into it, and launches `claude` with the rest of the args as the initial prompt. The child reads the prompt file via `@…` and starts work. Once it has a real branch name it calls `git-wt-now-rename <type>/<kebab-slug>`, which is applied when the child exits.
+
+### 5. Report and return
 
 Report to the user:
 
 ```
 Forked into tmux pane <new_pane>
-  Branch: <branch>
-  Path:   <worktree_path>
-  Base:   <base_ref> (fetched | local-fallback)
-Press Enter in that pane to launch the child claude.
+  Prompt: <prompt_file>
+  Placeholder branch will be created by git-wt-now after launch.
+Press Enter in that pane to launch git-wt-now.
 ```
 
 Then return to the main task in the parent conversation. Do not wait for the child.
 
 ## Child PROMPT Template
 
+Keep it tight. Forked tasks are usually small, and `git-wt-now` already tells the child its placeholder branch and the rename command — do not duplicate that.
+
 ```
 You are a forked Claude session, branched off another agent's main task.
-
-Worktree: <worktree_path>
-Branch:   <branch>
-Base:     <base_ref>
+You are running inside a git-wt-now placeholder worktree; the wrapper has
+already told you the placeholder branch and the rename command.
 
 Task:
 <one-paragraph description of what to do and why>
@@ -149,19 +119,16 @@ Context files to read first:
 - <abs path 1>
 - <abs path 2>
 
-Before starting work:
-1. If .gitmodules exists, run `git submodule update --init --recursive`.
-2. If package.json exists, invoke the nodejs-package-manager skill and install dependencies.
-3. Run `git status --short` and confirm it is empty (the worktree should start clean).
-
 Done when:
 <concrete, observable success criterion>
 
 When done:
 <push the branch, open a PR, or leave on the branch — be specific>
+Once the work is shaped, run `git-wt-now-rename <type>/<kebab-slug>` so the
+placeholder is renamed on exit.
 ```
 
-The parent constructs this from the in-flight task. Keep it short — the child will read its own files anyway. The pre-fill-without-Enter lets the human edit the prompt before launch; do not validate it server-side.
+The pre-fill-without-Enter lets the human edit the prompt before launch; do not validate it server-side.
 
 ## Tmux Unavailable
 
@@ -173,7 +140,7 @@ Print a copy-pasteable command and stop:
 Cannot fork — Claude is not inside a tmux pane.
 Run this in any terminal to launch the forked session manually:
 
-  cd <worktree_path> && claude "<PROMPT>"
+  git-wt-now "Execute: @<prompt_file>"
 ```
 
 Then return to the parent's main task.
@@ -184,7 +151,7 @@ Then return to the parent's main task.
 
 ## Related
 
-- Manual worktree creation by the human → `git wt <branch>` directly.
+- Manual worktree creation by the human → `git wt <branch>` directly, or `git-wt-now` for a placeholder + claude session.
 - Sweep merged worktrees → `git-wt-prune` (separate script, dry-run by default).
 - Synchronous subagent in an isolated worktree → use the Agent tool's `isolation: "worktree"` flag instead.
 
@@ -193,8 +160,9 @@ Then return to the parent's main task.
 - Forking when the task is the main thread, not a side detour.
 - Pressing Enter after pre-fill (or appending `Enter` to `tmux send-keys`) — bypasses the human-confirm step.
 - Hijacking an arbitrary tmux pane because pane detection failed — always use the fallback path instead.
-- Creating a second worktree for a branch that already has one (skip step 5).
-- Branching off the local base after a `git fetch` failure without warning the user.
+- Picking a topic branch name in the parent — that's `git-wt-now-rename`'s job after the work is shaped in the child.
+- Writing the prompt file outside `.agents/cache/` — it must be gitignored and reachable by absolute path.
+- Bloating the child prompt with context the child can derive itself.
 
 ## Quick Reference
 
@@ -202,11 +170,8 @@ Then return to the parent's main task.
 |------------------------------------------|----------------------------------------------------------------|
 | Side concern arises during main task     | Run this skill                                                 |
 | User asks for a separate claude session  | Run this skill                                                 |
-| Branch name unspecified                  | Derive `<type>/<kebab-slug>`; ask if intent unclear            |
-| Base branch unspecified                  | Try `gh` → `git symbolic-ref` → `main`/`master`                |
-| Fetch failed                             | Warn, fall back to local base                                  |
-| Same branch already has a worktree       | Reuse if clean; stop if dirty                                  |
-| Tmux pane detection empty                | Print copy-paste command, do NOT split a random pane           |
-| Want only the worktree, no fork          | Run `git wt <branch>` directly — this skill always forks       |
+| Branch name unknown / likely to shift    | Default — placeholder + rename via `git-wt-now-rename`         |
+| Tmux pane detection empty                | Print copy-paste `git-wt-now …`, do NOT split a random pane    |
+| Want only the worktree, no claude        | Run `git wt <branch>` directly                                 |
 | Synchronous subagent needed              | Use Agent tool `isolation: "worktree"` instead                 |
 | Sweep merged worktrees                   | Run `git-wt-prune` (separate CLI)                              |
