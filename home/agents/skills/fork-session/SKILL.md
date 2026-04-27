@@ -17,7 +17,7 @@ The parent does the things that need parent context: drafting the child's prompt
 
 The right `<type>/<kebab-slug>` often becomes clear only once the child has shaped the work — early naming tends to drift. This skill therefore launches into a `wt-now/<UTC-timestamp>` placeholder via `git-wt-now`, which:
 
-- Branches off the repository's default branch (with `git fetch` if reachable, local fallback otherwise).
+- Branches off the repository's default branch. After `git fetch`, it picks `origin/<default>` only when the local branch is an ancestor (i.e. origin is at least as new); otherwise it uses the local branch — so unpushed work on the default branch is included as the worktree's base. Divergence between local and origin emits a warning and falls back to local. When the fetch fails, the local branch is used as well.
 - Creates the worktree at `<repo>/.git/wt/wt-now/<UTC>` (always next to the main checkout, even when the parent invokes from another worktree).
 - After the child session exits, derives a final `<type>/<kebab-slug>` name from the worktree's commits and uncommitted diff via `codex exec`, then renames the branch and moves the worktree directory accordingly. Invalid output, no work to name, or codex failure leaves the placeholder in place for later cleanup (e.g. via `git-wt-prune`).
 

@@ -48,7 +48,19 @@ fi
 
 local base_ref="refs/heads/$base"
 if git fetch --quiet origin "$base" 2>/dev/null; then
-  base_ref="origin/$base"
+  local origin_ref="refs/remotes/origin/$base"
+  if git rev-parse --verify --quiet "$origin_ref" >/dev/null; then
+    # Prefer origin only when it is at least as new as local — i.e.
+    # local is an ancestor of origin. When local is strictly ahead,
+    # branching off origin would silently drop the user's unpushed
+    # work on the default branch. On divergence, prefer local and
+    # warn so the user notices.
+    if git merge-base --is-ancestor "$base_ref" "$origin_ref"; then
+      base_ref="$origin_ref"
+    elif ! git merge-base --is-ancestor "$origin_ref" "$base_ref"; then
+      echo "git-wt-now: local '$base' and 'origin/$base' have diverged; branching off local" >&2
+    fi
+  fi
 fi
 
 local placeholder="wt-now/$(date -u +%Y%m%d-%H%M%S)"
