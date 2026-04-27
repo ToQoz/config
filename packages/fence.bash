@@ -8,10 +8,10 @@
 # Resolves both paths at invocation time and layers them onto the requested
 # template. Works in plain checkouts too (the two paths collapse to .git).
 #
-# Usage: fence-wt [-t TEMPLATE] [-s EXTRA_SETTINGS] [-w PATH ...] -- <cmd>...
+# Usage: fence [-t TEMPLATE] [-s EXTRA_SETTINGS] [-w PATH ...] -- <cmd>...
 set -euo pipefail
 
-die() { echo "fence-wt: $*" >&2; exit 2; }
+die() { echo "fence: $*" >&2; exit 2; }
 need() { (($# >= 2)) || die "missing value for $1"; }
 
 template="code"

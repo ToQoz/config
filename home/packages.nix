@@ -64,7 +64,9 @@ in
     (callPackage ../packages/git-wt.nix { })
     (callPackage ../packages/tcmux.nix { })
     # fence  # re-enable once nixpkgs ships >= 0.1.48; see `fence-0_1_48` override in `let` block above
-    fence-0_1_48
+    # The wrapper at packages/fence.nix layers worktree-aware allowWrite paths
+    # onto the real binary so non-zsh callers (e.g. `sence`) get them too.
+    (callPackage ../packages/fence.nix { fence = fence-0_1_48; })
     slack
     (callPackage ../packages/portless.nix { })
     (callPackage ../packages/mo.nix { })

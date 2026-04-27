@@ -1,4 +1,4 @@
-// Verify scripts/fence-wt builds the expected fence config and forwards
+// Verify packages/fence.bash builds the expected fence config and forwards
 // the inner command intact. Uses a stub `fence` binary (via FENCE_BIN env)
 // that captures its --settings file and the arguments after `--`, so the
 // real fence sandbox is never invoked.
@@ -15,7 +15,7 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SCRIPT = `${REPO}/scripts/fence-wt`;
+const SCRIPT = `${REPO}/packages/fence.bash`;
 
 type StubResult = {
   status: number;
