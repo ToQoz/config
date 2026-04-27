@@ -3,21 +3,30 @@ emulate -L zsh
 # USAGE: git-wt-now [<claude args>...]
 #
 # Create a placeholder worktree (branch: wt-now/<UTC timestamp>) off the
-# repository's default branch, then launch claude inside it. The session
-# starts with a system-prompt note instructing claude to call
-# `git-wt-now-rename <new-branch-name>` once the work has a clear name.
-# When claude exits, this function reads the request and renames the
-# branch + moves the worktree directory accordingly. If no rename was
-# requested, the placeholder is left in place for later cleanup
+# repository's default branch, then launch claude inside it. Extra args
+# are forwarded to `claude`, so e.g. `git-wt-now "Execute: @path"` starts
+# the session with that string as claude's initial prompt — the pattern
+# used by the fork-session skill.
+#
+# The session starts with a system-prompt note instructing claude to
+# call `git-wt-now-rename <new-branch-name>` once the work has a clear
+# name. When claude exits, this function reads the request and renames
+# the branch + moves the worktree directory accordingly. If no rename
+# was requested, the placeholder is left in place for later cleanup
 # (e.g. via `git-wt-prune`).
+#
+# Safe to invoke from inside another worktree: repo_root is derived
+# from the common git dir, so the placeholder always lands at
+# <main-repo>/.git/wt/wt-now/<UTC>.
 
 local original_pwd="$PWD"
 
-local repo_root
-repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+local git_common_dir
+git_common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
   echo "git-wt-now: not inside a git working tree" >&2
   return 2
 }
+local repo_root="${git_common_dir:h}"
 
 # Base branch detection (mirrors scripts/git-wt-prune)
 local base=""
