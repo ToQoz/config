@@ -14,6 +14,7 @@
     ./git.nix
     ./neovim
     ./nix.nix
+    ./obsidian.nix
     ./packages.nix
     ./repo.nix
     ./scripts.nix
