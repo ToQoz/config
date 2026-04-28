@@ -30,25 +30,25 @@ Select a model in three steps: **family → depth → resolve**. If the user exp
 
 ### Step 3: Resolve to a model name
 
-Try candidates in order. On "model unavailable" errors, fall back to the next candidate.
+Available models (availability depends on account/plan — on "model unavailable" errors, fall back to the next candidate):
 
-| Slot | Candidates (try in order) |
+- `gpt-5.5`             — Frontier model for complex coding, research, and real-world work
+- `gpt-5.4`             — Strong model for everyday coding
+- `gpt-5.4-mini`        — Small, fast, and cost-efficient model for simpler coding tasks
+- `gpt-5.3-codex`       — Coding-optimized model
+- `gpt-5.3-codex-spark` — Ultra-fast coding model
+- `gpt-5.2`             — Optimized for professional work and long-running agents
+
+| Slot | Try in order |
 |---|---|
-| Fast (any family) | newest `*-codex-spark` → newest `*-codex-mini` → newest `*-codex` |
-| Deep code | newest `*-codex` |
-| Deep general | newest `gpt-5.x` (non-codex) |
-| Max code | newest `*-codex-max` → deep code fallback |
-| Max general | newest `gpt-5.x` (non-codex) |
+| Fast code | `gpt-5.3-codex-spark` → `gpt-5.4-mini` → `gpt-5.3-codex` |
+| Deep code | `gpt-5.3-codex` → `gpt-5.5` |
+| Max code | `gpt-5.5` → `gpt-5.3-codex` |
+| Fast general | `gpt-5.4-mini` → `gpt-5.4` |
+| Deep general | `gpt-5.4` → `gpt-5.5` |
+| Max general | `gpt-5.5` → `gpt-5.4` |
 
 If all candidates fail, omit `-m` entirely and let Codex CLI use its default.
-
-### Discovering available models
-
-Models embedded in the installed binary (hints, not guarantees — availability depends on account and plan):
-
-```bash
-strings $(which codex) 2>/dev/null | rg -oN 'gpt-[0-9a-z.-]+|o[0-9][a-z0-9.-]+' | sort -u
-```
 
 ## Consultation Mode
 
@@ -76,10 +76,10 @@ codex exec -m MODEL --sandbox read-only --ephemeral - < ./.agents/cache/ask-code
 
 ```bash
 # Fast code — codex-spark for a quick naming check
-codex exec -m gpt-5.1-codex-spark --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-naming-check.md
+codex exec -m gpt-5.3-codex-spark --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-naming-check.md
 
 # Deep code — full codex model for architecture review
-codex exec -m gpt-5.1-codex --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-arch-review.md
+codex exec -m gpt-5.3-codex --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-arch-review.md
 
 # General — non-code planning question
 codex exec -m gpt-5.4 --sandbox read-only --ephemeral - < ./.agents/cache/ask-codex/20260417-product-tradeoff.md
@@ -107,7 +107,7 @@ The `review` subcommand accepts the same `-m` flag for model selection. Note: `r
 
 ```bash
 # Fast review — codex-spark
-codex exec review -m gpt-5.1-codex-spark --uncommitted --ephemeral
+codex exec review -m gpt-5.3-codex-spark --uncommitted --ephemeral
 
 # Deep review — full codex model
 codex exec review --base main --ephemeral
