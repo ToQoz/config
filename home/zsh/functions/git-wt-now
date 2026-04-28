@@ -1,151 +1,20 @@
 emulate -L zsh
 
-# USAGE: git-wt-now [<claude args>...]
-#
-# Create a placeholder worktree (branch: wt-now/<UTC timestamp>) off the
-# repository's default branch, then launch claude inside it. Extra args
-# are forwarded to `claude`, so e.g. `git-wt-now "Execute: @path"` starts
-# the session with that string as claude's initial prompt — the pattern
-# used by the fork-session skill.
-#
-# When claude exits, derive a final branch name (<type>/<kebab-slug>)
-# from the worktree's commits and uncommitted changes via `codex exec`;
-# if the returned name is valid, rename the branch and move the worktree
-# directory accordingly. If there is no work to name, codex fails, or
-# the returned name is invalid, the placeholder is left in place for
-# later cleanup (e.g. via `git-wt-prune`).
-#
-# Safe to invoke from inside another worktree: repo_root is derived
-# from the common git dir, so the placeholder always lands at
-# <main-repo>/.git/wt/wt-now/<UTC>.
+# Thin zsh wrapper around scripts/git-wt-now so that bare `git-wt-now`
+# (no subcommand) cd's into the freshly-created worktree. Subcommands
+# (`rename`, `merge`, `-h`, …) are forwarded unchanged and run in $PWD.
 
-local original_pwd="$PWD"
-
-local git_common_dir
-git_common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || {
-  echo "git-wt-now: not inside a git working tree" >&2
-  return 2
-}
-local repo_root="${git_common_dir:h}"
-
-# Base branch detection (mirrors scripts/git-wt-prune)
-local base=""
-base=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null) || base=""
-if [[ -z "$base" ]]; then
-  base=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@') || base=""
-fi
-if [[ -z "$base" ]]; then
-  if git show-ref --verify --quiet refs/heads/main; then
-    base=main
-  elif git show-ref --verify --quiet refs/heads/master; then
-    base=master
-  fi
-fi
-if [[ -z "$base" ]]; then
-  echo "git-wt-now: could not determine base branch" >&2
-  return 2
+if [[ $# -gt 0 ]]; then
+  command git-wt-now "$@"
+  return $?
 fi
 
-local base_ref="refs/heads/$base"
-if git fetch --quiet origin "$base" 2>/dev/null; then
-  local origin_ref="refs/remotes/origin/$base"
-  if git rev-parse --verify --quiet "$origin_ref" >/dev/null; then
-    # Prefer origin only when it is at least as new as local — i.e.
-    # local is an ancestor of origin. When local is strictly ahead,
-    # branching off origin would silently drop the user's unpushed
-    # work on the default branch. On divergence, prefer local and
-    # warn so the user notices.
-    if git merge-base --is-ancestor "$base_ref" "$origin_ref"; then
-      base_ref="$origin_ref"
-    elif ! git merge-base --is-ancestor "$origin_ref" "$base_ref"; then
-      echo "git-wt-now: local '$base' and 'origin/$base' have diverged; branching off local" >&2
-    fi
-  fi
-fi
+local wt_path
+wt_path=$(command git-wt-now) || return $?
 
-local placeholder="wt-now/$(date -u +%Y%m%d-%H%M%S)"
-
-local worktree_path
-worktree_path=$(git wt --nocd "$placeholder" "$base_ref") || {
-  echo "git-wt-now: failed to create worktree for $placeholder" >&2
+[[ -d "$wt_path" ]] || {
+  echo "git-wt-now: created worktree path missing: $wt_path" >&2
   return 2
 }
 
-cd "$worktree_path"
-{
-  claude "$@"
-} always {
-  cd "$original_pwd"
-
-  if [[ ! -d "$worktree_path" ]]; then
-    return
-  fi
-
-  local commit_log committed_stat uncommitted_stat uncommitted_diff
-  commit_log=$(git -C "$worktree_path" log --format='%s' "$base_ref"..HEAD 2>/dev/null)
-  committed_stat=$(git -C "$worktree_path" diff "$base_ref"...HEAD --stat 2>/dev/null)
-  uncommitted_stat=$(git -C "$worktree_path" diff HEAD --stat 2>/dev/null)
-  uncommitted_diff=$(git -C "$worktree_path" diff HEAD 2>/dev/null | head -200)
-
-  if [[ -z "$commit_log" && -z "$committed_stat" && -z "$uncommitted_stat" ]]; then
-    echo "git-wt-now: no work to name; placeholder $placeholder left at $worktree_path" >&2
-    return
-  fi
-
-  if ! command -v codex >/dev/null 2>&1; then
-    echo "git-wt-now: codex CLI not found; placeholder $placeholder left at $worktree_path" >&2
-    return
-  fi
-
-  echo "git-wt-now: deriving branch name via codex exec…" >&2
-
-  local prompt="Decide a single git branch name for the work below.
-
-Format: <type>/<kebab-slug>
-- type ∈ {feat, fix, docs, chore, refactor, test, perf, style, ci, revert, build}
-- slug: lowercase letters and digits, hyphen-separated, 2–5 words, concise.
-
-Output exactly the branch name on a single line. No prose, no quotes, no code fence, no markdown.
-
-Commit subjects on this branch:
-$commit_log
-
-Committed diff stat:
-$committed_stat
-
-Uncommitted diff stat:
-$uncommitted_stat
-
-Uncommitted diff (truncated):
-$uncommitted_diff"
-
-  local tmpf
-  tmpf=$(mktemp -t git-wt-now-codex)
-  if ! print -r -- "$prompt" | codex exec --skip-git-repo-check --sandbox read-only -o "$tmpf" >/dev/null 2>&1; then
-    echo "git-wt-now: codex exec failed; placeholder $placeholder left at $worktree_path" >&2
-    rm -f "$tmpf"
-    return
-  fi
-
-  local desired
-  desired=$(sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/[`'"'"'"]//g' "$tmpf")
-  rm -f "$tmpf"
-
-  if ! [[ "$desired" =~ ^(feat|fix|docs|chore|refactor|test|perf|style|ci|revert|build)/[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
-    echo "git-wt-now: codex returned invalid name '$desired'; placeholder $placeholder left at $worktree_path" >&2
-    return
-  fi
-
-  local new_path="$repo_root/.git/wt/$desired"
-  mkdir -p "${new_path:h}"
-  if ! git -C "$repo_root" branch -m "$placeholder" "$desired" 2>&1; then
-    echo "git-wt-now: branch rename failed; placeholder $placeholder left in place" >&2
-    return
-  fi
-  if ! git -C "$repo_root" worktree move "$worktree_path" "$new_path" 2>&1; then
-    echo "git-wt-now: branch renamed to $desired but worktree move failed; path is still $worktree_path" >&2
-    return
-  fi
-  echo "git-wt-now: renamed $placeholder → $desired"
-  echo "git-wt-now: moved worktree to $new_path"
-}
+cd "$wt_path"
