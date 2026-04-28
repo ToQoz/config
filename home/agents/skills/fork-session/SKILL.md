@@ -15,13 +15,13 @@ The parent does the things that need parent context: drafting the child's prompt
 
 ## Why defer naming
 
-The right `<type>/<kebab-slug>` often becomes clear only once the child has shaped the work — early naming tends to drift. This skill therefore launches into a `wt-now/<UTC-timestamp>` placeholder via `git-wt-now`, which:
+The right `<type>/<kebab-slug>` often becomes clear only once the child has shaped the work — early naming tends to drift. This skill therefore launches into a `wt-now/<base>/<UTC-timestamp>` placeholder via `git-wt-now`, which:
 
 - Branches off the repository's default branch. After `git fetch`, it picks `origin/<default>` only when the local branch is an ancestor (i.e. origin is at least as new); otherwise it uses the local branch — so unpushed work on the default branch is included as the worktree's base. Divergence between local and origin emits a warning and falls back to local. When the fetch fails, the local branch is used as well.
-- Creates the worktree at `<repo>/.git/wt/wt-now/<UTC>` (always next to the main checkout, even when the parent invokes from another worktree).
-- After the child session exits, derives a final `<type>/<kebab-slug>` name from the worktree's commits and uncommitted diff via `codex exec`, then renames the branch and moves the worktree directory accordingly. Invalid output, no work to name, or codex failure leaves the placeholder in place for later cleanup (e.g. via `git-wt-prune`).
+- Creates the worktree at `<repo>/.git/wt/wt-now/<base>/<UTC>` (always next to the main checkout, even when the parent invokes from another worktree).
+- Records the base branch in `branch.<branch>.wtNowBase` so later `git-wt-now rename` / `git-wt-now merge` can recover it after the placeholder is renamed.
 
-The parent therefore does not pick a branch name, base, or fetch state — `git-wt-now` owns all of that. Naming happens automatically post-session, so the child does not need to think about it either.
+The parent therefore does not pick a branch name or base — `git-wt-now` owns both. The **child** is responsible for invoking `git-wt-now rename` once the work is shaped enough to name (typically right before exit), which derives `<type>/<kebab-slug>` via `codex exec` and renames the branch + moves the worktree directory accordingly. If the child skips rename, the placeholder is left in place for later cleanup.
 
 ## Why `.git/wt/`
 
@@ -59,7 +59,7 @@ mkdir -p "${prompt_file%/*}"
 # write $prompt_text to $prompt_file via the Write tool
 ```
 
-The file lives in the parent's worktree and is gitignored (`.agents/cache/` is covered by the user's global ignore). The child reads it via `@<absolute-path>` after `git-wt-now` launches claude — both worktrees share the filesystem so the absolute path works.
+The file lives in the parent's worktree and is gitignored (`.agents/cache/` is covered by the user's global ignore). The child reads it via `@<absolute-path>` after `claude` launches in the new worktree — both worktrees share the filesystem so the absolute path works.
 
 ### 3. Find the parent's tmux pane
 
@@ -83,12 +83,12 @@ If `my_pane` is empty, jump to the **Tmux Unavailable** fallback below.
 ```bash
 new_pane=$(tmux split-window -v -l 20 -t "$my_pane" -P -F '#{pane_id}')
 tmux send-keys -t "$new_pane" \
-  "git-wt-now $(printf %q "Execute: @${prompt_file}")"
+  "git-wt-now && claude $(printf %q "Execute: @${prompt_file}")"
 ```
 
 The command lands in the new pane's prompt **without Enter**. The user reads it, edits if needed, and presses Enter to launch. This is the safety valve — never bypass it by appending `Enter` to `send-keys`.
 
-`git-wt-now` creates the placeholder worktree, `cd`s into it, and launches `claude` with the rest of the args as the initial prompt. The child reads the prompt file via `@…` and starts work. When the child exits, `git-wt-now` invokes `codex exec` to derive the final branch name and renames the placeholder.
+`git-wt-now` (the zsh wrapper) creates the placeholder worktree and `cd`s the pane into it; `claude` then launches there with the prompt-file reference as its initial input. The child reads the prompt file via `@…` and starts work. The child is responsible for running `git-wt-now rename` before exit so the placeholder gets a meaningful name.
 
 ### 5. Report and return
 
@@ -98,21 +98,23 @@ Report to the user:
 Forked into tmux pane <new_pane>
   Prompt: <prompt_file>
   Placeholder branch will be created by git-wt-now after launch.
-  Final branch name will be chosen by codex exec when the child exits.
-Press Enter in that pane to launch git-wt-now.
+  Final branch name will be chosen by the child via `git-wt-now rename` before it exits.
+Press Enter in that pane to launch git-wt-now + claude.
 ```
 
 Then return to the main task in the parent conversation. Do not wait for the child.
 
 ## Child PROMPT Template
 
-Keep it tight. Forked tasks are usually small, and the placeholder branch / final name are handled by `git-wt-now` outside the child's responsibility — do not duplicate that.
+Keep it tight. Forked tasks are usually small, and the placeholder branch is created for you — do not pick or set a name yourself.
 
 ```
 You are a forked Claude session, branched off another agent's main task.
-You are running inside a git-wt-now placeholder worktree; the wrapper
-will derive the final branch name from your work via codex exec when
-this session exits, so you do not need to pick or set a branch name.
+You are running inside a git-wt-now placeholder worktree (branch named
+wt-now/<base>/<UTC>). Once the work is shaped enough to name, run
+`git-wt-now rename` from this worktree — it derives <type>/<kebab-slug>
+via codex exec from the committed work, then renames the branch and
+moves the worktree directory.
 
 Task:
 <one-paragraph description of what to do and why>
@@ -125,7 +127,9 @@ Done when:
 <concrete, observable success criterion>
 
 When done:
-<push the branch, open a PR, or leave on the branch — be specific>
+1. Commit your work.
+2. Run `git-wt-now rename` to give the placeholder a real name.
+3. <push the branch, open a PR, or leave on the branch — be specific>
 ```
 
 The pre-fill-without-Enter lets the human edit the prompt before launch; do not validate it server-side.
@@ -140,7 +144,7 @@ Print a copy-pasteable command and stop:
 Cannot fork — Claude is not inside a tmux pane.
 Run this in any terminal to launch the forked session manually:
 
-  git-wt-now "Execute: @<prompt_file>"
+  git-wt-now && claude "Execute: @<prompt_file>"
 ```
 
 Then return to the parent's main task.
@@ -151,7 +155,9 @@ Then return to the parent's main task.
 
 ## Related
 
-- Manual worktree creation by the human → `git wt <branch>` directly, or `git-wt-now` for a placeholder + claude session.
+- Manual worktree creation by the human → `git wt <branch>` directly, or `git-wt-now` for a placeholder.
+- Rename a placeholder after work is shaped → `git-wt-now rename` (codex-derived `<type>/<slug>`).
+- Merge a wt-now branch back into base → `git-wt-now merge` (personal repos only).
 - Sweep merged worktrees → `git-wt-prune` (separate script, dry-run by default).
 - Synchronous subagent in an isolated worktree → use the Agent tool's `isolation: "worktree"` flag instead.
 
@@ -160,19 +166,19 @@ Then return to the parent's main task.
 - Forking when the task is the main thread, not a side detour.
 - Pressing Enter after pre-fill (or appending `Enter` to `tmux send-keys`) — bypasses the human-confirm step.
 - Hijacking an arbitrary tmux pane because pane detection failed — always use the fallback path instead.
-- Picking a topic branch in the parent — `git-wt-now` owns naming via codex exec post-session.
+- Picking a topic branch in the parent — let the child run `git-wt-now rename` once work is shaped.
 - Bloating the child prompt with branch / path / base context the child can derive from cwd.
 
 ## Quick Reference
 
-| Situation                                | Action                                                         |
-|------------------------------------------|----------------------------------------------------------------|
-| Side concern arises during main task     | Run this skill                                                 |
-| User asks for a separate claude session  | Run this skill                                                 |
-| Branch name                              | Do not pick — `git-wt-now` derives it via codex exec on exit   |
-| Base branch                              | Do not pick — `git-wt-now` resolves the default branch         |
-| Tmux pane detection empty                | Print copy-paste command, do NOT split a random pane           |
-| Want only the worktree, no fork          | Run `git wt <branch>` directly — this skill always forks       |
-| Synchronous subagent needed              | Use Agent tool `isolation: "worktree"` instead                 |
-| Sweep merged worktrees                   | Run `git-wt-prune` (separate CLI)                              |
-| Codex returned an invalid name on exit   | Placeholder stays; rename manually or run `git-wt-prune`       |
+| Situation                                | Action                                                              |
+|------------------------------------------|---------------------------------------------------------------------|
+| Side concern arises during main task     | Run this skill                                                      |
+| User asks for a separate claude session  | Run this skill                                                      |
+| Branch name                              | Do not pick — child runs `git-wt-now rename` once work is shaped    |
+| Base branch                              | Do not pick — `git-wt-now` resolves the default branch              |
+| Tmux pane detection empty                | Print copy-paste command, do NOT split a random pane                |
+| Want only the worktree, no fork          | Run `git wt <branch>` directly — this skill always forks            |
+| Synchronous subagent needed              | Use Agent tool `isolation: "worktree"` instead                      |
+| Sweep merged worktrees                   | Run `git-wt-prune` (separate CLI)                                   |
+| Codex returned an invalid name on rename | `git-wt-now rename` aborts; child can retry or leave the placeholder|
