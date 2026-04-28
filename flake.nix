@@ -125,7 +125,52 @@
             # android-nixpkgs' hmModule references `pkgs.androidSdk`, which is
             # supplied by its overlay. Because `home-manager.useGlobalPkgs` is
             # true, the overlay must live at the nix-darwin `nixpkgs` level.
-            nixpkgs.overlays = [ android-nixpkgs.overlays.default ];
+            nixpkgs.overlays = [
+              android-nixpkgs.overlays.default
+              # Local workarounds for nixpkgs-unstable / darwin breakage
+              # encountered after a `nix flake update`. Two clusters:
+              #
+              # 1. The `pptx` skill pulls `python3Packages.markitdown`,
+              #    whose audio subgraph (pydub, speechrecognition,
+              #    openai-whisper, faster-whisper, av) trips a chain of
+              #    sandbox-killed test/import phases and a transitive
+              #    libcdio-paranoia compile error on darwin. The pptx
+              #    skill only ever uses markitdown for PPTX → markdown
+              #    conversion, so we strip the audio deps from
+              #    markitdown directly — that cuts the failing subtree
+              #    off at the root and avoids per-leaf overrides.
+              #    `ffmpeg-full → ffmpeg-headless` is kept as a belt
+              #    in case any other consumer in the closure pulls
+              #    ffmpeg-full (kvazaar / chromaprint / libcdio-paranoia
+              #    are not built into the headless variant).
+              #
+              # 2. `direnv`'s test/direnv-test.zsh hangs in the sandbox.
+              #
+              # `python3Packages` is re-aliased explicitly because the
+              # top-level alias in nixpkgs is frozen at the original
+              # `python3.pkgs` and does NOT track this overlay —
+              # consumers that reference `python3Packages.<pkg>` would
+              # otherwise silently fall back to the unpatched python.
+              (final: prev: {
+                ffmpeg-full = prev.ffmpeg-headless;
+                direnv = prev.direnv.overrideAttrs (_: { doCheck = false; });
+                python3 = prev.python3.override {
+                  packageOverrides = _: pyprev: {
+                    markitdown = pyprev.markitdown.overridePythonAttrs (old:
+                      let
+                        excluded = [ "pydub" "speechrecognition" "openai-whisper" "faster-whisper" "av" ];
+                        keep = p: !(builtins.elem (p.pname or p.name or "") excluded);
+                      in
+                      {
+                        propagatedBuildInputs = builtins.filter keep (old.propagatedBuildInputs or [ ]);
+                        dependencies = builtins.filter keep (old.dependencies or [ ]);
+                        doCheck = false;
+                      });
+                  };
+                };
+                python3Packages = final.python3.pkgs;
+              })
+            ];
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.sharedModules = [
