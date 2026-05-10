@@ -511,15 +511,45 @@ in
               }
             ];
           };
+          # OSC 777 toast for WezTerm. Inside tmux, wrap with the DCS
+          # passthrough so the escape sequence reaches the outer terminal
+          # instead of being consumed by tmux.
+          toastHook = messageScript: {
+            matcher = "";
+            hooks = [
+              {
+                type = "command";
+                command = ''
+                  input=$(cat)
+                  export CLAUDE_HOOK_INPUT="$input"
+                  msg=$( ${messageScript} )
+                  title="Claude Code"
+                  msg=$(printf '%s' "$msg" | ${pkgs.coreutils}/bin/tr -d '\000-\037' | ${pkgs.coreutils}/bin/tr ';' ',')
+                  if [ -n "''${TMUX:-}" ]; then
+                    printf '\033Ptmux;\033\033]777;notify;%s;%s\007\033\\' "$title" "$msg" >/dev/tty 2>/dev/null
+                  else
+                    printf '\033]777;notify;%s;%s\007' "$title" "$msg" >/dev/tty 2>/dev/null
+                  fi
+                  true
+                '';
+              }
+            ];
+          };
         in
         {
           CwdChanged = [ (sidebarHook "cwd-changed") ];
-          Notification = [ (sidebarHook "notification") ];
+          Notification = [
+            (sidebarHook "notification")
+            (toastHook ''printf '%s' "$CLAUDE_HOOK_INPUT" | ${pkgs.jq}/bin/jq -r '.message // "通知があります"' '')
+          ];
           PermissionDenied = [ (sidebarHook "permission-denied") ];
           PostToolUse = [ (sidebarHook "activity-log") ];
           SessionEnd = [ (sidebarHook "session-end") ];
           SessionStart = [ (sidebarHook "session-start") ];
-          Stop = [ (sidebarHook "stop") ];
+          Stop = [
+            (sidebarHook "stop")
+            (toastHook ''printf '%s' "応答が完了しました"'')
+          ];
           StopFailure = [ (sidebarHook "stop-failure") ];
           SubagentStart = [ (sidebarHook "subagent-start") ];
           SubagentStop = [ (sidebarHook "subagent-stop") ];
